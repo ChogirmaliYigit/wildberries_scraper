@@ -27,7 +27,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
-        db_table = "users"
+        db_table = "users_users"
 
 
 class Token(BaseModel):
