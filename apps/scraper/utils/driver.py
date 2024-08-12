@@ -1,6 +1,7 @@
 """
 web driver module
 """
+
 import time
 
 from selenium import webdriver

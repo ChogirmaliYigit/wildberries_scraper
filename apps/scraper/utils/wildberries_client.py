@@ -40,9 +40,11 @@ class WildberriesClient:
         for item in catalog_items:
             categories_objects.append(
                 Category(
-                    title=item.find_next("span").text
-                    if "<span" in str(item)
-                    else item.text,
+                    title=(
+                        item.find_next("span").text
+                        if "<span" in str(item)
+                        else item.text
+                    ),
                     source_id=int(item["data-menu-id"]),
                 )
             )
@@ -159,9 +161,11 @@ class WildberriesClient:
                 {
                     "source_id": int(options.find("span", {"id": "productNmId"}).text),
                     "image_links": [
-                        li.find_next("img")["src"]
-                        if li.find_next("img")
-                        else li.find_next("video")["src"]
+                        (
+                            li.find_next("img")["src"]
+                            if li.find_next("img")
+                            else li.find_next("video")["src"]
+                        )
                         for li in soup.find("ul", {"class": "swiper-wrapper"}).find_all(
                             "li", {"class": {"swiper-slide slide j-product-photo"}}
                         )
