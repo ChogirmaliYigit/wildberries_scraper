@@ -50,8 +50,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "drf_yasg",
+    "django_filters",
+    "django_apscheduler",
     "core",
     "users",
+    "scraper",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -149,3 +154,38 @@ UNFOLD = {
     "show_search": True,
     "show_all_applications": True,
 }
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    },
+    "LOGOUT_URL": None,
+    "LOGIN_URL": None,
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "users.utils.CustomTokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+    ],
+    "TOKEN_MODEL": "users.models.Token",
+    "TOKEN_SERIALIZER": "users.serializers.TokenSerializer",
+}
+
+BACKEND_DOMAIN = env.str("BACKEND_DOMAIN", "http://127.0.0.1:8000")
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+WILDBERRIES_BASE_SCRAPE_URL = env.str("WILDBERRIES_BASE_SCRAPE_URL")
+
+EMAIL_HOST = env.str("EMAIL_HOST")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", False)
+EMAIL_PORT = env.str("EMAIL_PORT", 465)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", True)
+EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
