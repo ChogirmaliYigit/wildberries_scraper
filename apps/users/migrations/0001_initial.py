@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "db_table": "users",
+                "db_table": "users_users",
             },
         ),
         migrations.CreateModel(
