@@ -44,8 +44,6 @@ class UserAdmin(ModelAdmin):
         "id",
     )
 
-    list_filter_submit = True
-
 
 @admin.register(Token)
 class TokenAdmin(ModelAdmin):

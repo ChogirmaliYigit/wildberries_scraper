@@ -17,6 +17,7 @@ from users.utils import send_otp, sign_in_response
 
 class SignUpView(views.APIView):
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
     serializer_class = SignUpSerializer
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
@@ -30,6 +31,7 @@ class SignUpView(views.APIView):
 
 class SignInView(views.APIView):
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
     serializer_class = SignInSerializer
 
     @utils.swagger_auto_schema(
@@ -110,7 +112,9 @@ class ForgotPasswordView(views.APIView):
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
     def post(self, request):
-        serializer = self.serializer_class(request.data, context={"request": request})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response({}, status.HTTP_200_OK)
@@ -121,7 +125,7 @@ class SendForgotPasswordOTPView(views.APIView):
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
     def post(self, request):
-        serializer = self.serializer_class(request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         send_otp(serializer.save(), OTPTypes.FORGOT_PASSWORD)
         return response.Response({}, status.HTTP_200_OK)
@@ -132,7 +136,9 @@ class VerifyForgotPasswordOTPView(views.APIView):
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
     def post(self, request):
-        serializer = self.serializer_class(request.data, context={"request": request})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response({}, status.HTTP_200_OK)

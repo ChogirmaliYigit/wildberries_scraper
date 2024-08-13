@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 from rest_framework import exceptions, serializers
 from users.models import OTPTypes, Token, User, UserOTP
 
@@ -51,7 +52,11 @@ class SignInSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["profile_photo"] = f"{settings.BACKEND_DOMAIN}{data.get('profile_photo')}"
+        data["profile_photo"] = (
+            f"{settings.BACKEND_DOMAIN}{data.get('profile_photo')}"
+            if data.get("profile_phot")
+            else ""
+        )
         return data
 
     class Meta:
@@ -102,7 +107,7 @@ class TokenSerializer(serializers.ModelSerializer):
 class ForgotPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
     re_password = serializers.CharField(required=True)
-    code = serializers.ChoiceField(choices=OTPTypes.choices)
+    code = serializers.CharField()
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -117,7 +122,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
         ).first()
         if not otp_code:
             raise exceptions.ValidationError({"message": "Wrong OTP"})
-        request.user.set_password(password)
+        request.user.password = make_password(password)
+        request.user.save(update_fields=["password"])
         otp_code.delete()
         return request.user
 
