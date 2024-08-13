@@ -14,3 +14,7 @@ pillow==10.4.0
 mysqlclient==2.2.4
 gunicorn==23.0.0
 django-import-export==4.1.1
+redis==5.0.8
+django-redis==5.4.0
+Scrapy==2.11.2
+celery==5.4.0
