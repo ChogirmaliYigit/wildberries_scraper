@@ -1,13 +1,16 @@
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi, utils
 from rest_framework import permissions, response, status, views
-from users.models import User
+from users.models import OTPTypes, Token, User
 from users.serializers import (
     ConfirmationSerializer,
+    ForgotPasswordSerializer,
+    SendForgotPasswordOTPSerializer,
     SignInResponseSerializer,
     SignInSerializer,
     SignUpSerializer,
     UserSerializer,
+    VerifyForgotPasswordOTPSerializer,
 )
 from users.utils import send_otp, sign_in_response
 
@@ -21,7 +24,7 @@ class SignUpView(views.APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        send_otp(user)
+        send_otp(user, OTPTypes.REGISTER)
         return response.Response({}, status.HTTP_200_OK)
 
 
@@ -29,15 +32,26 @@ class SignInView(views.APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = SignInSerializer
 
-    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
+    @utils.swagger_auto_schema(
+        request_body=serializer_class, responses={200: SignInResponseSerializer()}
+    )
     def post(self, request):
         serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
-        send_otp(user)
-        return response.Response({}, status.HTTP_200_OK)
+        return response.Response(sign_in_response(user), status.HTTP_200_OK)
+
+
+class SignOutView(views.APIView):
+    token_class = Token
+
+    def delete(self, request):
+        self.token_class.objects.filter(
+            user=request.user, key=request.auth.key
+        ).delete()
+        return response.Response({}, status.HTTP_204_NO_CONTENT)
 
 
 class ConfirmationView(views.APIView):
@@ -88,4 +102,37 @@ class UserDetailView(views.APIView):
     def delete(self, request):
         user = get_object_or_404(User, pk=request.user.pk)
         user.delete()
+        return response.Response({}, status.HTTP_200_OK)
+
+
+class ForgotPasswordView(views.APIView):
+    serializer_class = ForgotPasswordSerializer
+
+    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
+    def post(self, request):
+        serializer = self.serializer_class(request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response({}, status.HTTP_200_OK)
+
+
+class SendForgotPasswordOTPView(views.APIView):
+    serializer_class = SendForgotPasswordOTPSerializer
+
+    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
+    def post(self, request):
+        serializer = self.serializer_class(request.data)
+        serializer.is_valid(raise_exception=True)
+        send_otp(serializer.save(), OTPTypes.FORGOT_PASSWORD)
+        return response.Response({}, status.HTTP_200_OK)
+
+
+class VerifyForgotPasswordOTPView(views.APIView):
+    serializer_class = VerifyForgotPasswordOTPSerializer
+
+    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
+    def post(self, request):
+        serializer = self.serializer_class(request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return response.Response({}, status.HTTP_200_OK)

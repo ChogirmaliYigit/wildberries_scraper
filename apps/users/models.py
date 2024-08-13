@@ -1,6 +1,7 @@
 import binascii
 import os
 from datetime import timedelta
+from typing import Literal
 
 from core.models import BaseModel
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -50,6 +51,14 @@ class Token(BaseModel):
         db_table = "user_tokens"
 
 
+class OTPTypes(models.TextChoices):
+    REGISTER = "register", "Register"
+    FORGOT_PASSWORD = "forgot_password", "Forgot password"
+
+
 class UserOTP(BaseModel):
     user: User = models.ForeignKey(User, on_delete=models.CASCADE)
     code: str = models.CharField(max_length=10)
+    type: Literal[OTPTypes.REGISTER, OTPTypes.FORGOT_PASSWORD] = models.CharField(
+        max_length=20, choices=OTPTypes.choices, default=OTPTypes.REGISTER
+    )
