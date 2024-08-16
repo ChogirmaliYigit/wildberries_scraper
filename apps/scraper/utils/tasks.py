@@ -16,13 +16,13 @@ def delete_old_job_executions(max_age=604_800):
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
 
 
-def scrape_top_level_categories():
-    wildberries.get_top_level_categories_list()
+def scrape_categories():
+    wildberries.get_categories()
 
 
-def scrape_sub_categories_by_parent():
-    wildberries.get_sub_categories_by_parent()
+def scrape_products():
+    wildberries.get_products()
 
 
-def scrape_products_list_by_category():
-    wildberries.get_products_list_by_category()
+def scrape_product_comments():
+    wildberries.get_product_comments()

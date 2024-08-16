@@ -7,6 +7,7 @@ from scraper.models import (
     Product,
     ProductVariant,
     ProductVariantImage,
+    CommentFiles,
 )
 from unfold.admin import ModelAdmin, TabularInline
 
@@ -32,6 +33,7 @@ class CategoryAdmin(ModelAdmin):
         "image_link",
         "source_id",
         "slug_name",
+        "shard",
     )
     search_fields = (
         "title",
@@ -39,9 +41,15 @@ class CategoryAdmin(ModelAdmin):
         "image_link",
         "id",
         "slug_name",
+        "shard",
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
+    actions = ["clear_source_ids",]
+
+    def clear_source_ids(self, request, queryset):
+        Category.objects.filter(source_id=0).update(source_id=None)
+        self.message_user(request, "Category source ids cleared")
 
     def formfield_for_foreignkey(
         self, db_field: ForeignKey, request: HttpRequest, **kwargs
@@ -69,11 +77,13 @@ class ProductAdmin(ModelAdmin):
     list_display = (
         "title",
         "category",
+        "root",
     )
     fields = list_display
     search_fields = fields + ("id",)
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
+    show_facets = True
 
 
 class ProductVariantImagesInline(TabularInline):
@@ -92,6 +102,18 @@ class ProductVariantAdmin(ModelAdmin):
     )
     fields = list_display
     search_fields = fields + ("id",)
+    inlines = [ProductVariantImagesInline]
+    actions = ["clear_source_ids", ]
+
+    def clear_source_ids(self, request, queryset):
+        ProductVariant.objects.filter(source_id=0).update(source_id=None)
+        self.message_user(request, "Product variant source ids cleared")
+
+
+class CommentFilesInline(TabularInline):
+    model = CommentFiles
+    fields = ("file_link",)
+    extra = 1
 
 
 @admin.register(Comment)
@@ -101,9 +123,14 @@ class CommentAdmin(ModelAdmin):
         "product",
         "content",
         "rating",
-        "source_id",
         "status",
     )
-    fields = list_display
+    fields = list_display + ("wb_user", "reply_to", "file", "source_id",)
     search_fields = fields + ("id",)
     list_filter = ("status",)
+    inlines = [CommentFilesInline]
+    actions = ["clear_source_ids", ]
+
+    def clear_source_ids(self, request, queryset):
+        Comment.objects.filter(source_id=0).update(source_id=None)
+        self.message_user(request, "Comment source ids cleared")

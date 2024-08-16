@@ -5,12 +5,11 @@ from users.models import OTPTypes, Token, User
 from users.serializers import (
     ConfirmationSerializer,
     ForgotPasswordSerializer,
-    SendForgotPasswordOTPSerializer,
+    SendOTPSerializer,
     SignInResponseSerializer,
     SignInSerializer,
     SignUpSerializer,
     UserSerializer,
-    VerifyForgotPasswordOTPSerializer,
 )
 from users.utils import send_otp, sign_in_response
 
@@ -26,6 +25,19 @@ class SignUpView(views.APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         send_otp(user, OTPTypes.REGISTER)
+        return response.Response({}, status.HTTP_200_OK)
+
+
+class ResendCodeView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+    serializer_class = SendOTPSerializer
+
+    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        send_otp(serializer.save(), OTPTypes.REGISTER)
         return response.Response({}, status.HTTP_200_OK)
 
 
@@ -108,6 +120,8 @@ class UserDetailView(views.APIView):
 
 
 class ForgotPasswordView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
     serializer_class = ForgotPasswordSerializer
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
@@ -121,24 +135,13 @@ class ForgotPasswordView(views.APIView):
 
 
 class SendForgotPasswordOTPView(views.APIView):
-    serializer_class = SendForgotPasswordOTPSerializer
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+    serializer_class = SendOTPSerializer
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         send_otp(serializer.save(), OTPTypes.FORGOT_PASSWORD)
-        return response.Response({}, status.HTTP_200_OK)
-
-
-class VerifyForgotPasswordOTPView(views.APIView):
-    serializer_class = VerifyForgotPasswordOTPSerializer
-
-    @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
-    def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
         return response.Response({}, status.HTTP_200_OK)

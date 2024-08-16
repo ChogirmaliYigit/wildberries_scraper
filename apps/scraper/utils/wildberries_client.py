@@ -1,8 +1,11 @@
+import json
+
+from datetime import timedelta, datetime, timezone
+from dateutil.parser import parse, ParserError
 from bs4 import BeautifulSoup
 from django.db.models import Count
-from django.utils.text import slugify
-from scraper.models import Category, Product, ProductVariant, ProductVariantImage
-from unidecode import unidecode
+from scraper.models import Category, Product, ProductVariant, ProductVariantImage, Comment, CommentStatuses, \
+    CommentFiles
 
 from .driver import WebDriver
 
@@ -10,186 +13,155 @@ from .driver import WebDriver
 class WildberriesClient:
     def __init__(self, base_url: str):
         self.base_url = base_url
+        self.driver = WebDriver
 
     def get_soup(self, url: str = None) -> BeautifulSoup:
         """
         returns soup of elements
         """
 
-        web_driver = WebDriver(url or self.base_url)
+        web_driver = self.driver(url or self.base_url)
         html_content = web_driver.get_html_content()
 
         soup = BeautifulSoup(html_content, "html.parser")
         return soup
 
-    def get_top_level_categories_list(self):
-        """
-        Top level categories list scraper
-        """
-        soup = self.get_soup()
+    def get_categories(self):
+        soup = self.get_soup("https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json")
+        data = json.loads(soup.find("pre").text) if soup.find("pre") else []
+        self.save_categories_by_json(data)
 
-        catalog_div = soup.find(
-            "div", {"class": "menu-burger__main j-menu-burger-main"}
-        )
-        catalog_ul = catalog_div.find("ul", {"class": "menu-burger__main-list"})
-
-        catalog_items = catalog_ul.find_all(
-            "li", {"class": "menu-burger__main-list-item j-menu-main-item"}
-        )
-        categories_objects = []
-        for item in catalog_items:
-            categories_objects.append(
-                Category(
-                    title=(
-                        item.find_next("span").text
-                        if "<span" in str(item)
-                        else item.text
-                    ),
-                    source_id=int(item["data-menu-id"]),
+    def save_categories_by_json(self, data: list) -> None:
+        cat_objects = []
+        for cat in data:
+            category = Category(
+                source_id=cat.get("id"),
+                title=cat.get("name"),
+                slug_name=cat.get("url"),
+                shard=cat.get("shard"),
+                parent=None,
+            )
+            cat_objects.append(category)
+            parent_source_id = cat.get("parent")
+            if parent_source_id and str(parent_source_id).isdigit():
+                parent = next(
+                    (c for c in cat_objects if c.source_id == int(parent_source_id)),
+                    None
                 )
-            )
-        Category.objects.bulk_create(categories_objects, ignore_conflicts=True)
+                if not parent:
+                    parent = Category.objects.filter(source_id=int(parent_source_id)).first()
+                if parent:
+                    category.parent = parent
+            try:
+                category.save()
+            except Exception as exc:
+                print(f"Exception while saving category instance: {exc.__class__.__name__}: {exc}")
+            if cat.get("childs", []):
+                self.save_categories_by_json(cat.get("childs", []))
 
-    def get_sub_categories_by_parent(self):
-        """
-        Subcategories by parent scraper
-        """
-        categories = Category.objects.filter()
+    def get_products(self):
+        currency = "rub"
 
-        for category in categories:
-            slug = self.make_category_slug(category)
-            tag = (
-                "catalog/"
-                if category.slug_name != "promotions" or "catalog" not in slug
-                else ""
-            )
-            url = f"{self.base_url}/{tag}{slug}"
-            soup = self.get_soup(url)
-
-            content = soup.find("div", {"class": "promo-category-page__content"})
-            if not content:
-                print(category.title, "--", url)
-                return
-            cards = content.find_all(
-                "a", {"class": "list-category__item j-list-category-item"}
-            )
-            subcategory_objects = []
-            for card in cards:
-                subcategory_objects.append(
-                    Category(
-                        title=card.find("span", {"class": "list-category__title"}).text,
-                        image_link=card.find("img")["src"],
-                        source_id=0,
-                        parent=category,
-                        slug_name=card["href"],
-                    )
-                )
-            Category.objects.bulk_create(subcategory_objects, ignore_conflicts=True)
-
-    def get_products_list_by_category(self):
-        """
-        Products list scrapper
-        """
         categories = Category.objects.annotate(
             num_sub_categories=Count("sub_categories")
         ).filter(num_sub_categories=0)
-        product_variant_source_ids = ProductVariant.objects.values_list(
+        product_variant_source_ids = list(ProductVariant.objects.values_list(
             "source_id", flat=True
-        )
+        ))
 
         for category in categories:
-            slug = self.make_category_slug(category)
-            tag = (
-                ""
-                if category.slug_name == "promotions" or "catalog" in slug
-                else "/catalog/"
-            )
-            url = f"{self.base_url}{tag}{slug}"
+            url = (f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog?ab_testing=false&appType=1"
+                   f"&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0")
             soup = self.get_soup(url)
+            data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+            roots = {}
+            for p in data.get("data", {}).get("products", []):
+                root = roots.pop(str(p["root"]), [])
+                root.append(p)
+                roots[str(p["root"])] = root
 
-            product_card_list = soup.find("div", {"class": "product-card-list"})
-            if not product_card_list:
-                print(category.title, "--", url)
-                return
-            articles = product_card_list.find_all("article", {"class": "product-card"})
-            product_objects = []
-            for article in articles:
-                source_id = int(article.find_next("a")["href"].split("/")[-2])
-                if source_id in product_variant_source_ids:
-                    continue
-                product_detail = self.get_product_detail(article.find_next("a")["href"])
-                product = Product(category=category, title=product_detail["title"])
-                product_objects.append(product)
-                product_variant_objects = []
-                for variant in product_detail["variants"]:
-                    image_links = variant.pop("image_links")
-                    product_variant = ProductVariant(product=product, **variant)
-                    product_variant_objects.append(product_variant)
-                    product_variant_images = []
-                    for link in image_links:
-                        product_variant_images.append(
-                            ProductVariantImage(
-                                variant=product_variant, image_link=link
-                            )
-                        )
-                    ProductVariantImage.objects.bulk_create(
-                        product_variant_images, ignore_conflicts=True
+            for root, products in roots.items():
+                for product in products:
+                    source_id = product.get("id")
+                    if source_id in product_variant_source_ids:
+                        continue
+                    product_object, _ = Product.objects.get_or_create(
+                        title=product.get("name"),
+                        defaults={
+                            "category": category,
+                            "root": int(root),
+                        }
                     )
-                ProductVariant.objects.bulk_create(
-                    product_variant_objects, ignore_conflicts=True
-                )
-            Product.objects.bulk_create(product_objects, ignore_conflicts=True)
-
-    def get_product_detail(self, link: str) -> dict:
-        """
-        Get product detail based on its unique id
-        """
-
-        soup = self.get_soup(link)
-        product_page = soup.find("div", {"class": "product-page__header-wrap"})
-        variants = soup.find("div", {"class": "custom-slider__list"}).find_all(
-            "div", {"class": "custom-slider__item j-color"}
-        )
-        variants_data = []
-        for variant in variants:
-            soup = self.get_soup(variant.find_next("a", {"class": "img-plug"})["href"])
-            options = soup.find("div", {"class": "product-page__options"})
-            price = soup.find(
-                "ins", {"class": "price-block__final-price wallet"}
-            ) or soup.find("span", {"class": "sold-out-product__text"})
-            variants_data.append(
-                {
-                    "source_id": int(options.find("span", {"id": "productNmId"}).text),
-                    "image_links": [
-                        (
-                            li.find_next("img")["src"]
-                            if li.find_next("img")
-                            else li.find_next("video")["src"]
+                    for pv in product.get("sizes", []):
+                        product_variant, _ = ProductVariant.objects.get_or_create(
+                            product=product_object,
+                            source_id=product.get("id"),
+                            defaults={
+                                "price": f"{pv.get('price', {}).get('total', 0)} {currency}",
+                            }
                         )
-                        for li in soup.find("ul", {"class": "swiper-wrapper"}).find_all(
-                            "li", {"class": {"swiper-slide slide j-product-photo"}}
+                        variant_detail_soup = self.get_soup(
+                            f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx")
+                        product_variant_images = []
+                        if variant_detail_soup:
+                            swiper = variant_detail_soup.find("ul", {"class": "swiper-wrapper"})
+                            if swiper:
+                                swiper_lis = swiper.find_all("li", {"class": "swiper-slide slide"})
+                                if not swiper_lis:
+                                    swiper_lis = []
+                                for li in swiper_lis:
+                                    img = li.find_next("img")
+                                    if img and img["src"]:
+                                        product_variant_images.append(
+                                            ProductVariantImage(
+                                                variant=product_variant,
+                                                image_link=img["src"],
+                                            )
+                                        )
+                        ProductVariantImage.objects.bulk_create(product_variant_images, ignore_conflicts=True)
+
+    def get_product_comments(self):
+        """
+        Product comments list scraper
+        """
+
+        products = list(Product.objects.values("root", "id"))
+        roots = set()
+
+        for product in products:
+            root = product["root"]
+            if root in roots:
+                continue
+            roots.add(root)
+
+            url = f"https://feedbacks2.wb.ru/feedbacks/v1/{root}"
+            soup = self.get_soup(url)
+            data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+            feedbacks = data.get("feedbacks")
+            if not feedbacks:
+                continue
+
+            for comment in feedbacks:
+                created_date = comment.get("createdDate")
+                try:
+                    published_date = parse(created_date, yearfirst=True) if created_date else None
+                except ParserError:
+                    published_date = None
+                delta = datetime.now(timezone.utc) - timedelta(weeks=2)
+                if published_date and (published_date - delta).seconds > 0:
+                    comment_object, _ = Comment.objects.get_or_create(
+                        product_id=int(product["id"]),
+                        content=comment.get("text"),
+                        defaults={
+                            "rating": comment.get("productValuation", 0),
+                            "status": CommentStatuses.NOT_REVIEWED,
+                            "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
+                        }
+                    )
+                    for photo_id in comment.get("photo", []):
+                        photo_id = str(photo_id)
+                        link = f"https://feedback06.wbbasket.ru/vol{photo_id[:4]}/part{photo_id[:6]}/{photo_id}/photos/ms.webp"
+                        CommentFiles.objects.create(
+                            comment=comment_object,
+                            file_link=link,
                         )
-                    ],
-                    "color": soup.find("div", {"class": "color-name"})
-                    .find_next("span", {"class": "color"})
-                    .text,
-                    "price": price.text,
-                }
-            )
-        return {
-            "title": product_page.find("h1", {"class": "product-page__title"}).text,
-            "variants": variants,
-        }
-
-    def make_category_slug(self, category: Category, slug: str = "") -> str:
-        """
-        Make breadcrumb slug for category name
-        """
-
-        slug = f"{slug}{category.slug_name if category.slug_name else slugify(unidecode(category.title))}"
-        if category.parent and "catalog" not in slug:
-            self.make_category_slug(
-                category.parent,
-                f"{category.parent.slug_name if category.parent.slug_name else slugify(category.parent.title)}/",
-            )
-        return slug

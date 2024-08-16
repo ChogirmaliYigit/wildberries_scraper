@@ -54,7 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data["profile_photo"] = (
             f"{settings.BACKEND_DOMAIN}{data.get('profile_photo')}"
-            if data.get("profile_phot")
+            if data.get("profile_photo")
             else ""
         )
         return data
@@ -65,7 +65,11 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "full_name",
             "profile_photo",
+            "password",
         )
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
 
 
 class SignInResponseSerializer(serializers.Serializer):
@@ -108,27 +112,30 @@ class ForgotPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
     re_password = serializers.CharField(required=True)
     code = serializers.CharField()
+    email = serializers.EmailField(trim_whitespace=True)
 
     def create(self, validated_data):
-        request = self.context.get("request")
         password = validated_data.get("password", None)
         re_password = validated_data.get("re_password", None)
+        user = User.objects.filter(email=validated_data.get("email")).first()
+        if not user:
+            raise exceptions.ValidationError({"message": "User not exists"})
         if (not password or not re_password) or password != re_password:
             raise exceptions.ValidationError({"message": "Password didn't match"})
         otp_code = UserOTP.objects.filter(
-            user=request.user,
+            user=user,
             code=validated_data.get("code"),
             type=OTPTypes.FORGOT_PASSWORD,
-        ).first()
+        ).last()
         if not otp_code:
             raise exceptions.ValidationError({"message": "Wrong OTP"})
-        request.user.password = make_password(password)
-        request.user.save(update_fields=["password"])
+        user.password = make_password(password)
+        user.save(update_fields=["password"])
         otp_code.delete()
-        return request.user
+        return user
 
 
-class SendForgotPasswordOTPSerializer(serializers.Serializer):
+class SendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(trim_whitespace=True)
 
     def create(self, validated_data):
@@ -136,18 +143,3 @@ class SendForgotPasswordOTPSerializer(serializers.Serializer):
         if not user:
             raise exceptions.ValidationError({"message": "User not exists"})
         return user
-
-
-class VerifyForgotPasswordOTPSerializer(serializers.Serializer):
-    code = serializers.CharField()
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        otp_code = UserOTP.objects.filter(
-            user=request.user,
-            code=validated_data.get("code"),
-            type=OTPTypes.FORGOT_PASSWORD,
-        ).first()
-        if not otp_code:
-            raise exceptions.ValidationError({"message": "Wrong OTP"})
-        return request.user

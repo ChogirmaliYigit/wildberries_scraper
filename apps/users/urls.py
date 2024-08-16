@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 from users.views import (
     ConfirmationView,
     ForgotPasswordView,
@@ -7,31 +7,16 @@ from users.views import (
     SignOutView,
     SignUpView,
     UserDetailView,
-    VerifyForgotPasswordOTPView,
+    ResendCodeView,
 )
 
 urlpatterns = [
     path("login", SignInView.as_view(), name="user-sign-in"),
     path("register", SignUpView.as_view(), name="user-sign-up"),
+    path("resend-code", ResendCodeView.as_view(), name="resend-code"),
     path("logout", SignOutView.as_view(), name="user-logout"),
     path("confirmation", ConfirmationView.as_view(), name="otp-confirmation"),
     path("user", UserDetailView.as_view(), name="user-detail"),
-    path(
-        "reset-password/",
-        include(
-            [
-                path("", ForgotPasswordView.as_view(), name="forgot-password"),
-                path(
-                    "code",
-                    SendForgotPasswordOTPView.as_view(),
-                    name="send-forgot-password-otp",
-                ),
-                path(
-                    "verify",
-                    VerifyForgotPasswordOTPView.as_view(),
-                    name="verify-forgot-password-otp",
-                ),
-            ]
-        ),
-    ),
+    path("reset-password", ForgotPasswordView.as_view(), name="forgot-password"),
+    path("code", SendForgotPasswordOTPView.as_view(), name="send-forgot-password-otp"),
 ]

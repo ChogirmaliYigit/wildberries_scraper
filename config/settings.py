@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     "drf_yasg",
     "django_filters",
     "django_apscheduler",
-    "django_celery_beat",
     "core",
     "users",
     "scraper",
@@ -194,12 +193,4 @@ EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", True)
 EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
 
-REDIS_HOST = env.str("REDIS_HOST", "localhost")
-REDIS_PORT = env.int("REDIS_PORT", 6379)
-REDIS_DB = env.int("REDIS_DB", 0)
-
-REDIS_URL = env.str("REDIS_URL", "redis://redis:6379/0")
-CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", REDIS_URL)
-CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND", REDIS_URL)
-
-SCRAPY_SETTINGS_MODULE = "config.scrapy_settings"
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000

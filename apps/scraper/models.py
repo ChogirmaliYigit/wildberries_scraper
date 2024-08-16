@@ -14,8 +14,9 @@ class Category(BaseModel):
         related_name="sub_categories",
     )
     image_link: str = models.TextField(null=True, blank=True)
-    source_id: int = models.PositiveBigIntegerField()
-    slug_name: str = models.CharField(max_length=100, null=True, blank=True)
+    source_id: int = models.PositiveBigIntegerField(unique=True, null=True, blank=True)
+    slug_name: str = models.TextField(null=True, blank=True)
+    shard: str = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title
@@ -26,6 +27,11 @@ class Category(BaseModel):
                 fields=["title"],
                 condition=~Q(title=None),
                 name="unique_title_exclude_null_category",
+            ),
+            UniqueConstraint(
+                fields=["source_id"],
+                condition=~Q(source_id=None),
+                name="unique_source_id_exclude_null_category",
             )
         ]
 
@@ -39,6 +45,7 @@ class Product(BaseModel):
         blank=True,
         related_name="products",
     )
+    root: int = models.IntegerField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title
@@ -56,7 +63,7 @@ class Product(BaseModel):
 class ProductVariant(BaseModel):
     color: str = models.TextField(null=True, blank=True)
     price: str = models.TextField(null=True, blank=True)
-    source_id: int = models.PositiveBigIntegerField()
+    source_id: int = models.PositiveBigIntegerField(unique=True, null=True, blank=True)
     product: Product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -67,6 +74,15 @@ class ProductVariant(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.product.title} ({self.color}) - {self.price}"
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["source_id"],
+                condition=~Q(source_id=None),
+                name="unique_source_id_exclude_null_product_variant",
+            )
+        ]
 
 
 class ProductVariantImage(BaseModel):
@@ -97,7 +113,7 @@ class Comment(BaseModel):
         blank=True,
         related_name="product_comments",
     )
-    source_id: int = models.PositiveBigIntegerField()
+    source_id: int = models.PositiveBigIntegerField(unique=True, null=True, blank=True)
     content: str = models.TextField(null=True, blank=True)
     rating: int = models.IntegerField()
     status: str = models.CharField(
@@ -112,12 +128,28 @@ class Comment(BaseModel):
         blank=True,
         related_name="user_comments",
     )
+    wb_user: str = models.TextField(null=True, blank=True)
     reply_to: "Comment" = models.ForeignKey(
         "self", on_delete=models.CASCADE, related_name="replies", null=True, blank=True
     )
+    file = models.FileField(upload_to="comments/files/", null=True, blank=True)
 
     def __str__(self) -> str:
         return self.content
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["source_id"],
+                condition=~Q(source_id=None),
+                name="unique_source_id_exclude_null_comment",
+            )
+        ]
+
+
+class CommentFiles(BaseModel):
+    comment: Comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="files")
+    file_link: str = models.TextField(null=True, blank=True)
 
 
 class Favorite(BaseModel):
