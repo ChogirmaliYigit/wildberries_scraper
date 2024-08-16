@@ -32,7 +32,7 @@ class Category(BaseModel):
                 fields=["source_id"],
                 condition=~Q(source_id=None),
                 name="unique_source_id_exclude_null_category",
-            )
+            ),
         ]
 
 
@@ -148,7 +148,9 @@ class Comment(BaseModel):
 
 
 class CommentFiles(BaseModel):
-    comment: Comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="files")
+    comment: Comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name="files"
+    )
     file_link: str = models.TextField(null=True, blank=True)
 
 

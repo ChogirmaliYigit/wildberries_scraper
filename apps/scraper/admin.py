@@ -4,10 +4,10 @@ from django.http import HttpRequest
 from scraper.models import (
     Category,
     Comment,
+    CommentFiles,
     Product,
     ProductVariant,
     ProductVariantImage,
-    CommentFiles,
 )
 from unfold.admin import ModelAdmin, TabularInline
 
@@ -45,7 +45,9 @@ class CategoryAdmin(ModelAdmin):
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
-    actions = ["clear_source_ids",]
+    actions = [
+        "clear_source_ids",
+    ]
 
     def clear_source_ids(self, request, queryset):
         Category.objects.filter(source_id=0).update(source_id=None)
@@ -103,7 +105,9 @@ class ProductVariantAdmin(ModelAdmin):
     fields = list_display
     search_fields = fields + ("id",)
     inlines = [ProductVariantImagesInline]
-    actions = ["clear_source_ids", ]
+    actions = [
+        "clear_source_ids",
+    ]
 
     def clear_source_ids(self, request, queryset):
         ProductVariant.objects.filter(source_id=0).update(source_id=None)
@@ -125,11 +129,18 @@ class CommentAdmin(ModelAdmin):
         "rating",
         "status",
     )
-    fields = list_display + ("wb_user", "reply_to", "file", "source_id",)
+    fields = list_display + (
+        "wb_user",
+        "reply_to",
+        "file",
+        "source_id",
+    )
     search_fields = fields + ("id",)
     list_filter = ("status",)
     inlines = [CommentFilesInline]
-    actions = ["clear_source_ids", ]
+    actions = [
+        "clear_source_ids",
+    ]
 
     def clear_source_ids(self, request, queryset):
         Comment.objects.filter(source_id=0).update(source_id=None)

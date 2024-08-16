@@ -2,12 +2,12 @@ from django.urls import path
 from users.views import (
     ConfirmationView,
     ForgotPasswordView,
+    ResendCodeView,
     SendForgotPasswordOTPView,
     SignInView,
     SignOutView,
     SignUpView,
     UserDetailView,
-    ResendCodeView,
 )
 
 urlpatterns = [

@@ -26,7 +26,9 @@ class ProductsListView(generics.ListAPIView):
 
 
 class CommentsListView(generics.ListCreateAPIView):
-    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
+    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
+        status=CommentStatuses.ACCEPTED, reply_to__isnull=False
+    )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -40,7 +42,9 @@ class CommentsListView(generics.ListCreateAPIView):
 
 
 class FeedbacksListView(CommentsListView):
-    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
+    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
+        reply_to__isnull=True, status=CommentStatuses.ACCEPTED
+    )
 
 
 class FavoritesListView(generics.ListCreateAPIView):
@@ -55,4 +59,6 @@ class FavoritesListView(generics.ListCreateAPIView):
         return context
 
     def get_queryset(self):
-        return Favorite.objects.prefetch_related("product", "user").filter(user=self.request.user)
+        return Favorite.objects.prefetch_related("product", "user").filter(
+            user=self.request.user
+        )

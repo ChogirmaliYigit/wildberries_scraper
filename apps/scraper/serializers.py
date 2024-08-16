@@ -1,6 +1,13 @@
 from django.conf import settings
-from rest_framework import serializers, exceptions
-from scraper.models import Category, Comment, CommentStatuses, Favorite, Product, ProductVariant
+from rest_framework import exceptions, serializers
+from scraper.models import (
+    Category,
+    Comment,
+    CommentStatuses,
+    Favorite,
+    Product,
+    ProductVariant,
+)
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -27,7 +34,9 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
 
     def get_images(self, variant):
-        return [pv.image_link for pv in variant.images.prefetch_related("variant").all()]
+        return [
+            pv.image_link for pv in variant.images.prefetch_related("variant").all()
+        ]
 
     class Meta:
         model = ProductVariant
@@ -45,7 +54,9 @@ class ProductsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["variants"] = ProductVariantsSerializer(instance.variants.all(), many=True).data
+        data["variants"] = ProductVariantsSerializer(
+            instance.variants.all(), many=True
+        ).data
         data["category"] = instance.category.title
         return data
 
@@ -66,7 +77,10 @@ class CommentsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["replies"] = (
-            CommentsSerializer(instance.replies.prefetch_related("user", "reply_to", "product").all(), many=True).data
+            CommentsSerializer(
+                instance.replies.prefetch_related("user", "reply_to", "product").all(),
+                many=True,
+            ).data
             if instance.replies.prefetch_related("user", "reply_to", "product").all()
             else {}
         )
@@ -86,7 +100,11 @@ class CommentsSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         source_id = validated_data.pop("source_id", None)
         validated_data["status"] = CommentStatuses.NOT_REVIEWED
-        product = Product.objects.prefetch_related("category").filter(source_id=source_id).first()
+        product = (
+            Product.objects.prefetch_related("category")
+            .filter(source_id=source_id)
+            .first()
+        )
         if source_id and product:
             validated_data["product"] = product
         validated_data["user"] = request.user
@@ -112,7 +130,11 @@ class FavoritesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        product = Product.objects.prefetch_related("category").filter(id=validated_data.get("product_id")).first()
+        product = (
+            Product.objects.prefetch_related("category")
+            .filter(id=validated_data.get("product_id"))
+            .first()
+        )
         if not product:
             raise exceptions.ValidationError({"message": "Product not found"})
         favorite = Favorite.objects.create(user=request.user, product=product)

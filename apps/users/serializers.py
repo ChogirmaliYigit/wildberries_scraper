@@ -67,9 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
             "profile_photo",
             "password",
         )
-        extra_kwargs = {
-            "password": {"write_only": True}
-        }
+        extra_kwargs = {"password": {"write_only": True}}
 
 
 class SignInResponseSerializer(serializers.Serializer):

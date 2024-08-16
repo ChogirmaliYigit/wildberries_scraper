@@ -24,23 +24,15 @@ class Command(BaseCommand):
         scheduler.add_jobstore(DjangoJobStore(), "default")
 
         if scraper_type == "all":
-            scheduler.add_job(
-                tasks.scrape_categories, trigger="interval", seconds=5
-            )
-            scheduler.add_job(
-                tasks.scrape_products, trigger="interval", seconds=5
-            )
+            scheduler.add_job(tasks.scrape_categories, trigger="interval", seconds=5)
+            scheduler.add_job(tasks.scrape_products, trigger="interval", seconds=5)
             scheduler.add_job(
                 tasks.scrape_product_comments, trigger="interval", seconds=5
             )
         elif scraper_type == "category":
-            scheduler.add_job(
-                tasks.scrape_categories, trigger="interval", seconds=5
-            )
+            scheduler.add_job(tasks.scrape_categories, trigger="interval", seconds=5)
         elif scraper_type == "product":
-            scheduler.add_job(
-                tasks.scrape_products, trigger="interval", minutes=1
-            )
+            scheduler.add_job(tasks.scrape_products, trigger="interval", minutes=1)
         elif scraper_type == "comment":
             scheduler.add_job(
                 tasks.scrape_product_comments, trigger="interval", seconds=5

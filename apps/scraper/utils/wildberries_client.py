@@ -1,11 +1,18 @@
 import json
+from datetime import datetime, timedelta, timezone
 
-from datetime import timedelta, datetime, timezone
-from dateutil.parser import parse, ParserError
 from bs4 import BeautifulSoup
+from dateutil.parser import ParserError, parse
 from django.db.models import Count
-from scraper.models import Category, Product, ProductVariant, ProductVariantImage, Comment, CommentStatuses, \
-    CommentFiles
+from scraper.models import (
+    Category,
+    Comment,
+    CommentFiles,
+    CommentStatuses,
+    Product,
+    ProductVariant,
+    ProductVariantImage,
+)
 
 from .driver import WebDriver
 
@@ -27,7 +34,9 @@ class WildberriesClient:
         return soup
 
     def get_categories(self):
-        soup = self.get_soup("https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json")
+        soup = self.get_soup(
+            "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
+        )
         data = json.loads(soup.find("pre").text) if soup.find("pre") else []
         self.save_categories_by_json(data)
 
@@ -46,16 +55,20 @@ class WildberriesClient:
             if parent_source_id and str(parent_source_id).isdigit():
                 parent = next(
                     (c for c in cat_objects if c.source_id == int(parent_source_id)),
-                    None
+                    None,
                 )
                 if not parent:
-                    parent = Category.objects.filter(source_id=int(parent_source_id)).first()
+                    parent = Category.objects.filter(
+                        source_id=int(parent_source_id)
+                    ).first()
                 if parent:
                     category.parent = parent
             try:
                 category.save()
             except Exception as exc:
-                print(f"Exception while saving category instance: {exc.__class__.__name__}: {exc}")
+                print(
+                    f"Exception while saving category instance: {exc.__class__.__name__}: {exc}"
+                )
             if cat.get("childs", []):
                 self.save_categories_by_json(cat.get("childs", []))
 
@@ -65,13 +78,15 @@ class WildberriesClient:
         categories = Category.objects.annotate(
             num_sub_categories=Count("sub_categories")
         ).filter(num_sub_categories=0)
-        product_variant_source_ids = list(ProductVariant.objects.values_list(
-            "source_id", flat=True
-        ))
+        product_variant_source_ids = list(
+            ProductVariant.objects.values_list("source_id", flat=True)
+        )
 
         for category in categories:
-            url = (f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog?ab_testing=false&appType=1"
-                   f"&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0")
+            url = (
+                f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog?ab_testing=false&appType=1"
+                f"&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0"
+            )
             soup = self.get_soup(url)
             data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
             roots = {}
@@ -90,7 +105,7 @@ class WildberriesClient:
                         defaults={
                             "category": category,
                             "root": int(root),
-                        }
+                        },
                     )
                     for pv in product.get("sizes", []):
                         product_variant, _ = ProductVariant.objects.get_or_create(
@@ -98,15 +113,20 @@ class WildberriesClient:
                             source_id=product.get("id"),
                             defaults={
                                 "price": f"{pv.get('price', {}).get('total', 0)} {currency}",
-                            }
+                            },
                         )
                         variant_detail_soup = self.get_soup(
-                            f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx")
+                            f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
+                        )
                         product_variant_images = []
                         if variant_detail_soup:
-                            swiper = variant_detail_soup.find("ul", {"class": "swiper-wrapper"})
+                            swiper = variant_detail_soup.find(
+                                "ul", {"class": "swiper-wrapper"}
+                            )
                             if swiper:
-                                swiper_lis = swiper.find_all("li", {"class": "swiper-slide slide"})
+                                swiper_lis = swiper.find_all(
+                                    "li", {"class": "swiper-slide slide"}
+                                )
                                 if not swiper_lis:
                                     swiper_lis = []
                                 for li in swiper_lis:
@@ -118,7 +138,9 @@ class WildberriesClient:
                                                 image_link=img["src"],
                                             )
                                         )
-                        ProductVariantImage.objects.bulk_create(product_variant_images, ignore_conflicts=True)
+                        ProductVariantImage.objects.bulk_create(
+                            product_variant_images, ignore_conflicts=True
+                        )
 
     def get_product_comments(self):
         """
@@ -144,7 +166,9 @@ class WildberriesClient:
             for comment in feedbacks:
                 created_date = comment.get("createdDate")
                 try:
-                    published_date = parse(created_date, yearfirst=True) if created_date else None
+                    published_date = (
+                        parse(created_date, yearfirst=True) if created_date else None
+                    )
                 except ParserError:
                     published_date = None
                 delta = datetime.now(timezone.utc) - timedelta(weeks=2)
@@ -156,7 +180,7 @@ class WildberriesClient:
                             "rating": comment.get("productValuation", 0),
                             "status": CommentStatuses.NOT_REVIEWED,
                             "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
-                        }
+                        },
                     )
                     for photo_id in comment.get("photo", []):
                         photo_id = str(photo_id)
