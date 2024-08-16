@@ -17,6 +17,10 @@ urlpatterns = [
     path("logout", SignOutView.as_view(), name="user-logout"),
     path("confirmation", ConfirmationView.as_view(), name="otp-confirmation"),
     path("user", UserDetailView.as_view(), name="user-detail"),
-    path("reset-password", ForgotPasswordView.as_view(), name="forgot-password"),
-    path("code", SendForgotPasswordOTPView.as_view(), name="send-forgot-password-otp"),
+    path("forgot-password", ForgotPasswordView.as_view(), name="forgot-password"),
+    path(
+        "forgot-password-code",
+        SendForgotPasswordOTPView.as_view(),
+        name="send-forgot-password-otp",
+    ),
 ]

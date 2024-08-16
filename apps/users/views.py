@@ -100,6 +100,9 @@ class UserDetailView(views.APIView):
                     type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL
                 ),
                 "profile_photo": openapi.Schema(type=openapi.TYPE_FILE),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING, format=openapi.FORMAT_PASSWORD
+                ),
             },
         ),
         responses={200: "{}"},
