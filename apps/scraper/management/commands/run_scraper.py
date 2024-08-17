@@ -1,5 +1,4 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.triggers.cron import CronTrigger
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django_apscheduler.jobstores import DjangoJobStore
@@ -16,33 +15,46 @@ class Command(BaseCommand):
             choices=["category", "product", "comment", "all"],
             help="Specify the type of scraper to run. Choices are 'category', 'product', 'comment' or 'all'.",
         )
+        parser.add_argument(
+            "interval",
+            type=int,
+            help="Specify the interval in seconds for running the scraper jobs.",
+        )
 
     def handle(self, *args, **options):
         scraper_type = options["scraper_type"]
+        interval = options["interval"]
 
         scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
         scheduler.add_jobstore(DjangoJobStore(), "default")
 
         if scraper_type == "all":
-            scheduler.add_job(tasks.scrape_categories, trigger="interval", seconds=5)
-            scheduler.add_job(tasks.scrape_products, trigger="interval", seconds=5)
             scheduler.add_job(
-                tasks.scrape_product_comments, trigger="interval", seconds=5
+                tasks.scrape_categories, trigger="interval", seconds=interval
+            )
+            scheduler.add_job(
+                tasks.scrape_products, trigger="interval", seconds=interval
+            )
+            scheduler.add_job(
+                tasks.scrape_product_comments, trigger="interval", seconds=interval
             )
         elif scraper_type == "category":
-            scheduler.add_job(tasks.scrape_categories, trigger="interval", seconds=5)
+            scheduler.add_job(
+                tasks.scrape_categories, trigger="interval", seconds=interval
+            )
         elif scraper_type == "product":
-            scheduler.add_job(tasks.scrape_products, trigger="interval", minutes=1)
+            scheduler.add_job(
+                tasks.scrape_products, trigger="interval", seconds=interval
+            )
         elif scraper_type == "comment":
             scheduler.add_job(
-                tasks.scrape_product_comments, trigger="interval", seconds=5
+                tasks.scrape_product_comments, trigger="interval", seconds=interval
             )
 
         scheduler.add_job(
             tasks.delete_old_job_executions,
-            trigger=CronTrigger(
-                day_of_week="mon", hour="00", minute="00"
-            ),  # Midnight on Monday, before the start of the next work week.
+            trigger="interval",
+            days=1,
             max_instances=1,
             replace_existing=True,
         )
