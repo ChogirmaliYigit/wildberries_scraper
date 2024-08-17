@@ -8,6 +8,7 @@ from scraper.models import (
     Product,
     ProductVariant,
 )
+from scraper.utils import wildberries
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -71,30 +72,28 @@ class ProductsSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-    replies = serializers.ListField(read_only=True)
+    replied_comments = serializers.ListField(read_only=True)
     source_id = serializers.IntegerField()
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["replies"] = (
-            CommentsSerializer(
-                instance.replies.prefetch_related("user", "reply_to", "product").all(),
-                many=True,
-            ).data
-            if instance.replies.prefetch_related("user", "reply_to", "product").all()
-            else {}
+        replies = instance.replies.prefetch_related("user", "reply_to", "product").all()
+        data["replied_comments"] = (
+            CommentsSerializer(replies, many=True).data if replies else {}
         )
-        if instance.file_link:
-            data["file"] = instance.file_link
-        else:
-            data["file"] = (
-                f"{settings.BACKEND_DOMAIN}{data.get('file')}"
-                if data.get("file")
-                else ""
-            )
+        data["files"] = self.get_files(instance, data)
         if instance.wb_user:
             data["user"] = instance.wb_user
         return data
+
+    def get_files(self, comment, data):
+        files = []
+        if data.get("file"):
+            files.append(f"{settings.BACKEND_DOMAIN}{data.get('file')}")
+        for file in comment.files.all():
+            if file.file_link:
+                files.append(file.file_link)
+        return files
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -105,8 +104,17 @@ class CommentsSerializer(serializers.ModelSerializer):
             .filter(source_id=source_id)
             .first()
         )
-        if source_id and product:
-            validated_data["product"] = product
+        if source_id:
+            if not product:
+                try:
+                    product = wildberries.get_product_by_source_id(source_id)
+                except Exception as exc:
+                    product = None
+                    print(
+                        f"Exception while scraping product by source id: {exc.__class__.__name__}: {exc}"
+                    )
+            if product:
+                validated_data["product"] = product
         validated_data["user"] = request.user
         return super().create(validated_data)
 
@@ -119,8 +127,8 @@ class CommentsSerializer(serializers.ModelSerializer):
             "source_id",
             "content",
             "rating",
-            "file",
-            "replies",
+            "files",
+            "replied_comments",
         )
 
 

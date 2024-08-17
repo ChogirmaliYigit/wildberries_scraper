@@ -5,6 +5,7 @@ from scraper.models import (
     Category,
     Comment,
     CommentFiles,
+    CommentStatuses,
     Product,
     ProductVariant,
     ProductVariantImage,
@@ -45,13 +46,6 @@ class CategoryAdmin(ModelAdmin):
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
-    actions = [
-        "clear_source_ids",
-    ]
-
-    def clear_source_ids(self, request, queryset):
-        Category.objects.filter(source_id=0).update(source_id=None)
-        self.message_user(request, "Category source ids cleared")
 
     def formfield_for_foreignkey(
         self, db_field: ForeignKey, request: HttpRequest, **kwargs
@@ -82,7 +76,11 @@ class ProductAdmin(ModelAdmin):
         "root",
     )
     fields = list_display
-    search_fields = fields + ("id",)
+    search_fields = (
+        "id",
+        "title",
+        "root",
+    )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
     show_facets = True
@@ -105,13 +103,6 @@ class ProductVariantAdmin(ModelAdmin):
     fields = list_display
     search_fields = fields + ("id",)
     inlines = [ProductVariantImagesInline]
-    actions = [
-        "clear_source_ids",
-    ]
-
-    def clear_source_ids(self, request, queryset):
-        ProductVariant.objects.filter(source_id=0).update(source_id=None)
-        self.message_user(request, "Product variant source ids cleared")
 
 
 class CommentFilesInline(TabularInline):
@@ -139,9 +130,21 @@ class CommentAdmin(ModelAdmin):
     list_filter = ("status",)
     inlines = [CommentFilesInline]
     actions = [
-        "clear_source_ids",
+        "accept_all",
+        "not_accept_all",
+        "update_file_links",
     ]
 
-    def clear_source_ids(self, request, queryset):
-        Comment.objects.filter(source_id=0).update(source_id=None)
-        self.message_user(request, "Comment source ids cleared")
+    def accept_all(self, request, queryset):
+        queryset.update(status=CommentStatuses.ACCEPTED)
+        self.message_user(request, "Selected comments accepted", level=25)
+
+    def not_accept_all(self, request, queryset):
+        queryset.update(status=CommentStatuses.NOT_ACCEPTED)
+        self.message_user(request, "Selected comments not accepted", level=30)
+
+    def update_file_links(self, request, queryset):
+        for file in CommentFiles.objects.all():
+            file.file_link = file.file_link[:17] + "1" + file.file_link[18:]
+            file.save(update_fields=["file_link"])
+        self.message_user(request, "done", level=25)

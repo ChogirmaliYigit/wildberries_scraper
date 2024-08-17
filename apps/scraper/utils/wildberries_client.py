@@ -22,13 +22,13 @@ class WildberriesClient:
         self.base_url = base_url
         self.driver = WebDriver
 
-    def get_soup(self, url: str = None) -> BeautifulSoup:
+    def get_soup(self, url: str = None, scroll_bottom: bool = False) -> BeautifulSoup:
         """
         returns soup of elements
         """
 
         web_driver = self.driver(url or self.base_url)
-        html_content = web_driver.get_html_content()
+        html_content = web_driver.get_html_content(scroll_bottom)
 
         soup = BeautifulSoup(html_content, "html.parser")
         return soup
@@ -142,6 +142,57 @@ class WildberriesClient:
                             product_variant_images, ignore_conflicts=True
                         )
 
+    def get_product_by_source_id(self, source_id: int) -> Product:
+        """
+        Scrapes a product and its variants by the given source_id
+        """
+        currency = "rub"
+
+        url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr={currency}&dest=491&spp=30&ab_testing=false&nm={source_id}"
+        soup = self.get_soup(url)
+        product_data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+
+        if not product_data.get("data"):
+            print(f"No data found for product with source_id {source_id}")
+            return
+
+        product_info = product_data["data"]["products"][0]
+        root = product_info.get("root")
+        title = product_info.get("name")
+
+        product_object, _ = Product.objects.get_or_create(
+            root=root,
+            defaults={"title": title},
+        )
+
+        for size in product_info.get("sizes", []):
+            price = size.get("price", {}).get("total", 0)
+            product_variant, _ = ProductVariant.objects.get_or_create(
+                product=product_object,
+                source_id=source_id,
+                defaults={"price": f"{price} {currency}"},
+            )
+            variant_detail_soup = self.get_soup(
+                f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
+            )
+            product_variant_images = []
+            if variant_detail_soup:
+                swiper = variant_detail_soup.find("ul", {"class": "swiper-wrapper"})
+                if swiper:
+                    swiper_lis = swiper.find_all("li", {"class": "swiper-slide slide"})
+                    for li in swiper_lis:
+                        img = li.find_next("img")
+                        if img and img["src"]:
+                            product_variant_images.append(
+                                ProductVariantImage(
+                                    variant=product_variant, image_link=img["src"]
+                                )
+                            )
+            ProductVariantImage.objects.bulk_create(
+                product_variant_images, ignore_conflicts=True
+            )
+        return product_object
+
     def get_product_comments(self):
         """
         Product comments list scraper
@@ -178,14 +229,22 @@ class WildberriesClient:
                         content=comment.get("text"),
                         defaults={
                             "rating": comment.get("productValuation", 0),
-                            "status": CommentStatuses.NOT_REVIEWED,
+                            "status": CommentStatuses.ACCEPTED,
                             "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
                         },
                     )
                     for photo_id in comment.get("photo", []):
                         photo_id = str(photo_id)
-                        link = f"https://feedback06.wbbasket.ru/vol{photo_id[:4]}/part{photo_id[:6]}/{photo_id}/photos/ms.webp"
-                        CommentFiles.objects.create(
-                            comment=comment_object,
-                            file_link=link,
-                        )
+                        link = None
+                        for basket_id in range(1, 11):
+                            img_url = f"https://feedback0{basket_id}.wbbasket.ru/vol{photo_id[:4]}/part{photo_id[:6]}/{photo_id}/photos/ms.webp"
+                            img_soup = self.get_soup(img_url)
+                            if img_soup:
+                                title = img_soup.find("title")
+                                if title and title.text != "404 Not Found":
+                                    link = img_url
+                        if link:
+                            CommentFiles.objects.create(
+                                comment=comment_object,
+                                file_link=link,
+                            )

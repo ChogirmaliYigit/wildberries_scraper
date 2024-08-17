@@ -177,6 +177,13 @@ REST_FRAMEWORK = {
     ],
     "TOKEN_MODEL": "users.models.Token",
     "TOKEN_SERIALIZER": "users.serializers.TokenSerializer",
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.CustomPageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {"anon": "3/second", "user": "5/second"},
 }
 
 BACKEND_DOMAIN = env.str("BACKEND_DOMAIN", "http://127.0.0.1:8000")

@@ -30,10 +30,13 @@ class WebDriver:
             service=Service(ChromeDriverManager().install()), options=options
         )
 
-    def get_html_content(self) -> str:
+    def get_html_content(self, scroll_bottom: bool = False) -> str:
         """
         Get HTML content from given network
         """
+        if scroll_bottom:
+            self.scroll_to_bottom()
+
         self.driver.get(self.network)
 
         # helps to bypassing cloudflare
@@ -41,3 +44,10 @@ class WebDriver:
         html_content = self.driver.page_source
         self.driver.close()
         return html_content
+
+    def scroll_to_bottom(self) -> None:
+        """
+        Scroll to the bottom of the page
+        """
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # Wait for any additional content to load

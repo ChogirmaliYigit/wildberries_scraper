@@ -1,4 +1,4 @@
-from rest_framework import generics
+from core.views import BaseListAPIView, BaseListCreateAPIView
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, CommentStatuses, Favorite, Product
 from scraper.serializers import (
@@ -9,7 +9,7 @@ from scraper.serializers import (
 )
 
 
-class CategoriesListView(generics.ListAPIView):
+class CategoriesListView(BaseListAPIView):
     queryset = Category.objects.prefetch_related("parent").all()
     serializer_class = CategoriesSerializer
     filterset_class = CategoryFilter
@@ -18,14 +18,14 @@ class CategoriesListView(generics.ListAPIView):
     ]
 
 
-class ProductsListView(generics.ListAPIView):
+class ProductsListView(BaseListAPIView):
     queryset = Product.objects.prefetch_related("category").all()
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
 
 
-class CommentsListView(generics.ListCreateAPIView):
+class CommentsListView(BaseListCreateAPIView):
     queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
         status=CommentStatuses.ACCEPTED, reply_to__isnull=False
     )
@@ -41,7 +41,7 @@ class CommentsListView(generics.ListCreateAPIView):
         return context
 
 
-class UserCommentsListView(generics.ListAPIView):
+class UserCommentsListView(BaseListAPIView):
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -61,13 +61,24 @@ class UserCommentsListView(generics.ListAPIView):
         return context
 
 
-class FeedbacksListView(CommentsListView):
+class FeedbacksListView(BaseListAPIView):
     queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
         reply_to__isnull=True, status=CommentStatuses.ACCEPTED
     )
+    serializer_class = CommentsSerializer
+    filterset_class = CommentsFilter
+    search_fields = [
+        "content",
+    ]
 
 
-class UserFeedbacksListView(CommentsListView):
+class UserFeedbacksListView(BaseListAPIView):
+    serializer_class = CommentsSerializer
+    filterset_class = CommentsFilter
+    search_fields = [
+        "content",
+    ]
+
     def get_queryset(self):
         return Comment.objects.prefetch_related("product", "user", "reply_to").filter(
             reply_to__isnull=True,
@@ -76,7 +87,7 @@ class UserFeedbacksListView(CommentsListView):
         )
 
 
-class FavoritesListView(generics.ListCreateAPIView):
+class FavoritesListView(BaseListCreateAPIView):
     serializer_class = FavoritesSerializer
     search_fields = [
         "product__title",
