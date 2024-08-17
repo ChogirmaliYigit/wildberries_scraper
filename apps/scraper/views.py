@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from rest_framework import generics
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, CommentStatuses, Favorite, Product
 from scraper.serializers import (
@@ -41,7 +42,7 @@ class CommentsListView(BaseListCreateAPIView):
         return context
 
 
-class UserCommentsListView(BaseListAPIView):
+class UserCommentsListView(generics.ListAPIView):
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -72,7 +73,7 @@ class FeedbacksListView(BaseListAPIView):
     ]
 
 
-class UserFeedbacksListView(BaseListAPIView):
+class UserFeedbacksListView(generics.ListAPIView):
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
