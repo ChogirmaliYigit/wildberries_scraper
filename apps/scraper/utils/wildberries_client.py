@@ -246,7 +246,7 @@ class WildberriesClient:
                                 link = img_url
                                 break
                         if link:
-                            CommentFiles.objects.create(
+                            CommentFiles.objects.get_or_create(
                                 comment=comment_object,
                                 file_link=link,
                             )
