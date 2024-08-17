@@ -33,6 +33,10 @@ class WildberriesClient:
         soup = BeautifulSoup(html_content, "html.parser")
         return soup
 
+    def check_image(self, image_url: str) -> bool:
+        web_driver = self.driver(image_url)
+        return web_driver.check_image_existence()
+
     def get_categories(self):
         soup = self.get_soup(
             "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
@@ -238,11 +242,9 @@ class WildberriesClient:
                         link = None
                         for basket_id in range(1, 11):
                             img_url = f"https://feedback0{basket_id}.wbbasket.ru/vol{photo_id[:4]}/part{photo_id[:6]}/{photo_id}/photos/ms.webp"
-                            img_soup = self.get_soup(img_url)
-                            if img_soup:
-                                title = img_soup.find("title")
-                                if title and title.text != "404 Not Found":
-                                    link = img_url
+                            if self.check_image(img_url):
+                                link = img_url
+                                break
                         if link:
                             CommentFiles.objects.create(
                                 comment=comment_object,

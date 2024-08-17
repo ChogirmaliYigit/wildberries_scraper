@@ -54,7 +54,7 @@ class Command(BaseCommand):
         scheduler.add_job(
             tasks.delete_old_job_executions,
             trigger="interval",
-            days=1,
+            minutes=30,
             max_instances=1,
             replace_existing=True,
         )

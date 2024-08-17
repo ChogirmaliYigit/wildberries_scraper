@@ -45,6 +45,14 @@ class WebDriver:
         self.driver.close()
         return html_content
 
+    def check_image_existence(self) -> bool:
+        """
+        Check if the image exists using Selenium
+        Returns True if image exists
+        """
+        self.driver.get(self.network)
+        return self.driver.title != "404 Not Found"
+
     def scroll_to_bottom(self) -> None:
         """
         Scroll to the bottom of the page
