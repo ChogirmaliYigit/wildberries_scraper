@@ -19,7 +19,8 @@ class UserAdmin(ModelAdmin):
                     "full_name",
                     "email",
                     "profile_photo",
-                )
+                ),
+                "classes": ["tab"],
             },
         ),
         (
@@ -27,10 +28,12 @@ class UserAdmin(ModelAdmin):
             {
                 "fields": (
                     "is_blocked",
+                    "is_staff",
                     "is_superuser",
                     "groups",
                     "user_permissions",
-                )
+                ),
+                "classes": ["tab"],
             },
         ),
     )

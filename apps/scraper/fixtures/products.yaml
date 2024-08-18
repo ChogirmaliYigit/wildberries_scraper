@@ -5,7 +5,7 @@
     updated_at: 2024-08-16 13:37:09.199760+00:00
     deleted_at: null
     title: Терра и тайна созвездий. Книга 1
-    category_id: 196916
+    category: 196916
     root: 156073274
 - model: scraper.product
   pk: 2
@@ -14,7 +14,7 @@
     updated_at: 2024-08-16 13:37:18.249128+00:00
     deleted_at: null
     title: Алиса в Стране чудес (ил. И. Петелиной)
-    category_id: 196916
+    category: 196916
     root: 12208384
 - model: scraper.product
   pk: 3
@@ -23,7 +23,7 @@
     updated_at: 2024-08-16 13:37:27.246069+00:00
     deleted_at: null
     title: Увлекательная химия. Энциклопедия "Чевостик". Paperback
-    category_id: 196916
+    category: 196916
     root: 155424659
 - model: scraper.product
   pk: 4
@@ -32,7 +32,7 @@
     updated_at: 2024-08-16 13:37:35.989985+00:00
     deleted_at: null
     title: Дневник Стива. Книга 10. На суше и на море
-    category_id: 196916
+    category: 196916
     root: 3305123
 - model: scraper.product
   pk: 5
@@ -41,7 +41,7 @@
     updated_at: 2024-08-16 13:37:42.013239+00:00
     deleted_at: null
     title: Квест. Маленькая злая книга 3
-    category_id: 196916
+    category: 196916
     root: 7678726
 - model: scraper.product
   pk: 6
@@ -50,7 +50,7 @@
     updated_at: 2024-08-16 13:37:50.020855+00:00
     deleted_at: null
     title: Не открывать! С другой планеты! (#6)
-    category_id: 196916
+    category: 196916
     root: 5743602
 - model: scraper.product
   pk: 7
@@ -59,7 +59,7 @@
     updated_at: 2024-08-16 13:37:58.876766+00:00
     deleted_at: null
     title: Развивающие игры для детей. На внимание, мышление и логику
-    category_id: 196916
+    category: 196916
     root: 118263690
 - model: scraper.product
   pk: 8
@@ -68,7 +68,7 @@
     updated_at: 2024-08-16 13:38:07.381838+00:00
     deleted_at: null
     title: Тринадцать (выпуск 2)
-    category_id: 196916
+    category: 196916
     root: 114131150
 - model: scraper.product
   pk: 9
@@ -77,7 +77,7 @@
     updated_at: 2024-08-16 13:38:07.457264+00:00
     deleted_at: null
     title: Мишкина каша (ил. В.Канивца)
-    category_id: 196916
+    category: 196916
     root: 101964700
 - model: scraper.product
   pk: 10
@@ -86,7 +86,7 @@
     updated_at: 2024-08-16 13:39:26.549560+00:00
     deleted_at: null
     title: Скандар. Похититель единорогов (#1)
-    category_id: 196916
+    category: 196916
     root: 228958147
 - model: scraper.product
   pk: 11
@@ -95,7 +95,7 @@
     updated_at: 2024-08-16 13:40:53.521204+00:00
     deleted_at: null
     title: Пенал для девочки, 1 отделение, 200х140х40 мм
-    category_id: 196916
+    category: 196916
     root: 217844089
 - model: scraper.product
   pk: 12
@@ -104,7 +104,7 @@
     updated_at: 2024-08-16 13:41:01.095019+00:00
     deleted_at: null
     title: Пенал-футляр пластиковый, Ассорти, 1 штука
-    category_id: 196916
+    category: 196916
     root: 164258782
 - model: scraper.product
   pk: 13
@@ -113,7 +113,7 @@
     updated_at: 2024-08-16 13:41:07.485822+00:00
     deleted_at: null
     title: Скрытые миры. Раскраски за гранью воображения
-    category_id: 196916
+    category: 196916
     root: 80989355
 - model: scraper.product
   pk: 14
@@ -122,7 +122,7 @@
     updated_at: 2024-08-16 13:41:14.949727+00:00
     deleted_at: null
     title: Киногуруми в стиле "УЭНСДЭЙ"
-    category_id: 196916
+    category: 196916
     root: 154862431
 - model: scraper.product
   pk: 15
@@ -131,7 +131,7 @@
     updated_at: 2024-08-16 13:41:22.625592+00:00
     deleted_at: null
     title: Рыцари льда
-    category_id: 196916
+    category: 196916
     root: 7261291
 - model: scraper.product
   pk: 16
@@ -140,7 +140,7 @@
     updated_at: 2024-08-16 13:41:30.214864+00:00
     deleted_at: null
     title: Книга для детей Большая книга тестов. 5-6 лет
-    category_id: 196916
+    category: 196916
     root: 123649492
 - model: scraper.product
   pk: 17
@@ -149,7 +149,7 @@
     updated_at: 2024-08-16 13:41:37.096090+00:00
     deleted_at: null
     title: Большая мечта Сказки для детей
-    category_id: 196916
+    category: 196916
     root: 57840376
 - model: scraper.product
   pk: 18
@@ -158,7 +158,7 @@
     updated_at: 2024-08-16 13:41:45.481839+00:00
     deleted_at: null
     title: Кулинарный адвент-календарь. Рецепты выпечки Гарри Поттера
-    category_id: 196916
+    category: 196916
     root: 112062857
 - model: scraper.product
   pk: 19
@@ -167,7 +167,7 @@
     updated_at: 2024-08-16 13:41:56.179544+00:00
     deleted_at: null
     title: Я люблю тебя, малыш! Три истории Сказки, детская книга
-    category_id: 196916
+    category: 196916
     root: 109064318
 - model: scraper.product
   pk: 20
@@ -176,7 +176,7 @@
     updated_at: 2024-08-16 13:42:06.899454+00:00
     deleted_at: null
     title: Пока бьют часы (ил. А. Власовой)
-    category_id: 196916
+    category: 196916
     root: 48036836
 - model: scraper.product
   pk: 21
@@ -185,7 +185,7 @@
     updated_at: 2024-08-16 13:42:19.132510+00:00
     deleted_at: null
     title: Заплатка для Облачка Детские сказки
-    category_id: 196916
+    category: 196916
     root: 49315456
 - model: scraper.product
   pk: 22
@@ -194,7 +194,7 @@
     updated_at: 2024-08-16 13:42:32.377998+00:00
     deleted_at: null
     title: Играй и говори звуки [К] и [К']
-    category_id: 196916
+    category: 196916
     root: 10998231
 - model: scraper.product
   pk: 23
@@ -203,7 +203,7 @@
     updated_at: 2024-08-16 13:42:42.641462+00:00
     deleted_at: null
     title: Карточки для быстрого запоминания Турецких слов Уровень 1
-    category_id: 196916
+    category: 196916
     root: 2072163
 - model: scraper.product
   pk: 24
@@ -212,7 +212,7 @@
     updated_at: 2024-08-16 13:43:01.399313+00:00
     deleted_at: null
     title: Новогодняя погоня. Книга-адвент. С 1 по 31 декабря
-    category_id: 196916
+    category: 196916
     root: 167297285
 - model: scraper.product
   pk: 25
@@ -221,7 +221,7 @@
     updated_at: 2024-08-16 13:43:08.394060+00:00
     deleted_at: null
     title: Наборы карточек аниме Магическая битва
-    category_id: 196916
+    category: 196916
     root: 151715292
 - model: scraper.product
   pk: 26
@@ -230,7 +230,7 @@
     updated_at: 2024-08-16 13:43:17.372329+00:00
     deleted_at: null
     title: Энциклопедия-путеводитель для детей Санкт-Петербург
-    category_id: 196916
+    category: 196916
     root: 140355636
 - model: scraper.product
   pk: 27
@@ -239,7 +239,7 @@
     updated_at: 2024-08-16 13:43:25.118480+00:00
     deleted_at: null
     title: Книга-вырезалка с аппликациями для детей Бумажные роботы
-    category_id: 196916
+    category: 196916
     root: 13971669
 - model: scraper.product
   pk: 28
@@ -248,7 +248,7 @@
     updated_at: 2024-08-16 13:43:45.370395+00:00
     deleted_at: null
     title: Тренажер по чистописанию для письма дельфинчик для письма
-    category_id: 196916
+    category: 196916
     root: 78454829
 - model: scraper.product
   pk: 29
@@ -257,7 +257,7 @@
     updated_at: 2024-08-16 13:43:54.573270+00:00
     deleted_at: null
     title: Пишем и читаем. Тетрадь №2 Обучение грамоте детей
-    category_id: 196916
+    category: 196916
     root: 38635296
 - model: scraper.product
   pk: 30
@@ -266,7 +266,7 @@
     updated_at: 2024-08-16 13:44:03.341236+00:00
     deleted_at: null
     title: Набор маркер для проекторов, 0,3 мм 4 цвета E-140#4S
-    category_id: 196916
+    category: 196916
     root: 9934394
 - model: scraper.product
   pk: 31
@@ -275,7 +275,7 @@
     updated_at: 2024-08-16 13:44:12.130523+00:00
     deleted_at: null
     title: Здравствуй, чашка! Здравствуй, ложка!
-    category_id: 196916
+    category: 196916
     root: 24849270
 - model: scraper.product
   pk: 32
@@ -284,7 +284,7 @@
     updated_at: 2024-08-16 13:44:20.121375+00:00
     deleted_at: null
     title: Ломо-карты Stray Kids SKZOO СКЗУУ
-    category_id: 196916
+    category: 196916
     root: 209054992
 - model: scraper.product
   pk: 33
@@ -293,7 +293,7 @@
     updated_at: 2024-08-16 13:44:35.855009+00:00
     deleted_at: null
     title: Планер ежедневник недатированный 2024 год Kuromi My Melody
-    category_id: 196916
+    category: 196916
     root: 114024520
 - model: scraper.product
   pk: 34
@@ -302,7 +302,7 @@
     updated_at: 2024-08-16 13:44:44.617552+00:00
     deleted_at: null
     title: Прописи для дошкольников. Прописи для малышей
-    category_id: 196916
+    category: 196916
     root: 119934658
 - model: scraper.product
   pk: 35
@@ -311,7 +311,7 @@
     updated_at: 2024-08-16 13:44:53.479673+00:00
     deleted_at: null
     title: Тренажер для письма на ручку, рыбка для постановки письма
-    category_id: 196916
+    category: 196916
     root: 77341925
 - model: scraper.product
   pk: 36
@@ -320,7 +320,7 @@
     updated_at: 2024-08-16 13:44:59.762882+00:00
     deleted_at: null
     title: Письмо деду морозу с конвертом набор 2024
-    category_id: 196916
+    category: 196916
     root: 164647412
 - model: scraper.product
   pk: 37
@@ -329,7 +329,7 @@
     updated_at: 2024-08-16 13:45:12.826380+00:00
     deleted_at: null
     title: Скретч плакат "Весeлые фанты" в подарочном тубусе для игры
-    category_id: 196916
+    category: 196916
     root: 20867676
 - model: scraper.product
   pk: 38
@@ -338,7 +338,7 @@
     updated_at: 2024-08-16 13:45:21.463028+00:00
     deleted_at: null
     title: Календарь настольный домик
-    category_id: 196916
+    category: 196916
     root: 187333173
 - model: scraper.product
   pk: 39
@@ -347,7 +347,7 @@
     updated_at: 2024-08-16 13:45:29.321520+00:00
     deleted_at: null
     title: Гелевые ручки пиши стирай, набор ручек
-    category_id: 196916
+    category: 196916
     root: 75319659
 - model: scraper.product
   pk: 40
@@ -356,7 +356,7 @@
     updated_at: 2024-08-16 13:52:07.378092+00:00
     deleted_at: null
     title: Постер "Замок предсказаний" со скретч слоем для детей
-    category_id: 196916
+    category: 196916
     root: 8324980
 - model: scraper.product
   pk: 41
@@ -365,7 +365,7 @@
     updated_at: 2024-08-16 13:52:14.813740+00:00
     deleted_at: null
     title: Ломо Карточки stray kids Хёнджин Hyunjin Хенджин
-    category_id: 196916
+    category: 196916
     root: 215309292
 - model: scraper.product
   pk: 42
@@ -374,7 +374,7 @@
     updated_at: 2024-08-16 13:52:23.073423+00:00
     deleted_at: null
     title: Ломо Карточки K-pop кпоп Stray Kids Стрей кидс карты
-    category_id: 196916
+    category: 196916
     root: 215309292
 - model: scraper.product
   pk: 43
@@ -383,7 +383,7 @@
     updated_at: 2024-08-16 13:52:31.135922+00:00
     deleted_at: null
     title: Ручки гелевые стираемые черные набор канцтоваров из 20 штук
-    category_id: 196916
+    category: 196916
     root: 6765552
 - model: scraper.product
   pk: 44
@@ -392,7 +392,7 @@
     updated_at: 2024-08-16 13:52:39.534191+00:00
     deleted_at: null
     title: Развивающий набор Учимся писать элементы букв и цифр Пособие
-    category_id: 196916
+    category: 196916
     root: 26055402
 - model: scraper.product
   pk: 45
@@ -401,7 +401,7 @@
     updated_at: 2024-08-16 13:52:49.002056+00:00
     deleted_at: null
     title: Тренажер для постановки письма Учимся писать Цифры 18карт 4+
-    category_id: 196916
+    category: 196916
     root: 26055402
 - model: scraper.product
   pk: 46
@@ -410,7 +410,7 @@
     updated_at: 2024-08-16 13:52:57.124191+00:00
     deleted_at: null
     title: Обучающие карточки для письма Учимся писать буквы и цифры 5+
-    category_id: 196916
+    category: 196916
     root: 26055402
 - model: scraper.product
   pk: 47
@@ -419,7 +419,7 @@
     updated_at: 2024-08-16 13:53:05.828223+00:00
     deleted_at: null
     title: Рыбка тренажер для письма насадка
-    category_id: 196916
+    category: 196916
     root: 77341673
 - model: scraper.product
   pk: 48
@@ -428,7 +428,7 @@
     updated_at: 2024-08-16 13:53:24.952595+00:00
     deleted_at: null
     title: Как муравьишка лес спас Сказкотерапия
-    category_id: 196916
+    category: 196916
     root: 69733645
 - model: scraper.product
   pk: 49
@@ -437,7 +437,7 @@
     updated_at: 2024-08-16 13:53:45.085776+00:00
     deleted_at: null
     title: Про Ниночку, барабайку и длинный коридор
-    category_id: 196916
+    category: 196916
     root: 68082547
 - model: scraper.product
   pk: 50
@@ -446,7 +446,7 @@
     updated_at: 2024-08-16 13:54:08.147788+00:00
     deleted_at: null
     title: Рыбка тренажер для постановки письма насадка на ручку детям
-    category_id: 196916
+    category: 196916
     root: 78072757
 - model: scraper.product
   pk: 51
@@ -455,7 +455,7 @@
     updated_at: 2024-08-16 13:54:43.471616+00:00
     deleted_at: null
     title: Букварь БОБОсказки! 44 наклейки. Учимся читать
-    category_id: 196916
+    category: 196916
     root: 117883931
 - model: scraper.product
   pk: 52
@@ -464,7 +464,7 @@
     updated_at: 2024-08-16 13:55:27.371550+00:00
     deleted_at: null
     title: Математические раскраски 1 класс
-    category_id: 196916
+    category: 196916
     root: 48530148
 - model: scraper.product
   pk: 53
@@ -473,7 +473,7 @@
     updated_at: 2024-08-16 13:55:41.561746+00:00
     deleted_at: null
     title: Бизнес Teens
-    category_id: 196916
+    category: 196916
     root: 46805897
 - model: scraper.product
   pk: 54
@@ -482,7 +482,7 @@
     updated_at: 2024-08-16 13:55:53.571391+00:00
     deleted_at: null
     title: Туалетаная вода Moschino Funny 100 мл Фани Москино
-    category_id: 196916
+    category: 196916
     root: 84438891
 - model: scraper.product
   pk: 55
@@ -491,7 +491,7 @@
     updated_at: 2024-08-16 13:56:07.023342+00:00
     deleted_at: null
     title: Ручка гелевая-прикол Авокадо микс
-    category_id: 196916
+    category: 196916
     root: 158045056
 - model: scraper.product
   pk: 56
@@ -500,7 +500,7 @@
     updated_at: 2024-08-16 13:56:15.106497+00:00
     deleted_at: null
     title: Пенал школьный 3Д 1-4 класс
-    category_id: 196916
+    category: 196916
     root: 152875770
 - model: scraper.product
   pk: 57
@@ -509,7 +509,7 @@
     updated_at: 2024-08-16 13:56:23.410662+00:00
     deleted_at: null
     title: Ручки неоновые гелиевые набор 10 штук
-    category_id: 196916
+    category: 196916
     root: 190073634
 - model: scraper.product
   pk: 58
@@ -518,7 +518,7 @@
     updated_at: 2024-08-16 13:56:35.105554+00:00
     deleted_at: null
     title: Ручка шариковая набор 50 штук 10 штук 12 штук 8 штук
-    category_id: 196916
+    category: 196916
     root: 154032824
 - model: scraper.product
   pk: 59
@@ -527,7 +527,7 @@
     updated_at: 2024-08-16 13:56:43.275471+00:00
     deleted_at: null
     title: Набор шариковых ручек
-    category_id: 196916
+    category: 196916
     root: 74268158
 - model: scraper.product
   pk: 60
@@ -536,7 +536,7 @@
     updated_at: 2024-08-16 13:56:53.385606+00:00
     deleted_at: null
     title: Набор Ручка перьевая + конвертер+чернила+значок,чайная роза
-    category_id: 196916
+    category: 196916
     root: 161870095
 - model: scraper.product
   pk: 61
@@ -545,7 +545,7 @@
     updated_at: 2024-08-16 13:56:59.745158+00:00
     deleted_at: null
     title: Говорящая алфабит на казахском
-    category_id: 196916
+    category: 196916
     root: 123294831
 - model: scraper.product
   pk: 62
@@ -554,7 +554,7 @@
     updated_at: 2024-08-16 13:57:11.854823+00:00
     deleted_at: null
     title: Коллекционный набор группы Gidle, 60 карточек, 32 наклейки
-    category_id: 196916
+    category: 196916
     root: 201506824
 - model: scraper.product
   pk: 63
@@ -563,7 +563,7 @@
     updated_at: 2024-08-16 13:57:19.878990+00:00
     deleted_at: null
     title: Фломастер
-    category_id: 196916
+    category: 196916
     root: 227626417
 - model: scraper.product
   pk: 64
@@ -572,7 +572,7 @@
     updated_at: 2024-08-16 13:57:27.867059+00:00
     deleted_at: null
     title: Огненный бог Марранов (ил. А. Власовой) (#4)
-    category_id: 196916
+    category: 196916
     root: 4641693
 - model: scraper.product
   pk: 65
@@ -581,7 +581,7 @@
     updated_at: 2024-08-16 13:57:35.432285+00:00
     deleted_at: null
     title: Сказы (ил. М. Митрофанова)
-    category_id: 196916
+    category: 196916
     root: 113217511
 - model: scraper.product
   pk: 66
@@ -590,7 +590,7 @@
     updated_at: 2024-08-16 13:57:45.805575+00:00
     deleted_at: null
     title: Ручки пиши стирай комплект шариковые
-    category_id: 196916
+    category: 196916
     root: 188205270
 - model: scraper.product
   pk: 67
@@ -599,7 +599,7 @@
     updated_at: 2024-08-16 13:57:58.817579+00:00
     deleted_at: null
     title: Ручки пиши стирай гелевые стираемые
-    category_id: 196916
+    category: 196916
     root: 78571247
 - model: scraper.product
   pk: 68
@@ -608,7 +608,7 @@
     updated_at: 2024-08-16 13:58:09.486445+00:00
     deleted_at: null
     title: Развивающий набор для детей Азбука учимся читать и считать
-    category_id: 196916
+    category: 196916
     root: 102529073
 - model: scraper.product
   pk: 69
@@ -617,7 +617,7 @@
     updated_at: 2024-08-16 13:58:21.875166+00:00
     deleted_at: null
     title: 50шт
-    category_id: 196916
+    category: 196916
     root: 74269878
 - model: scraper.product
   pk: 70
@@ -626,7 +626,7 @@
     updated_at: 2024-08-16 13:58:31.906683+00:00
     deleted_at: null
     title: Изучение иностранных языков Учим английский язык
-    category_id: 196916
+    category: 196916
     root: 111353996
 - model: scraper.product
   pk: 71
@@ -635,7 +635,7 @@
     updated_at: 2024-08-16 13:59:06.439859+00:00
     deleted_at: null
     title: Мини словарь англо-русский для школьников для слов
-    category_id: 196916
+    category: 196916
     root: 136357193
 - model: scraper.product
   pk: 72
@@ -644,7 +644,7 @@
     updated_at: 2024-08-16 13:59:16.767093+00:00
     deleted_at: null
     title: Словарь по английскому языку для студентов и школьников
-    category_id: 196916
+    category: 196916
     root: 136357193
 - model: scraper.product
   pk: 73
@@ -653,7 +653,7 @@
     updated_at: 2024-08-16 13:59:25.343763+00:00
     deleted_at: null
     title: Набор детских карточек, русский язык, алфавит 4шт-А5
-    category_id: 196916
+    category: 196916
     root: 166907331
 - model: scraper.product
   pk: 74
@@ -662,7 +662,7 @@
     updated_at: 2024-08-16 13:59:31.439190+00:00
     deleted_at: null
     title: Английский язык. Букварь в картинках. Плакат-самоучитель
-    category_id: 196916
+    category: 196916
     root: 80878939
 - model: scraper.product
   pk: 75
@@ -671,7 +671,7 @@
     updated_at: 2024-08-16 13:59:38.908667+00:00
     deleted_at: null
     title: Карты Айв голо Лисо карточки Ive Leeseo голографические
-    category_id: 196916
+    category: 196916
     root: 181914153
 - model: scraper.product
   pk: 76
@@ -680,7 +680,7 @@
     updated_at: 2024-08-16 13:59:46.381469+00:00
     deleted_at: null
     title: Книга детская энциклопедия Подарок детям
-    category_id: 196916
+    category: 196916
     root: 150945290
 - model: scraper.product
   pk: 77
@@ -689,7 +689,7 @@
     updated_at: 2024-08-16 13:59:55.461208+00:00
     deleted_at: null
     title: Книга для детей развивающая Азбука Доброты учимся читать
-    category_id: 196916
+    category: 196916
     root: 141708911
 - model: scraper.product
   pk: 78
@@ -698,7 +698,7 @@
     updated_at: 2024-08-16 14:00:04.749806+00:00
     deleted_at: null
     title: Музыкальная книжка для малышей Мохнатая азбука
-    category_id: 196916
+    category: 196916
     root: 186779761
 - model: scraper.product
   pk: 79
@@ -707,7 +707,7 @@
     updated_at: 2024-08-16 14:00:10.747586+00:00
     deleted_at: null
     title: Шариковые ручки, набор ручек
-    category_id: 196916
+    category: 196916
     root: 74942343
 - model: scraper.product
   pk: 80
@@ -716,7 +716,7 @@
     updated_at: 2024-08-16 14:00:19.851571+00:00
     deleted_at: null
     title: Пенал школьный для учеников
-    category_id: 196916
+    category: 196916
     root: 142277588
 - model: scraper.product
   pk: 81
@@ -725,7 +725,7 @@
     updated_at: 2024-08-16 14:00:28.201836+00:00
     deleted_at: null
     title: Шариковые ручки синие, ручки в школу
-    category_id: 196916
+    category: 196916
     root: 74941639
 - model: scraper.product
   pk: 82
@@ -734,7 +734,7 @@
     updated_at: 2024-08-16 14:00:42.781881+00:00
     deleted_at: null
     title: Шариковые ручки, набор ручек синие
-    category_id: 196916
+    category: 196916
     root: 74873311
 - model: scraper.product
   pk: 83
@@ -743,7 +743,7 @@
     updated_at: 2024-08-16 14:00:48.880088+00:00
     deleted_at: null
     title: Плакаты аниме JOJO, Невероятные приключения ДжоДжо, Джотаро
-    category_id: 196916
+    category: 196916
     root: 210295369
 - model: scraper.product
   pk: 84
@@ -752,7 +752,7 @@
     updated_at: 2024-08-16 14:00:55.619372+00:00
     deleted_at: null
     title: Плакат Аниме Ван Пис, One Piece, Монки Д Луффи, Зоро, Санджи
-    category_id: 196916
+    category: 196916
     root: 210295369
 - model: scraper.product
   pk: 85
@@ -761,7 +761,7 @@
     updated_at: 2024-08-16 14:01:04.596367+00:00
     deleted_at: null
     title: Маркеры на водной основе для доски стираемые
-    category_id: 196916
+    category: 196916
     root: 175585173
 - model: scraper.product
   pk: 145
@@ -770,7 +770,7 @@
     updated_at: 2024-08-16 14:07:44.324178+00:00
     deleted_at: null
     title: Большая книга по запуску речи. Пособие для детей 2-3 лет
-    category_id: 196916
+    category: 196916
     root: 161862881
 - model: scraper.product
   pk: 146
@@ -779,7 +779,7 @@
     updated_at: 2024-08-16 14:07:53.410197+00:00
     deleted_at: null
     title: Пенал школьный 3Д вместительный 1-4 класс
-    category_id: 196916
+    category: 196916
     root: 152871604
 - model: scraper.product
   pk: 147
@@ -788,7 +788,7 @@
     updated_at: 2024-08-16 14:08:09.408540+00:00
     deleted_at: null
     title: Стирающаяся ручка, ручка стирающаяся
-    category_id: 196916
+    category: 196916
     root: 80339881
 - model: scraper.product
   pk: 148
@@ -797,7 +797,7 @@
     updated_at: 2024-08-16 14:08:17.302071+00:00
     deleted_at: null
     title: Ручки шариковые
-    category_id: 196916
+    category: 196916
     root: 74237740
 - model: scraper.product
   pk: 149
@@ -806,7 +806,7 @@
     updated_at: 2024-08-16 14:08:25.067115+00:00
     deleted_at: null
     title: маркеры для скетчинга
-    category_id: 196916
+    category: 196916
     root: 74334122
 - model: scraper.product
   pk: 150
@@ -815,7 +815,7 @@
     updated_at: 2024-08-16 14:08:32.735861+00:00
     deleted_at: null
     title: Алфавит на магнитах Магнитные буквы набор
-    category_id: 196916
+    category: 196916
     root: 217960152
 - model: scraper.product
   pk: 151
@@ -824,7 +824,7 @@
     updated_at: 2024-08-16 14:08:40.773303+00:00
     deleted_at: null
     title: Ручки шариковые набор синие 50 штук для школы, линия 0,5мм
-    category_id: 196916
+    category: 196916
     root: 154022042
 - model: scraper.product
   pk: 152
@@ -833,7 +833,7 @@
     updated_at: 2024-08-16 14:08:49.078172+00:00
     deleted_at: null
     title: Ручки шариковые набор синие 10 штук для школы
-    category_id: 196916
+    category: 196916
     root: 154022042
 - model: scraper.product
   pk: 153
@@ -842,7 +842,7 @@
     updated_at: 2024-08-16 14:09:04.689683+00:00
     deleted_at: null
     title: Ручки шариковые набор синие 50 штук для школы
-    category_id: 196916
+    category: 196916
     root: 154022042
 - model: scraper.product
   pk: 154
@@ -851,7 +851,7 @@
     updated_at: 2024-08-16 14:09:10.949124+00:00
     deleted_at: null
     title: ручка, ручка канцелярские товары, ручки
-    category_id: 196916
+    category: 196916
     root: 73949721
 - model: scraper.product
   pk: 155
@@ -860,7 +860,7 @@
     updated_at: 2024-08-16 14:09:25.605272+00:00
     deleted_at: null
     title: Скребок щетка для ковра от шерсти и волос
-    category_id: 197318
+    category: 197318
     root: 190676921
 - model: scraper.product
   pk: 156
@@ -869,7 +869,7 @@
     updated_at: 2024-08-16 14:09:32.969192+00:00
     deleted_at: null
     title: Ролик для одежды, 95 листов
-    category_id: 197318
+    category: 197318
     root: 200154796
 - model: scraper.product
   pk: 157
@@ -878,7 +878,7 @@
     updated_at: 2024-08-16 14:09:42.557819+00:00
     deleted_at: null
     title: Щетка-скребок для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 64911485
 - model: scraper.product
   pk: 158
@@ -887,7 +887,7 @@
     updated_at: 2024-08-16 14:09:50.281801+00:00
     deleted_at: null
     title: скребок от катышек и волос
-    category_id: 197318
+    category: 197318
     root: 118100681
 - model: scraper.product
   pk: 159
@@ -896,7 +896,7 @@
     updated_at: 2024-08-16 14:09:57.900434+00:00
     deleted_at: null
     title: Скребок от шерсти, щетка для ковра и одежды
-    category_id: 197318
+    category: 197318
     root: 176075315
 - model: scraper.product
   pk: 160
@@ -905,7 +905,7 @@
     updated_at: 2024-08-16 14:10:05.999223+00:00
     deleted_at: null
     title: Скребок-щётка от шерсти для ковра
-    category_id: 197318
+    category: 197318
     root: 193614457
 - model: scraper.product
   pk: 161
@@ -914,7 +914,7 @@
     updated_at: 2024-08-16 14:10:17.302166+00:00
     deleted_at: null
     title: Щётка для чистки мебели и одежды
-    category_id: 197318
+    category: 197318
     root: 208104212
 - model: scraper.product
   pk: 162
@@ -923,7 +923,7 @@
     updated_at: 2024-08-16 14:10:24.720157+00:00
     deleted_at: null
     title: Щетка для удаления ворсинок
-    category_id: 197318
+    category: 197318
     root: 124463584
 - model: scraper.product
   pk: 163
@@ -932,7 +932,7 @@
     updated_at: 2024-08-16 14:10:32.166954+00:00
     deleted_at: null
     title: Щетка для одежды. Скребок от шерсти животных
-    category_id: 197318
+    category: 197318
     root: 196555836
 - model: scraper.product
   pk: 164
@@ -941,7 +941,7 @@
     updated_at: 2024-08-16 14:10:40.737892+00:00
     deleted_at: null
     title: Сменные блоки для ролика, Home Time 2 шт
-    category_id: 197318
+    category: 197318
     root: 164080817
 - model: scraper.product
   pk: 165
@@ -950,7 +950,7 @@
     updated_at: 2024-08-16 14:10:49.647556+00:00
     deleted_at: null
     title: Щетка от шерсти, ролик-щетка для одежды
-    category_id: 197318
+    category: 197318
     root: 177593999
 - model: scraper.product
   pk: 166
@@ -959,7 +959,7 @@
     updated_at: 2024-08-16 14:11:12.233941+00:00
     deleted_at: null
     title: Скребок от шерсти, щетка для ковра, мебели и одежды
-    category_id: 197318
+    category: 197318
     root: 187859587
 - model: scraper.product
   pk: 167
@@ -968,7 +968,7 @@
     updated_at: 2024-08-16 14:11:20.490506+00:00
     deleted_at: null
     title: ролик для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 177552088
 - model: scraper.product
   pk: 168
@@ -977,7 +977,7 @@
     updated_at: 2024-08-16 14:11:36.159137+00:00
     deleted_at: null
     title: Щетка для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 159172911
 - model: scraper.product
   pk: 169
@@ -986,7 +986,7 @@
     updated_at: 2024-08-16 14:11:44.084255+00:00
     deleted_at: null
     title: Щетка для одежды ковров скребок от шерсти животных ворса
-    category_id: 197318
+    category: 197318
     root: 100180813
 - model: scraper.product
   pk: 170
@@ -995,7 +995,7 @@
     updated_at: 2024-08-16 14:11:51.952817+00:00
     deleted_at: null
     title: Ролик липкий многоразовый для чистки одежды и мебели
-    category_id: 197318
+    category: 197318
     root: 191613991
 - model: scraper.product
   pk: 171
@@ -1004,7 +1004,7 @@
     updated_at: 2024-08-16 14:12:01.597012+00:00
     deleted_at: null
     title: многоразовый липкий ролик для одежды
-    category_id: 197318
+    category: 197318
     root: 154945771
 - model: scraper.product
   pk: 172
@@ -1013,7 +1013,7 @@
     updated_at: 2024-08-16 14:12:39.414976+00:00
     deleted_at: null
     title: Ролик для одежды многоразовый
-    category_id: 197318
+    category: 197318
     root: 204813261
 - model: scraper.product
   pk: 173
@@ -1022,7 +1022,7 @@
     updated_at: 2024-08-16 14:12:49.001023+00:00
     deleted_at: null
     title: Многоразовый ролик для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 191508316
 - model: scraper.product
   pk: 174
@@ -1031,7 +1031,7 @@
     updated_at: 2024-08-16 14:12:56.732679+00:00
     deleted_at: null
     title: Ролик для одежды с 2 запасными сменными блоками
-    category_id: 197318
+    category: 197318
     root: 151836970
 - model: scraper.product
   pk: 175
@@ -1040,7 +1040,7 @@
     updated_at: 2024-08-16 14:13:04.631610+00:00
     deleted_at: null
     title: Ролик для удаления волос и шерсти
-    category_id: 197318
+    category: 197318
     root: 202778371
 - model: scraper.product
   pk: 176
@@ -1049,7 +1049,7 @@
     updated_at: 2024-08-16 14:13:34.709858+00:00
     deleted_at: null
     title: Щетка для одежды и мебели от шерсти
-    category_id: 197318
+    category: 197318
     root: 175605323
 - model: scraper.product
   pk: 177
@@ -1058,7 +1058,7 @@
     updated_at: 2024-08-16 14:13:42.942604+00:00
     deleted_at: null
     title: Роликовая щетка многоразовая
-    category_id: 197318
+    category: 197318
     root: 194674470
 - model: scraper.product
   pk: 178
@@ -1067,7 +1067,7 @@
     updated_at: 2024-08-16 14:13:50.658566+00:00
     deleted_at: null
     title: Скребок для бережного удаления шерсти и катышек
-    category_id: 197318
+    category: 197318
     root: 122472030
 - model: scraper.product
   pk: 179
@@ -1076,7 +1076,7 @@
     updated_at: 2024-08-16 14:14:17.088890+00:00
     deleted_at: null
     title: Ролик для одежды липкий
-    category_id: 197318
+    category: 197318
     root: 201796785
 - model: scraper.product
   pk: 180
@@ -1085,7 +1085,7 @@
     updated_at: 2024-08-16 14:14:33.516121+00:00
     deleted_at: null
     title: Ролик для одежды многоразовый липкий
-    category_id: 197318
+    category: 197318
     root: 196708906
 - model: scraper.product
   pk: 181
@@ -1094,7 +1094,7 @@
     updated_at: 2024-08-16 14:14:39.991749+00:00
     deleted_at: null
     title: Липкий ролик для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 226797962
 - model: scraper.product
   pk: 182
@@ -1103,7 +1103,7 @@
     updated_at: 2024-08-16 14:15:22.448962+00:00
     deleted_at: null
     title: Шар липучка
-    category_id: 197318
+    category: 197318
     root: 196151022
 - model: scraper.product
   pk: 183
@@ -1112,7 +1112,7 @@
     updated_at: 2024-08-16 14:15:30.410149+00:00
     deleted_at: null
     title: Силиконовая щетка для замши и нубука
-    category_id: 197318
+    category: 197318
     root: 216570018
 - model: scraper.product
   pk: 184
@@ -1121,7 +1121,7 @@
     updated_at: 2024-08-16 14:15:37.994348+00:00
     deleted_at: null
     title: Универсальная щетка для одежды и обуви с дозатором
-    category_id: 197318
+    category: 197318
     root: 216570018
 - model: scraper.product
   pk: 185
@@ -1130,7 +1130,7 @@
     updated_at: 2024-08-16 14:15:46.176612+00:00
     deleted_at: null
     title: Универсальная щетка для одежды и обуви
-    category_id: 197318
+    category: 197318
     root: 216570018
 - model: scraper.product
   pk: 186
@@ -1139,7 +1139,7 @@
     updated_at: 2024-08-16 14:15:55.440180+00:00
     deleted_at: null
     title: Щетка для одежды
-    category_id: 197318
+    category: 197318
     root: 73993216
 - model: scraper.product
   pk: 187
@@ -1148,7 +1148,7 @@
     updated_at: 2024-08-16 14:16:06.945108+00:00
     deleted_at: null
     title: Ролик для чистки одежды, Home Time, 64 листа
-    category_id: 197318
+    category: 197318
     root: 164049093
 - model: scraper.product
   pk: 188
@@ -1157,7 +1157,7 @@
     updated_at: 2024-08-16 14:16:46.086242+00:00
     deleted_at: null
     title: Липкий ролик для чистки одежды сменные блоки 4 шт 125 слоев
-    category_id: 197318
+    category: 197318
     root: 192864640
 - model: scraper.product
   pk: 189
@@ -1166,7 +1166,7 @@
     updated_at: 2024-08-16 14:16:54.126663+00:00
     deleted_at: null
     title: Липкий ролик для чистки одежды сменные блоки 2 шт 75 слоев
-    category_id: 197318
+    category: 197318
     root: 192864640
 - model: scraper.product
   pk: 190
@@ -1175,7 +1175,7 @@
     updated_at: 2024-08-16 14:17:01.819884+00:00
     deleted_at: null
     title: Липкий ролик для чистки одежды сменные блоки 1 шт 60 слоев
-    category_id: 197318
+    category: 197318
     root: 192864640
 - model: scraper.product
   pk: 191
@@ -1184,7 +1184,7 @@
     updated_at: 2024-08-16 14:17:09.196207+00:00
     deleted_at: null
     title: Ролик валик липкий для чистки одежды от шерсти, волос 4 шт
-    category_id: 197318
+    category: 197318
     root: 125150526
 - model: scraper.product
   pk: 192
@@ -1193,7 +1193,7 @@
     updated_at: 2024-08-16 14:17:22.964011+00:00
     deleted_at: null
     title: Щетка для ковра. Скребок для удаления шерсти
-    category_id: 197318
+    category: 197318
     root: 191993619
 - model: scraper.product
   pk: 193
@@ -1202,7 +1202,7 @@
     updated_at: 2024-08-16 14:17:34.720489+00:00
     deleted_at: null
     title: Щетка Скребок для одежды от катышков,шерсти животных
-    category_id: 197318
+    category: 197318
     root: 189037527
 - model: scraper.product
   pk: 194
@@ -1211,7 +1211,7 @@
     updated_at: 2024-08-16 14:17:43.710401+00:00
     deleted_at: null
     title: Ролик для чистки многоразовый
-    category_id: 197318
+    category: 197318
     root: 106314740
 - model: scraper.product
   pk: 195
@@ -1220,7 +1220,7 @@
     updated_at: 2024-08-16 14:18:00.504857+00:00
     deleted_at: null
     title: Скребок от шерсти
-    category_id: 197318
+    category: 197318
     root: 148478081
 - model: scraper.product
   pk: 196
@@ -1229,7 +1229,7 @@
     updated_at: 2024-08-16 14:18:19.597536+00:00
     deleted_at: null
     title: Ролик для одежды с запасными блоками 2 шт
-    category_id: 197318
+    category: 197318
     root: 181799777
 - model: scraper.product
   pk: 197
@@ -1238,7 +1238,7 @@
     updated_at: 2024-08-16 14:18:32.956839+00:00
     deleted_at: null
     title: Ролик для одежды
-    category_id: 197318
+    category: 197318
     root: 181799777
 - model: scraper.product
   pk: 198
@@ -1247,7 +1247,7 @@
     updated_at: 2024-08-16 14:18:40.084964+00:00
     deleted_at: null
     title: Ролик для одежды многоразовый липкий моющийся от шерсти
-    category_id: 197318
+    category: 197318
     root: 147014477
 - model: scraper.product
   pk: 199
@@ -1256,7 +1256,7 @@
     updated_at: 2024-08-16 14:18:46.012603+00:00
     deleted_at: null
     title: Щетка скребок от шерсти животных
-    category_id: 197318
+    category: 197318
     root: 200639684
 - model: scraper.product
   pk: 200
@@ -1265,7 +1265,7 @@
     updated_at: 2024-08-16 14:19:02.541460+00:00
     deleted_at: null
     title: Чистящий ролик для одежды и мебели Mega, 60 листов
-    category_id: 197318
+    category: 197318
     root: 124930110
 - model: scraper.product
   pk: 201
@@ -1274,7 +1274,7 @@
     updated_at: 2024-08-16 14:19:10.236936+00:00
     deleted_at: null
     title: Ролик для Одежды
-    category_id: 197318
+    category: 197318
     root: 199365638
 - model: scraper.product
   pk: 202
@@ -1283,7 +1283,7 @@
     updated_at: 2024-08-16 14:19:17.753344+00:00
     deleted_at: null
     title: Скребок для чистки одежды, ковров, мебели Доляна, 18x12,5 см
-    category_id: 197318
+    category: 197318
     root: 196563804
 - model: scraper.product
   pk: 203
@@ -1292,7 +1292,7 @@
     updated_at: 2024-08-16 14:19:26.634308+00:00
     deleted_at: null
     title: Щетка скребок
-    category_id: 197318
+    category: 197318
     root: 155386165
 - model: scraper.product
   pk: 204
@@ -1301,7 +1301,7 @@
     updated_at: 2024-08-16 14:19:34.865290+00:00
     deleted_at: null
     title: Ролик для одежды для чистки многоразовый
-    category_id: 197318
+    category: 197318
     root: 83702506
 - model: scraper.product
   pk: 205
@@ -1310,7 +1310,7 @@
     updated_at: 2024-08-16 14:19:43.046848+00:00
     deleted_at: null
     title: Щетка для одежды универсальный
-    category_id: 197318
+    category: 197318
     root: 188766712
 - model: scraper.product
   pk: 206
@@ -1319,7 +1319,7 @@
     updated_at: 2024-08-16 14:19:50.956031+00:00
     deleted_at: null
     title: Скребок от шерсти животных
-    category_id: 197318
+    category: 197318
     root: 164664210
 - model: scraper.product
   pk: 207
@@ -1328,7 +1328,7 @@
     updated_at: 2024-08-16 14:19:59.880643+00:00
     deleted_at: null
     title: Щетка Скребок
-    category_id: 197318
+    category: 197318
     root: 164664210
 - model: scraper.product
   pk: 208
@@ -1337,7 +1337,7 @@
     updated_at: 2024-08-16 14:20:07.531991+00:00
     deleted_at: null
     title: Скребок для удаления катышков
-    category_id: 197318
+    category: 197318
     root: 74341444
 - model: scraper.product
   pk: 209
@@ -1346,7 +1346,7 @@
     updated_at: 2024-08-16 14:20:17.581106+00:00
     deleted_at: null
     title: Щетка для удаления шерсти и ворса 1шт
-    category_id: 197318
+    category: 197318
     root: 197618473
 - model: scraper.product
   pk: 210
@@ -1355,7 +1355,7 @@
     updated_at: 2024-08-16 14:20:25.170111+00:00
     deleted_at: null
     title: Ролик-липучка силиконовый многоразовый
-    category_id: 197318
+    category: 197318
     root: 84935122
 - model: scraper.product
   pk: 211
@@ -1364,7 +1364,7 @@
     updated_at: 2024-08-16 14:20:33.443942+00:00
     deleted_at: null
     title: Скребок от шерсти щетка для ковра мебели и одежды
-    category_id: 197318
+    category: 197318
     root: 217627087
 - model: scraper.product
   pk: 212
@@ -1373,7 +1373,7 @@
     updated_at: 2024-08-16 14:20:41.167961+00:00
     deleted_at: null
     title: ролик для одежды,шерсти,верхней одежды
-    category_id: 197318
+    category: 197318
     root: 75801194
 - model: scraper.product
   pk: 213
@@ -1382,7 +1382,7 @@
     updated_at: 2024-08-16 14:20:49.056124+00:00
     deleted_at: null
     title: Щётка для одежды Скребок от шерсти животных Чистки
-    category_id: 197318
+    category: 197318
     root: 68100909
 - model: scraper.product
   pk: 214
@@ -1391,7 +1391,7 @@
     updated_at: 2024-08-16 14:20:57.461918+00:00
     deleted_at: null
     title: Универсальная щетка с дозатором для обуви, одежды, посуды
-    category_id: 197318
+    category: 197318
     root: 199854320
 - model: scraper.product
   pk: 215
@@ -1400,7 +1400,7 @@
     updated_at: 2024-08-16 14:21:12.619721+00:00
     deleted_at: null
     title: Ролик для одежды многоразовый валик от шерсти пыли
-    category_id: 197318
+    category: 197318
     root: 192918520
 - model: scraper.product
   pk: 216
@@ -1409,7 +1409,7 @@
     updated_at: 2024-08-16 14:21:21.537866+00:00
     deleted_at: null
     title: Сменные блоки для чистящего ролика набор
-    category_id: 197318
+    category: 197318
     root: 213782835
 - model: scraper.product
   pk: 217
@@ -1418,7 +1418,7 @@
     updated_at: 2024-08-16 14:21:30.944377+00:00
     deleted_at: null
     title: Щетка-роллер для ручной стирки одежды 2 в 1
-    category_id: 197318
+    category: 197318
     root: 186947532
 - model: scraper.product
   pk: 218
@@ -1427,7 +1427,7 @@
     updated_at: 2024-08-16 14:21:38.752066+00:00
     deleted_at: null
     title: Ролик для чистки одежды многоразовый
-    category_id: 197318
+    category: 197318
     root: 199977224
 - model: scraper.product
   pk: 219
@@ -1436,7 +1436,7 @@
     updated_at: 2024-08-16 14:21:46.185274+00:00
     deleted_at: null
     title: Щетка Cкребок
-    category_id: 197318
+    category: 197318
     root: 78277190
 - model: scraper.product
   pk: 220
@@ -1445,7 +1445,7 @@
     updated_at: 2024-08-16 14:21:55.381490+00:00
     deleted_at: null
     title: Скребка для шерсти
-    category_id: 197318
+    category: 197318
     root: 212232460
 - model: scraper.product
   pk: 221
@@ -1454,7 +1454,7 @@
     updated_at: 2024-08-16 14:22:11.507970+00:00
     deleted_at: null
     title: Ролик для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 172944416
 - model: scraper.product
   pk: 222
@@ -1463,7 +1463,7 @@
     updated_at: 2024-08-16 14:22:29.703332+00:00
     deleted_at: null
     title: Скребок от шерсти, щетка для ковра, мебели и одежды, 2шт
-    category_id: 197318
+    category: 197318
     root: 183614814
 - model: scraper.product
   pk: 223
@@ -1472,7 +1472,7 @@
     updated_at: 2024-08-16 14:22:35.807812+00:00
     deleted_at: null
     title: Скребок от шерсти,щетка для ковра
-    category_id: 197318
+    category: 197318
     root: 213677093
 - model: scraper.product
   pk: 224
@@ -1481,7 +1481,7 @@
     updated_at: 2024-08-16 14:22:43.657324+00:00
     deleted_at: null
     title: многоразовый ролик для одежды
-    category_id: 197318
+    category: 197318
     root: 158033538
 - model: scraper.product
   pk: 225
@@ -1490,7 +1490,7 @@
     updated_at: 2024-08-16 14:22:51.335522+00:00
     deleted_at: null
     title: Сменные блоки для липкого
-    category_id: 197318
+    category: 197318
     root: 134538805
 - model: scraper.product
   pk: 226
@@ -1499,7 +1499,7 @@
     updated_at: 2024-08-16 14:22:59.067424+00:00
     deleted_at: null
     title: Скребок для чистка
-    category_id: 197318
+    category: 197318
     root: 127687744
 - model: scraper.product
   pk: 227
@@ -1508,7 +1508,7 @@
     updated_at: 2024-08-16 14:23:13.370371+00:00
     deleted_at: null
     title: Ручной роллер для чистки
-    category_id: 197318
+    category: 197318
     root: 159592847
 - model: scraper.product
   pk: 228
@@ -1517,7 +1517,7 @@
     updated_at: 2024-08-16 14:23:38.944489+00:00
     deleted_at: null
     title: Катышкорез для одежды от катышек волосы и шерсти удалитель
-    category_id: 197318
+    category: 197318
     root: 219073997
 - model: scraper.product
   pk: 229
@@ -1526,7 +1526,7 @@
     updated_at: 2024-08-16 14:23:44.906561+00:00
     deleted_at: null
     title: Щетка для удаления катышков с одежды
-    category_id: 197318
+    category: 197318
     root: 75588729
 - model: scraper.product
   pk: 230
@@ -1535,7 +1535,7 @@
     updated_at: 2024-08-16 14:23:52.621426+00:00
     deleted_at: null
     title: Мини многоразовый ролик для чистки одежды
-    category_id: 197318
+    category: 197318
     root: 188772595
 - model: scraper.product
   pk: 231
@@ -1544,7 +1544,7 @@
     updated_at: 2024-08-16 14:24:19.515334+00:00
     deleted_at: null
     title: Сантехническая нить герметик подмотка для труб
-    category_id: 198743
+    category: 198743
     root: 74629916
 - model: scraper.product
   pk: 232
@@ -1553,7 +1553,7 @@
     updated_at: 2024-08-16 14:24:27.303415+00:00
     deleted_at: null
     title: Нить герметизирующая 55 24х50м
-    category_id: 198743
+    category: 198743
     root: 128710446
 - model: scraper.product
   pk: 233
@@ -1562,7 +1562,7 @@
     updated_at: 2024-08-16 14:24:35.131645+00:00
     deleted_at: null
     title: Мембрана запорная 24х72 для арматуры 'VIDIMA'
-    category_id: 198743
+    category: 198743
     root: 151057761
 - model: scraper.product
   pk: 234
@@ -1571,7 +1571,7 @@
     updated_at: 2024-08-16 14:24:42.785018+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора ETERNA H50 (50) литров
-    category_id: 198743
+    category: 198743
     root: 179493943
 - model: scraper.product
   pk: 235
@@ -1580,7 +1580,7 @@
     updated_at: 2024-08-16 14:24:50.629195+00:00
     deleted_at: null
     title: Пористая резина (мягкая) 10 мм (650х650 мм)
-    category_id: 198743
+    category: 198743
     root: 147774531
 - model: scraper.product
   pk: 236
@@ -1589,7 +1589,7 @@
     updated_at: 2024-08-16 14:24:58.595022+00:00
     deleted_at: null
     title: Мембрана EPDM 35 50LT-80 (F0A0180)
-    category_id: 198743
+    category: 198743
     root: 30471878
 - model: scraper.product
   pk: 237
@@ -1598,7 +1598,7 @@
     updated_at: 2024-08-16 14:25:06.072798+00:00
     deleted_at: null
     title: Прокладки резиновые сантехнические +фум лента. 20, 25
-    category_id: 198743
+    category: 198743
     root: 205569831
 - model: scraper.product
   pk: 238
@@ -1607,7 +1607,7 @@
     updated_at: 2024-08-16 14:25:13.543780+00:00
     deleted_at: null
     title: Фум лента для сантехники и газа 10 м*12 мм, набор 10 штук
-    category_id: 198743
+    category: 198743
     root: 202402456
 - model: scraper.product
   pk: 239
@@ -1616,7 +1616,7 @@
     updated_at: 2024-08-16 14:25:20.023404+00:00
     deleted_at: null
     title: Прокладка паронитовая
-    category_id: 198743
+    category: 198743
     root: 156741737
 - model: scraper.product
   pk: 240
@@ -1625,7 +1625,7 @@
     updated_at: 2024-08-16 14:25:27.493323+00:00
     deleted_at: null
     title: Набор прокладок сантехнический 20 мм 25 мм 38 мм 45мм
-    category_id: 198743
+    category: 198743
     root: 210242457
 - model: scraper.product
   pk: 241
@@ -1634,7 +1634,7 @@
     updated_at: 2024-08-16 14:25:35.536753+00:00
     deleted_at: null
     title: Сантехнические 20 мм 15 штук резиновые прокладки
-    category_id: 198743
+    category: 198743
     root: 210242457
 - model: scraper.product
   pk: 242
@@ -1643,7 +1643,7 @@
     updated_at: 2024-08-16 14:25:42.965538+00:00
     deleted_at: null
     title: Набор прокладок сантехнический 20 мм 25 мм 38 мм
-    category_id: 198743
+    category: 198743
     root: 210242457
 - model: scraper.product
   pk: 243
@@ -1652,7 +1652,7 @@
     updated_at: 2024-08-16 14:25:50.775973+00:00
     deleted_at: null
     title: Сантехнические 25 мм резиновые прокладки
-    category_id: 198743
+    category: 198743
     root: 210242457
 - model: scraper.product
   pk: 244
@@ -1661,7 +1661,7 @@
     updated_at: 2024-08-16 14:26:05.369992+00:00
     deleted_at: null
     title: Набор сантехнических универсальных прокладок, колец
-    category_id: 198743
+    category: 198743
     root: 100350072
 - model: scraper.product
   pk: 245
@@ -1670,7 +1670,7 @@
     updated_at: 2024-08-16 14:26:12.842698+00:00
     deleted_at: null
     title: Уплотнительное кольцо колбы фильтра
-    category_id: 198743
+    category: 198743
     root: 169993568
 - model: scraper.product
   pk: 246
@@ -1679,7 +1679,7 @@
     updated_at: 2024-08-16 14:26:20.764150+00:00
     deleted_at: null
     title: Сантехническая смазка LUBRIUM, спрей 400 мл
-    category_id: 198743
+    category: 198743
     root: 121863685
 - model: scraper.product
   pk: 247
@@ -1688,7 +1688,7 @@
     updated_at: 2024-08-16 14:26:28.265417+00:00
     deleted_at: null
     title: Сантехническая смазка LUBRIUM, тюбик 30 гр
-    category_id: 198743
+    category: 198743
     root: 121863685
 - model: scraper.product
   pk: 248
@@ -1697,7 +1697,7 @@
     updated_at: 2024-08-16 14:26:34.459605+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 80-100 литров
-    category_id: 198743
+    category: 198743
     root: 82398005
 - model: scraper.product
   pk: 249
@@ -1706,7 +1706,7 @@
     updated_at: 2024-08-16 14:26:41.903934+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 50 литров
-    category_id: 198743
+    category: 198743
     root: 82398005
 - model: scraper.product
   pk: 250
@@ -1715,7 +1715,7 @@
     updated_at: 2024-08-16 14:26:49.394041+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 24 литра
-    category_id: 198743
+    category: 198743
     root: 82398005
 - model: scraper.product
   pk: 251
@@ -1724,7 +1724,7 @@
     updated_at: 2024-08-16 14:26:56.873144+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора WAO 100
-    category_id: 198743
+    category: 198743
     root: 72565142
 - model: scraper.product
   pk: 252
@@ -1733,7 +1733,7 @@
     updated_at: 2024-08-16 14:27:04.625219+00:00
     deleted_at: null
     title: Переходник для слива стиральной машины D50 с хомутом
-    category_id: 198743
+    category: 198743
     root: 155907406
 - model: scraper.product
   pk: 253
@@ -1742,7 +1742,7 @@
     updated_at: 2024-08-16 14:27:12.461414+00:00
     deleted_at: null
     title: Комплект монтажный сантехнический паста и лён
-    category_id: 198743
+    category: 198743
     root: 129020028
 - model: scraper.product
   pk: 254
@@ -1751,7 +1751,7 @@
     updated_at: 2024-08-16 14:27:20.305868+00:00
     deleted_at: null
     title: Сантехническая нить для труб Рекорд 160 м
-    category_id: 198743
+    category: 198743
     root: 194326453
 - model: scraper.product
   pk: 255
@@ -1760,7 +1760,7 @@
     updated_at: 2024-08-16 14:27:27.731595+00:00
     deleted_at: null
     title: Техпластина 2-Ф-I-МБС-С-6,0 720х720 (5,1кг)
-    category_id: 198743
+    category: 198743
     root: 202894970
 - model: scraper.product
   pk: 256
@@ -1769,7 +1769,7 @@
     updated_at: 2024-08-16 14:27:36.240746+00:00
     deleted_at: null
     title: Силиконовая прокладка универсальная для смесителя 30шт
-    category_id: 198743
+    category: 198743
     root: 211132513
 - model: scraper.product
   pk: 257
@@ -1778,7 +1778,7 @@
     updated_at: 2024-08-16 14:27:43.823589+00:00
     deleted_at: null
     title: Силиконовая прокладка универсальная для смесителя 20шт
-    category_id: 198743
+    category: 198743
     root: 211132513
 - model: scraper.product
   pk: 258
@@ -1787,7 +1787,7 @@
     updated_at: 2024-08-16 14:27:49.787161+00:00
     deleted_at: null
     title: Кольцо ограничительное для клапана инсталляции
-    category_id: 198743
+    category: 198743
     root: 189233006
 - model: scraper.product
   pk: 259
@@ -1796,7 +1796,7 @@
     updated_at: 2024-08-16 14:27:57.398390+00:00
     deleted_at: null
     title: Тефлоновая лента (Фум лента), 2 шт
-    category_id: 198743
+    category: 198743
     root: 201355363
 - model: scraper.product
   pk: 260
@@ -1805,7 +1805,7 @@
     updated_at: 2024-08-16 14:28:04.857601+00:00
     deleted_at: null
     title: Ремкомплект для смесителя №5
-    category_id: 198743
+    category: 198743
     root: 152097592
 - model: scraper.product
   pk: 261
@@ -1814,7 +1814,7 @@
     updated_at: 2024-08-16 14:28:12.463329+00:00
     deleted_at: null
     title: Резиновые уплотнительные кольца набор 200 шт
-    category_id: 198743
+    category: 198743
     root: 203727449
 - model: scraper.product
   pk: 262
@@ -1823,7 +1823,7 @@
     updated_at: 2024-08-16 14:28:19.865920+00:00
     deleted_at: null
     title: Фторопластовые прокладки для редуктора Ø 10х22х2 мм. 10шт
-    category_id: 198743
+    category: 198743
     root: 199145374
 - model: scraper.product
   pk: 263
@@ -1832,7 +1832,7 @@
     updated_at: 2024-08-16 14:28:27.506736+00:00
     deleted_at: null
     title: Фум лента для сантехники
-    category_id: 198743
+    category: 198743
     root: 193334742
 - model: scraper.product
   pk: 264
@@ -1841,7 +1841,7 @@
     updated_at: 2024-08-16 14:28:35.775703+00:00
     deleted_at: null
     title: Прокладки сантехнические силиконовые
-    category_id: 198743
+    category: 198743
     root: 194837034
 - model: scraper.product
   pk: 265
@@ -1850,7 +1850,7 @@
     updated_at: 2024-08-16 14:28:43.276594+00:00
     deleted_at: null
     title: Бордюрная лента для ванны 3.8см самоклеящийся плинтус
-    category_id: 198743
+    category: 198743
     root: 151585938
 - model: scraper.product
   pk: 266
@@ -1859,7 +1859,7 @@
     updated_at: 2024-08-16 14:28:51.214605+00:00
     deleted_at: null
     title: Прокладка между бачком и унитазом универсальная
-    category_id: 198743
+    category: 198743
     root: 178395055
 - model: scraper.product
   pk: 267
@@ -1868,7 +1868,7 @@
     updated_at: 2024-08-16 14:28:58.872059+00:00
     deleted_at: null
     title: Набор резиновых колец для сантехники и автомобилей 225 штук
-    category_id: 198743
+    category: 198743
     root: 154542682
 - model: scraper.product
   pk: 268
@@ -1877,7 +1877,7 @@
     updated_at: 2024-08-16 14:29:06.536468+00:00
     deleted_at: null
     title: Силиконовая прокладка для унитаза Мембрана запорная
-    category_id: 198743
+    category: 198743
     root: 107797868
 - model: scraper.product
   pk: 269
@@ -1886,7 +1886,7 @@
     updated_at: 2024-08-16 14:29:29.234910+00:00
     deleted_at: null
     title: Паста сантехническая
-    category_id: 198743
+    category: 198743
     root: 188432951
 - model: scraper.product
   pk: 270
@@ -1895,7 +1895,7 @@
     updated_at: 2024-08-16 14:29:37.024637+00:00
     deleted_at: null
     title: Набор прокладок для смесителей
-    category_id: 198743
+    category: 198743
     root: 189164452
 - model: scraper.product
   pk: 271
@@ -1904,7 +1904,7 @@
     updated_at: 2024-08-16 14:29:47.923237+00:00
     deleted_at: null
     title: Универсальный сантехнический набор прокладок для сантехники
-    category_id: 198743
+    category: 198743
     root: 189164452
 - model: scraper.product
   pk: 272
@@ -1913,7 +1913,7 @@
     updated_at: 2024-08-16 14:29:57.213652+00:00
     deleted_at: null
     title: Сантехническая нить для герметизации резьбовых 50м
-    category_id: 198743
+    category: 198743
     root: 201134931
 - model: scraper.product
   pk: 273
@@ -1922,7 +1922,7 @@
     updated_at: 2024-08-16 14:30:06.277146+00:00
     deleted_at: null
     title: Манжета на слив стиральной машины +печатка+прокладка 50 мм
-    category_id: 198743
+    category: 198743
     root: 211912451
 - model: scraper.product
   pk: 274
@@ -1931,7 +1931,7 @@
     updated_at: 2024-08-16 14:30:13.811230+00:00
     deleted_at: null
     title: 50 мм пять штук Прокладки сантехнические+перчатки + манжета
-    category_id: 198743
+    category: 198743
     root: 211912451
 - model: scraper.product
   pk: 275
@@ -1940,7 +1940,7 @@
     updated_at: 2024-08-16 14:30:22.986755+00:00
     deleted_at: null
     title: Сантехнические фторопластовые прокладки Ø 1 2" 10 шт
-    category_id: 198743
+    category: 198743
     root: 192517019
 - model: scraper.product
   pk: 276
@@ -1949,7 +1949,7 @@
     updated_at: 2024-08-16 14:30:29.055419+00:00
     deleted_at: null
     title: Набор резиновых прокладок сальников
-    category_id: 198743
+    category: 198743
     root: 205476848
 - model: scraper.product
   pk: 277
@@ -1958,7 +1958,7 @@
     updated_at: 2024-08-16 14:30:38.944760+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 24л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 278
@@ -1967,7 +1967,7 @@
     updated_at: 2024-08-16 14:30:46.867404+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора-24 л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 279
@@ -1976,7 +1976,7 @@
     updated_at: 2024-08-16 14:30:54.475623+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора-100л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 280
@@ -1985,7 +1985,7 @@
     updated_at: 2024-08-16 14:31:02.255901+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора-50л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 281
@@ -1994,7 +1994,7 @@
     updated_at: 2024-08-16 14:31:09.843407+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 100л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 282
@@ -2003,7 +2003,7 @@
     updated_at: 2024-08-16 14:31:15.883801+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора- 50л
-    category_id: 198743
+    category: 198743
     root: 113451169
 - model: scraper.product
   pk: 283
@@ -2012,7 +2012,7 @@
     updated_at: 2024-08-16 14:31:22.276952+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 50л - 36л
-    category_id: 198743
+    category: 198743
     root: 197520991
 - model: scraper.product
   pk: 284
@@ -2021,7 +2021,7 @@
     updated_at: 2024-08-16 14:31:30.122185+00:00
     deleted_at: null
     title: Мембрана для гидроаккумулятора 24л - 18л
-    category_id: 198743
+    category: 198743
     root: 197520991
 - model: scraper.product
   pk: 285
@@ -2030,7 +2030,7 @@
     updated_at: 2024-08-16 14:31:39.806570+00:00
     deleted_at: null
     title: Паронитовые прокладки Ø 1 2" 10 шт
-    category_id: 198743
+    category: 198743
     root: 186552390
 - model: scraper.product
   pk: 286
@@ -2039,7 +2039,7 @@
     updated_at: 2024-08-16 14:31:53.916511+00:00
     deleted_at: null
     title: Сантехнические силиконовые прокладки Ø 1 2" 3 4" 1" 30шт
-    category_id: 198743
+    category: 198743
     root: 187958368
 - model: scraper.product
   pk: 287
@@ -2048,7 +2048,7 @@
     updated_at: 2024-08-16 14:32:02.088339+00:00
     deleted_at: null
     title: Сантехнические силиконовые прокладки Ø 1 2" 10 шт
-    category_id: 198743
+    category: 198743
     root: 187958368
 - model: scraper.product
   pk: 288
@@ -2057,7 +2057,7 @@
     updated_at: 2024-08-16 14:32:10.401809+00:00
     deleted_at: null
     title: Сантехнические силиконовые прокладки Ø 1 2" 20 шт
-    category_id: 198743
+    category: 198743
     root: 187958368
 - model: scraper.product
   pk: 289
@@ -2066,7 +2066,7 @@
     updated_at: 2024-08-16 14:32:20.473935+00:00
     deleted_at: null
     title: Прокладка между бачком и унитазом SANITA
-    category_id: 198743
+    category: 198743
     root: 122096684
 - model: scraper.product
   pk: 290
@@ -2075,7 +2075,7 @@
     updated_at: 2024-08-16 14:32:30.362140+00:00
     deleted_at: null
     title: Самоклеящаяся бордюрная лента для ванной комнаты для кухни
-    category_id: 198743
+    category: 198743
     root: 181986547
 - model: scraper.product
   pk: 291
@@ -2084,7 +2084,7 @@
     updated_at: 2024-08-16 14:32:38.341102+00:00
     deleted_at: null
     title: Набор резиновых прокладок
-    category_id: 198743
+    category: 198743
     root: 22539041
 - model: scraper.product
   pk: 292
@@ -2093,7 +2093,7 @@
     updated_at: 2024-08-16 14:32:47.129567+00:00
     deleted_at: null
     title: Силиконовая прокладка универсальная 1 2 для смесителя 20шт
-    category_id: 198743
+    category: 198743
     root: 191869393
 - model: scraper.product
   pk: 293
@@ -2102,7 +2102,7 @@
     updated_at: 2024-08-16 14:32:54.648283+00:00
     deleted_at: null
     title: Силиконовая прокладка универсальная 1 2 для смесителя 10шт
-    category_id: 198743
+    category: 198743
     root: 191869393
 - model: scraper.product
   pk: 294
@@ -2111,7 +2111,7 @@
     updated_at: 2024-08-16 14:33:02.074319+00:00
     deleted_at: null
     title: Набор лента ФУМ сантехнические уплотнительные прокладки
-    category_id: 198743
+    category: 198743
     root: 207967104
 - model: scraper.product
   pk: 295
@@ -2120,7 +2120,7 @@
     updated_at: 2024-08-16 14:33:09.479360+00:00
     deleted_at: null
     title: Прокладка между бачком и унитазом
-    category_id: 198743
+    category: 198743
     root: 163010136
 - model: scraper.product
   pk: 296
@@ -2129,7 +2129,7 @@
     updated_at: 2024-08-16 14:33:16.868446+00:00
     deleted_at: null
     title: Переходник для слива стиральной машины D50
-    category_id: 198743
+    category: 198743
     root: 101365490
 - model: scraper.product
   pk: 297
@@ -2138,7 +2138,7 @@
     updated_at: 2024-08-16 14:33:24.546712+00:00
     deleted_at: null
     title: Универсальная паста для уплотнение резьбовых соединений
-    category_id: 198743
+    category: 198743
     root: 198173098
 - model: scraper.product
   pk: 298
@@ -2147,7 +2147,7 @@
     updated_at: 2024-08-16 14:33:32.360081+00:00
     deleted_at: null
     title: Прокладка "ступенька" для ремонта импортных кран-букс
-    category_id: 198743
+    category: 198743
     root: 184150008
 - model: scraper.product
   pk: 299
@@ -2156,7 +2156,7 @@
     updated_at: 2024-08-16 14:33:39.963643+00:00
     deleted_at: null
     title: Набор для ремонта импортных кран-букс
-    category_id: 198743
+    category: 198743
     root: 184150008
 - model: scraper.product
   pk: 300
@@ -2165,7 +2165,7 @@
     updated_at: 2024-08-16 14:33:47.866092+00:00
     deleted_at: null
     title: Переходник для стиральной машины в канализацию
-    category_id: 198743
+    category: 198743
     root: 154233898
 - model: scraper.product
   pk: 301
@@ -2174,7 +2174,7 @@
     updated_at: 2024-08-16 14:33:55.384910+00:00
     deleted_at: null
     title: Сантехническая резиновая прокладка Ø 1 2", 3 4", 1" 30шт
-    category_id: 198743
+    category: 198743
     root: 187834133
 - model: scraper.product
   pk: 302
@@ -2183,7 +2183,7 @@
     updated_at: 2024-08-16 14:34:05.714175+00:00
     deleted_at: null
     title: Сантехническая резиновая прокладка Ø 3 4" 10 шт
-    category_id: 198743
+    category: 198743
     root: 187834133
 - model: scraper.product
   pk: 303
@@ -2192,7 +2192,7 @@
     updated_at: 2024-08-16 14:34:14.708297+00:00
     deleted_at: null
     title: Сантехническая резиновая прокладка Ø 1 2" 10 шт
-    category_id: 198743
+    category: 198743
     root: 187834133
 - model: scraper.product
   pk: 304
@@ -2201,7 +2201,7 @@
     updated_at: 2024-08-16 14:34:22.450797+00:00
     deleted_at: null
     title: Сантехническая резиновая прокладка Ø 3 4" 20 шт
-    category_id: 198743
+    category: 198743
     root: 187834133
 - model: scraper.product
   pk: 305
@@ -2210,7 +2210,7 @@
     updated_at: 2024-08-16 14:34:30.007557+00:00
     deleted_at: null
     title: Прокладки сантехнические
-    category_id: 198743
+    category: 198743
     root: 38014570
 - model: scraper.product
   pk: 306
@@ -2219,7 +2219,7 @@
     updated_at: 2024-08-16 14:35:15.958796+00:00
     deleted_at: null
     title: Запорная мембрана сливная для бачка унитаза
-    category_id: 198743
+    category: 198743
     root: 129225798
 - model: scraper.product
   pk: 307
@@ -2228,7 +2228,7 @@
     updated_at: 2024-08-16 14:35:24.007166+00:00
     deleted_at: null
     title: Резина листовая МБС 360х360х2 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.product
   pk: 308
@@ -2237,7 +2237,7 @@
     updated_at: 2024-08-16 14:35:31.933515+00:00
     deleted_at: null
     title: Резина листовая 360х360х3 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.product
   pk: 309
@@ -2246,7 +2246,7 @@
     updated_at: 2024-08-16 14:35:41.871713+00:00
     deleted_at: null
     title: Резина листовая 360х360х5 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.product
   pk: 310
@@ -2255,7 +2255,7 @@
     updated_at: 2024-08-16 14:35:50.176208+00:00
     deleted_at: null
     title: Резина листовая 360х360х4 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.product
   pk: 311
@@ -2264,7 +2264,7 @@
     updated_at: 2024-08-16 14:35:57.833485+00:00
     deleted_at: null
     title: Резина листовая 360х360х20 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.product
   pk: 312
@@ -2273,7 +2273,7 @@
     updated_at: 2024-08-16 14:36:03.892892+00:00
     deleted_at: null
     title: Сырая резина 360*360 мм, тол. 2 мм
-    category_id: 198743
+    category: 198743
     root: 37982156
 - model: scraper.productvariant
   pk: 1
@@ -2284,7 +2284,7 @@
     color: null
     price: 64000 rub
     source_id: 170579786
-    product_id: 1
+    product: 1
 - model: scraper.productvariant
   pk: 2
   fields:
@@ -2294,7 +2294,7 @@
     color: null
     price: 67700 rub
     source_id: 16388318
-    product_id: 2
+    product: 2
 - model: scraper.productvariant
   pk: 3
   fields:
@@ -2304,7 +2304,7 @@
     color: null
     price: 34700 rub
     source_id: 185856291
-    product_id: 3
+    product: 3
 - model: scraper.productvariant
   pk: 4
   fields:
@@ -2314,7 +2314,7 @@
     color: null
     price: 38900 rub
     source_id: 8264472
-    product_id: 4
+    product: 4
 - model: scraper.productvariant
   pk: 5
   fields:
@@ -2324,7 +2324,7 @@
     color: null
     price: 53000 rub
     source_id: 11319103
-    product_id: 5
+    product: 5
 - model: scraper.productvariant
   pk: 6
   fields:
@@ -2334,7 +2334,7 @@
     color: null
     price: 56400 rub
     source_id: 83493933
-    product_id: 6
+    product: 6
 - model: scraper.productvariant
   pk: 7
   fields:
@@ -2344,7 +2344,7 @@
     color: null
     price: 33900 rub
     source_id: 138261854
-    product_id: 7
+    product: 7
 - model: scraper.productvariant
   pk: 8
   fields:
@@ -2354,7 +2354,7 @@
     color: null
     price: 54400 rub
     source_id: 166410126
-    product_id: 8
+    product: 8
 - model: scraper.productvariant
   pk: 9
   fields:
@@ -2364,7 +2364,7 @@
     color: null
     price: 41600 rub
     source_id: 117803524
-    product_id: 9
+    product: 9
 - model: scraper.productvariant
   pk: 10
   fields:
@@ -2374,7 +2374,7 @@
     color: null
     price: 63400 rub
     source_id: 175808357
-    product_id: 10
+    product: 10
 - model: scraper.productvariant
   pk: 11
   fields:
@@ -2384,7 +2384,7 @@
     color: null
     price: 90000 rub
     source_id: 63917216
-    product_id: 11
+    product: 11
 - model: scraper.productvariant
   pk: 12
   fields:
@@ -2394,7 +2394,7 @@
     color: null
     price: 25500 rub
     source_id: 180133489
-    product_id: 12
+    product: 12
 - model: scraper.productvariant
   pk: 13
   fields:
@@ -2404,7 +2404,7 @@
     color: null
     price: 43400 rub
     source_id: 104596971
-    product_id: 13
+    product: 13
 - model: scraper.productvariant
   pk: 14
   fields:
@@ -2414,7 +2414,7 @@
     color: null
     price: 80000 rub
     source_id: 169071047
-    product_id: 14
+    product: 14
 - model: scraper.productvariant
   pk: 15
   fields:
@@ -2424,7 +2424,7 @@
     color: null
     price: 52200 rub
     source_id: 9466471
-    product_id: 15
+    product: 15
 - model: scraper.productvariant
   pk: 16
   fields:
@@ -2434,7 +2434,7 @@
     color: null
     price: 32100 rub
     source_id: 2244138
-    product_id: 16
+    product: 16
 - model: scraper.productvariant
   pk: 17
   fields:
@@ -2444,7 +2444,7 @@
     color: null
     price: 39100 rub
     source_id: 72982354
-    product_id: 17
+    product: 17
 - model: scraper.productvariant
   pk: 18
   fields:
@@ -2454,7 +2454,7 @@
     color: null
     price: 71800 rub
     source_id: 127666621
-    product_id: 18
+    product: 18
 - model: scraper.productvariant
   pk: 19
   fields:
@@ -2464,7 +2464,7 @@
     color: null
     price: 49200 rub
     source_id: 76714107
-    product_id: 19
+    product: 19
 - model: scraper.productvariant
   pk: 20
   fields:
@@ -2474,7 +2474,7 @@
     color: null
     price: 96800 rub
     source_id: 63376000
-    product_id: 20
+    product: 20
 - model: scraper.productvariant
   pk: 21
   fields:
@@ -2484,7 +2484,7 @@
     color: null
     price: 37800 rub
     source_id: 64975527
-    product_id: 21
+    product: 21
 - model: scraper.productvariant
   pk: 22
   fields:
@@ -2494,7 +2494,7 @@
     color: null
     price: 14700 rub
     source_id: 14700110
-    product_id: 22
+    product: 22
 - model: scraper.productvariant
   pk: 23
   fields:
@@ -2504,7 +2504,7 @@
     color: null
     price: 74900 rub
     source_id: 2399848
-    product_id: 23
+    product: 23
 - model: scraper.productvariant
   pk: 24
   fields:
@@ -2514,7 +2514,7 @@
     color: null
     price: 60100 rub
     source_id: 183814779
-    product_id: 24
+    product: 24
 - model: scraper.productvariant
   pk: 25
   fields:
@@ -2524,7 +2524,7 @@
     color: null
     price: 323900 rub
     source_id: 175046155
-    product_id: 25
+    product: 25
 - model: scraper.productvariant
   pk: 26
   fields:
@@ -2534,7 +2534,7 @@
     color: null
     price: 80100 rub
     source_id: 157023139
-    product_id: 26
+    product: 26
 - model: scraper.productvariant
   pk: 27
   fields:
@@ -2544,7 +2544,7 @@
     color: null
     price: 27000 rub
     source_id: 70337389
-    product_id: 27
+    product: 27
 - model: scraper.productvariant
   pk: 28
   fields:
@@ -2554,7 +2554,7 @@
     color: null
     price: 26700 rub
     source_id: 100812922
-    product_id: 28
+    product: 28
 - model: scraper.productvariant
   pk: 29
   fields:
@@ -2564,7 +2564,7 @@
     color: null
     price: 22100 rub
     source_id: 51986220
-    product_id: 29
+    product: 29
 - model: scraper.productvariant
   pk: 30
   fields:
@@ -2574,7 +2574,7 @@
     color: null
     price: 119600 rub
     source_id: 13413266
-    product_id: 30
+    product: 30
 - model: scraper.productvariant
   pk: 31
   fields:
@@ -2584,7 +2584,7 @@
     color: null
     price: 42100 rub
     source_id: 72248890
-    product_id: 31
+    product: 31
 - model: scraper.productvariant
   pk: 32
   fields:
@@ -2594,7 +2594,7 @@
     color: null
     price: 29700 rub
     source_id: 170568023
-    product_id: 32
+    product: 32
 - model: scraper.productvariant
   pk: 33
   fields:
@@ -2604,7 +2604,7 @@
     color: null
     price: 33600 rub
     source_id: 173351678
-    product_id: 33
+    product: 33
 - model: scraper.productvariant
   pk: 34
   fields:
@@ -2614,7 +2614,7 @@
     color: null
     price: 16400 rub
     source_id: 155630031
-    product_id: 34
+    product: 34
 - model: scraper.productvariant
   pk: 35
   fields:
@@ -2624,7 +2624,7 @@
     color: null
     price: 21800 rub
     source_id: 99231027
-    product_id: 35
+    product: 35
 - model: scraper.productvariant
   pk: 36
   fields:
@@ -2634,7 +2634,7 @@
     color: null
     price: 21600 rub
     source_id: 180599597
-    product_id: 36
+    product: 36
 - model: scraper.productvariant
   pk: 37
   fields:
@@ -2644,7 +2644,7 @@
     color: null
     price: 62000 rub
     source_id: 28406339
-    product_id: 37
+    product: 37
 - model: scraper.productvariant
   pk: 38
   fields:
@@ -2654,7 +2654,7 @@
     color: null
     price: 15000 rub
     source_id: 194062927
-    product_id: 38
+    product: 38
 - model: scraper.productvariant
   pk: 39
   fields:
@@ -2664,7 +2664,7 @@
     color: null
     price: 40800 rub
     source_id: 96586723
-    product_id: 39
+    product: 39
 - model: scraper.productvariant
   pk: 40
   fields:
@@ -2674,7 +2674,7 @@
     color: null
     price: 64100 rub
     source_id: 7237632
-    product_id: 40
+    product: 40
 - model: scraper.productvariant
   pk: 41
   fields:
@@ -2684,7 +2684,7 @@
     color: null
     price: 18500 rub
     source_id: 242509008
-    product_id: 41
+    product: 41
 - model: scraper.productvariant
   pk: 42
   fields:
@@ -2694,7 +2694,7 @@
     color: null
     price: 17600 rub
     source_id: 239609344
-    product_id: 42
+    product: 42
 - model: scraper.productvariant
   pk: 43
   fields:
@@ -2704,7 +2704,7 @@
     color: null
     price: 153500 rub
     source_id: 8883818
-    product_id: 43
+    product: 43
 - model: scraper.productvariant
   pk: 44
   fields:
@@ -2714,7 +2714,7 @@
     color: null
     price: 33700 rub
     source_id: 34638823
-    product_id: 44
+    product: 44
 - model: scraper.productvariant
   pk: 45
   fields:
@@ -2724,7 +2724,7 @@
     color: null
     price: 34600 rub
     source_id: 63529577
-    product_id: 45
+    product: 45
 - model: scraper.productvariant
   pk: 46
   fields:
@@ -2734,7 +2734,7 @@
     color: null
     price: 46300 rub
     source_id: 34638822
-    product_id: 46
+    product: 46
 - model: scraper.productvariant
   pk: 47
   fields:
@@ -2744,7 +2744,7 @@
     color: null
     price: 29400 rub
     source_id: 99230626
-    product_id: 47
+    product: 47
 - model: scraper.productvariant
   pk: 48
   fields:
@@ -2754,7 +2754,7 @@
     color: null
     price: 37400 rub
     source_id: 87968802
-    product_id: 48
+    product: 48
 - model: scraper.productvariant
   pk: 49
   fields:
@@ -2764,7 +2764,7 @@
     color: null
     price: 38600 rub
     source_id: 85901795
-    product_id: 49
+    product: 49
 - model: scraper.productvariant
   pk: 50
   fields:
@@ -2774,7 +2774,7 @@
     color: null
     price: 21600 rub
     source_id: 100201907
-    product_id: 50
+    product: 50
 - model: scraper.productvariant
   pk: 51
   fields:
@@ -2784,7 +2784,7 @@
     color: null
     price: 45400 rub
     source_id: 14485835
-    product_id: 51
+    product: 51
 - model: scraper.productvariant
   pk: 52
   fields:
@@ -2794,7 +2794,7 @@
     color: null
     price: 19200 rub
     source_id: 117612178
-    product_id: 52
+    product: 52
 - model: scraper.productvariant
   pk: 53
   fields:
@@ -2804,7 +2804,7 @@
     color: null
     price: 109800 rub
     source_id: 61853218
-    product_id: 53
+    product: 53
 - model: scraper.productvariant
   pk: 54
   fields:
@@ -2814,7 +2814,7 @@
     color: null
     price: 53200 rub
     source_id: 108983751
-    product_id: 54
+    product: 54
 - model: scraper.productvariant
   pk: 55
   fields:
@@ -2824,7 +2824,7 @@
     color: null
     price: 85300 rub
     source_id: 173051441
-    product_id: 55
+    product: 55
 - model: scraper.productvariant
   pk: 56
   fields:
@@ -2834,7 +2834,7 @@
     color: null
     price: 48300 rub
     source_id: 166855686
-    product_id: 56
+    product: 56
 - model: scraper.productvariant
   pk: 57
   fields:
@@ -2844,7 +2844,7 @@
     color: null
     price: 22600 rub
     source_id: 210341275
-    product_id: 57
+    product: 57
 - model: scraper.productvariant
   pk: 58
   fields:
@@ -2854,7 +2854,7 @@
     color: null
     price: 36100 rub
     source_id: 168070332
-    product_id: 58
+    product: 58
 - model: scraper.productvariant
   pk: 59
   fields:
@@ -2864,7 +2864,7 @@
     color: null
     price: 31400 rub
     source_id: 95247071
-    product_id: 59
+    product: 59
 - model: scraper.productvariant
   pk: 60
   fields:
@@ -2874,7 +2874,7 @@
     color: null
     price: 70400 rub
     source_id: 177387385
-    product_id: 60
+    product: 60
 - model: scraper.productvariant
   pk: 61
   fields:
@@ -2884,7 +2884,7 @@
     color: null
     price: 137100 rub
     source_id: 145236710
-    product_id: 61
+    product: 61
 - model: scraper.productvariant
   pk: 62
   fields:
@@ -2894,7 +2894,7 @@
     color: null
     price: 25500 rub
     source_id: 197622619
-    product_id: 62
+    product: 62
 - model: scraper.productvariant
   pk: 63
   fields:
@@ -2904,7 +2904,7 @@
     color: null
     price: 27400 rub
     source_id: 173566108
-    product_id: 63
+    product: 63
 - model: scraper.productvariant
   pk: 64
   fields:
@@ -2914,7 +2914,7 @@
     color: null
     price: 68600 rub
     source_id: 5860390
-    product_id: 64
+    product: 64
 - model: scraper.productvariant
   pk: 65
   fields:
@@ -2924,7 +2924,7 @@
     color: null
     price: 81200 rub
     source_id: 1945259
-    product_id: 65
+    product: 65
 - model: scraper.productvariant
   pk: 66
   fields:
@@ -2934,7 +2934,7 @@
     color: null
     price: 32700 rub
     source_id: 208055909
-    product_id: 66
+    product: 66
 - model: scraper.productvariant
   pk: 67
   fields:
@@ -2944,7 +2944,7 @@
     color: null
     price: 34100 rub
     source_id: 208013472
-    product_id: 67
+    product: 67
 - model: scraper.productvariant
   pk: 68
   fields:
@@ -2954,7 +2954,7 @@
     color: null
     price: 26600 rub
     source_id: 103918322
-    product_id: 68
+    product: 68
 - model: scraper.productvariant
   pk: 69
   fields:
@@ -2964,7 +2964,7 @@
     color: null
     price: 33300 rub
     source_id: 95249519
-    product_id: 69
+    product: 69
 - model: scraper.productvariant
   pk: 70
   fields:
@@ -2974,7 +2974,7 @@
     color: null
     price: 228200 rub
     source_id: 125421717
-    product_id: 70
+    product: 70
 - model: scraper.productvariant
   pk: 71
   fields:
@@ -2984,7 +2984,7 @@
     color: null
     price: 228200 rub
     source_id: 125421714
-    product_id: 70
+    product: 70
 - model: scraper.productvariant
   pk: 72
   fields:
@@ -2994,7 +2994,7 @@
     color: null
     price: 224700 rub
     source_id: 125421713
-    product_id: 70
+    product: 70
 - model: scraper.productvariant
   pk: 73
   fields:
@@ -3004,7 +3004,7 @@
     color: null
     price: 118300 rub
     source_id: 154114567
-    product_id: 71
+    product: 71
 - model: scraper.productvariant
   pk: 74
   fields:
@@ -3014,7 +3014,7 @@
     color: null
     price: 292100 rub
     source_id: 154105223
-    product_id: 72
+    product: 72
 - model: scraper.productvariant
   pk: 75
   fields:
@@ -3024,7 +3024,7 @@
     color: null
     price: 17800 rub
     source_id: 215036898
-    product_id: 73
+    product: 73
 - model: scraper.productvariant
   pk: 76
   fields:
@@ -3034,7 +3034,7 @@
     color: null
     price: 42600 rub
     source_id: 207266136
-    product_id: 74
+    product: 74
 - model: scraper.productvariant
   pk: 77
   fields:
@@ -3044,7 +3044,7 @@
     color: null
     price: 18900 rub
     source_id: 200624679
-    product_id: 75
+    product: 75
 - model: scraper.productvariant
   pk: 78
   fields:
@@ -3054,7 +3054,7 @@
     color: null
     price: 115200 rub
     source_id: 167551050
-    product_id: 76
+    product: 76
 - model: scraper.productvariant
   pk: 79
   fields:
@@ -3064,7 +3064,7 @@
     color: null
     price: 23000 rub
     source_id: 156229742
-    product_id: 77
+    product: 77
 - model: scraper.productvariant
   pk: 80
   fields:
@@ -3074,7 +3074,7 @@
     color: null
     price: 116500 rub
     source_id: 158423004
-    product_id: 78
+    product: 78
 - model: scraper.productvariant
   pk: 81
   fields:
@@ -3084,7 +3084,7 @@
     color: null
     price: 29700 rub
     source_id: 96121844
-    product_id: 79
+    product: 79
 - model: scraper.productvariant
   pk: 82
   fields:
@@ -3094,7 +3094,7 @@
     color: null
     price: 60700 rub
     source_id: 160257187
-    product_id: 80
+    product: 80
 - model: scraper.productvariant
   pk: 83
   fields:
@@ -3104,7 +3104,7 @@
     color: null
     price: 53700 rub
     source_id: 96120859
-    product_id: 81
+    product: 81
 - model: scraper.productvariant
   pk: 84
   fields:
@@ -3114,7 +3114,7 @@
     color: null
     price: 52600 rub
     source_id: 96122403
-    product_id: 81
+    product: 81
 - model: scraper.productvariant
   pk: 85
   fields:
@@ -3124,7 +3124,7 @@
     color: null
     price: 37100 rub
     source_id: 96033184
-    product_id: 82
+    product: 82
 - model: scraper.productvariant
   pk: 86
   fields:
@@ -3134,7 +3134,7 @@
     color: null
     price: 37500 rub
     source_id: 138153886
-    product_id: 83
+    product: 83
 - model: scraper.productvariant
   pk: 87
   fields:
@@ -3144,7 +3144,7 @@
     color: null
     price: 64400 rub
     source_id: 138153882
-    product_id: 84
+    product: 84
 - model: scraper.productvariant
   pk: 88
   fields:
@@ -3154,7 +3154,7 @@
     color: null
     price: 25600 rub
     source_id: 213482989
-    product_id: 85
+    product: 85
 - model: scraper.productvariant
   pk: 89
   fields:
@@ -3164,7 +3164,7 @@
     color: null
     price: 41900 rub
     source_id: 95245702
-    product_id: 59
+    product: 59
 - model: scraper.productvariant
   pk: 90
   fields:
@@ -3174,7 +3174,7 @@
     color: null
     price: 32900 rub
     source_id: 177371407
-    product_id: 145
+    product: 145
 - model: scraper.productvariant
   pk: 91
   fields:
@@ -3184,7 +3184,7 @@
     color: null
     price: 54200 rub
     source_id: 166851687
-    product_id: 146
+    product: 146
 - model: scraper.productvariant
   pk: 92
   fields:
@@ -3194,7 +3194,7 @@
     color: null
     price: 54200 rub
     source_id: 166851688
-    product_id: 146
+    product: 146
 - model: scraper.productvariant
   pk: 93
   fields:
@@ -3204,7 +3204,7 @@
     color: null
     price: 29400 rub
     source_id: 103609356
-    product_id: 147
+    product: 147
 - model: scraper.productvariant
   pk: 94
   fields:
@@ -3214,7 +3214,7 @@
     color: null
     price: 32200 rub
     source_id: 95205581
-    product_id: 148
+    product: 148
 - model: scraper.productvariant
   pk: 95
   fields:
@@ -3224,7 +3224,7 @@
     color: null
     price: 124600 rub
     source_id: 95331001
-    product_id: 149
+    product: 149
 - model: scraper.productvariant
   pk: 96
   fields:
@@ -3234,7 +3234,7 @@
     color: null
     price: 72600 rub
     source_id: 242544218
-    product_id: 150
+    product: 150
 - model: scraper.productvariant
   pk: 97
   fields:
@@ -3244,7 +3244,7 @@
     color: null
     price: 40500 rub
     source_id: 239784379
-    product_id: 151
+    product: 151
 - model: scraper.productvariant
   pk: 98
   fields:
@@ -3254,7 +3254,7 @@
     color: null
     price: 47400 rub
     source_id: 222753215
-    product_id: 152
+    product: 152
 - model: scraper.productvariant
   pk: 99
   fields:
@@ -3264,7 +3264,7 @@
     color: null
     price: 52700 rub
     source_id: 240234379
-    product_id: 153
+    product: 153
 - model: scraper.productvariant
   pk: 100
   fields:
@@ -3274,7 +3274,7 @@
     color: null
     price: 33800 rub
     source_id: 94850004
-    product_id: 154
+    product: 154
 - model: scraper.productvariant
   pk: 101
   fields:
@@ -3284,7 +3284,7 @@
     color: null
     price: 18400 rub
     source_id: 210950448
-    product_id: 155
+    product: 155
 - model: scraper.productvariant
   pk: 102
   fields:
@@ -3294,7 +3294,7 @@
     color: null
     price: 119900 rub
     source_id: 222177167
-    product_id: 156
+    product: 156
 - model: scraper.productvariant
   pk: 103
   fields:
@@ -3304,7 +3304,7 @@
     color: null
     price: 24300 rub
     source_id: 82124826
-    product_id: 157
+    product: 157
 - model: scraper.productvariant
   pk: 104
   fields:
@@ -3314,7 +3314,7 @@
     color: null
     price: 27900 rub
     source_id: 138024312
-    product_id: 158
+    product: 158
 - model: scraper.productvariant
   pk: 105
   fields:
@@ -3324,7 +3324,7 @@
     color: null
     price: 14200 rub
     source_id: 193854934
-    product_id: 159
+    product: 159
 - model: scraper.productvariant
   pk: 106
   fields:
@@ -3334,7 +3334,7 @@
     color: null
     price: 25200 rub
     source_id: 214514870
-    product_id: 160
+    product: 160
 - model: scraper.productvariant
   pk: 107
   fields:
@@ -3344,7 +3344,7 @@
     color: null
     price: 40900 rub
     source_id: 231397048
-    product_id: 161
+    product: 161
 - model: scraper.productvariant
   pk: 108
   fields:
@@ -3354,7 +3354,7 @@
     color: null
     price: 36700 rub
     source_id: 146967714
-    product_id: 162
+    product: 162
 - model: scraper.productvariant
   pk: 109
   fields:
@@ -3364,7 +3364,7 @@
     color: null
     price: 19200 rub
     source_id: 217916129
-    product_id: 163
+    product: 163
 - model: scraper.productvariant
   pk: 110
   fields:
@@ -3374,7 +3374,7 @@
     color: null
     price: 24300 rub
     source_id: 179925868
-    product_id: 164
+    product: 164
 - model: scraper.productvariant
   pk: 111
   fields:
@@ -3384,7 +3384,7 @@
     color: null
     price: 57000 rub
     source_id: 195481088
-    product_id: 165
+    product: 165
 - model: scraper.productvariant
   pk: 112
   fields:
@@ -3394,7 +3394,7 @@
     color: null
     price: 11500 rub
     source_id: 207513380
-    product_id: 166
+    product: 166
 - model: scraper.productvariant
   pk: 113
   fields:
@@ -3404,7 +3404,7 @@
     color: null
     price: 45100 rub
     source_id: 195431312
-    product_id: 167
+    product: 167
 - model: scraper.productvariant
   pk: 114
   fields:
@@ -3414,7 +3414,7 @@
     color: null
     price: 42800 rub
     source_id: 196522962
-    product_id: 167
+    product: 167
 - model: scraper.productvariant
   pk: 115
   fields:
@@ -3424,7 +3424,7 @@
     color: null
     price: 19300 rub
     source_id: 174361799
-    product_id: 168
+    product: 168
 - model: scraper.productvariant
   pk: 116
   fields:
@@ -3434,7 +3434,7 @@
     color: null
     price: 25500 rub
     source_id: 88819628
-    product_id: 169
+    product: 169
 - model: scraper.productvariant
   pk: 117
   fields:
@@ -3444,7 +3444,7 @@
     color: null
     price: 31000 rub
     source_id: 212145690
-    product_id: 170
+    product: 170
 - model: scraper.productvariant
   pk: 118
   fields:
@@ -3454,7 +3454,7 @@
     color: null
     price: 43300 rub
     source_id: 169173556
-    product_id: 171
+    product: 171
 - model: scraper.productvariant
   pk: 119
   fields:
@@ -3464,7 +3464,7 @@
     color: null
     price: 43300 rub
     source_id: 169174350
-    product_id: 171
+    product: 171
 - model: scraper.productvariant
   pk: 120
   fields:
@@ -3474,7 +3474,7 @@
     color: null
     price: 43300 rub
     source_id: 169205572
-    product_id: 171
+    product: 171
 - model: scraper.productvariant
   pk: 121
   fields:
@@ -3484,7 +3484,7 @@
     color: null
     price: 43300 rub
     source_id: 169205761
-    product_id: 171
+    product: 171
 - model: scraper.productvariant
   pk: 122
   fields:
@@ -3494,7 +3494,7 @@
     color: null
     price: 35000 rub
     source_id: 227607041
-    product_id: 172
+    product: 172
 - model: scraper.productvariant
   pk: 123
   fields:
@@ -3504,7 +3504,7 @@
     color: null
     price: 43800 rub
     source_id: 212014835
-    product_id: 173
+    product: 173
 - model: scraper.productvariant
   pk: 124
   fields:
@@ -3514,7 +3514,7 @@
     color: null
     price: 25000 rub
     source_id: 182651805
-    product_id: 174
+    product: 174
 - model: scraper.productvariant
   pk: 125
   fields:
@@ -3524,7 +3524,7 @@
     color: null
     price: 90500 rub
     source_id: 225288469
-    product_id: 175
+    product: 175
 - model: scraper.productvariant
   pk: 126
   fields:
@@ -3534,7 +3534,7 @@
     color: null
     price: 90500 rub
     source_id: 225846424
-    product_id: 175
+    product: 175
 - model: scraper.productvariant
   pk: 127
   fields:
@@ -3544,7 +3544,7 @@
     color: null
     price: 55900 rub
     source_id: 193303930
-    product_id: 176
+    product: 176
 - model: scraper.productvariant
   pk: 128
   fields:
@@ -3554,7 +3554,7 @@
     color: null
     price: 49300 rub
     source_id: 215735521
-    product_id: 177
+    product: 177
 - model: scraper.productvariant
   pk: 129
   fields:
@@ -3564,7 +3564,7 @@
     color: null
     price: 26300 rub
     source_id: 144041578
-    product_id: 178
+    product: 178
 - model: scraper.productvariant
   pk: 130
   fields:
@@ -3574,7 +3574,7 @@
     color: null
     price: 31200 rub
     source_id: 170259366
-    product_id: 172
+    product: 172
 - model: scraper.productvariant
   pk: 131
   fields:
@@ -3584,7 +3584,7 @@
     color: null
     price: 14100 rub
     source_id: 207511181
-    product_id: 166
+    product: 166
 - model: scraper.productvariant
   pk: 132
   fields:
@@ -3594,7 +3594,7 @@
     color: null
     price: 41000 rub
     source_id: 208172702
-    product_id: 179
+    product: 179
 - model: scraper.productvariant
   pk: 133
   fields:
@@ -3604,7 +3604,7 @@
     color: null
     price: 38300 rub
     source_id: 208173911
-    product_id: 179
+    product: 179
 - model: scraper.productvariant
   pk: 134
   fields:
@@ -3614,7 +3614,7 @@
     color: null
     price: 62100 rub
     source_id: 218090927
-    product_id: 180
+    product: 180
 - model: scraper.productvariant
   pk: 135
   fields:
@@ -3624,7 +3624,7 @@
     color: null
     price: 38600 rub
     source_id: 217666071
-    product_id: 181
+    product: 181
 - model: scraper.productvariant
   pk: 136
   fields:
@@ -3634,7 +3634,7 @@
     color: null
     price: 36400 rub
     source_id: 217735656
-    product_id: 181
+    product: 181
 - model: scraper.productvariant
   pk: 137
   fields:
@@ -3644,7 +3644,7 @@
     color: null
     price: 36400 rub
     source_id: 217664527
-    product_id: 181
+    product: 181
 - model: scraper.productvariant
   pk: 138
   fields:
@@ -3654,7 +3654,7 @@
     color: null
     price: 34900 rub
     source_id: 217734744
-    product_id: 181
+    product: 181
 - model: scraper.productvariant
   pk: 139
   fields:
@@ -3664,7 +3664,7 @@
     color: null
     price: 32500 rub
     source_id: 217432028
-    product_id: 182
+    product: 182
 - model: scraper.productvariant
   pk: 140
   fields:
@@ -3674,7 +3674,7 @@
     color: null
     price: 20500 rub
     source_id: 241160174
-    product_id: 183
+    product: 183
 - model: scraper.productvariant
   pk: 141
   fields:
@@ -3684,7 +3684,7 @@
     color: null
     price: 19600 rub
     source_id: 241160173
-    product_id: 184
+    product: 184
 - model: scraper.productvariant
   pk: 142
   fields:
@@ -3694,7 +3694,7 @@
     color: null
     price: 25800 rub
     source_id: 241160175
-    product_id: 185
+    product: 185
 - model: scraper.productvariant
   pk: 143
   fields:
@@ -3704,7 +3704,7 @@
     color: null
     price: 37000 rub
     source_id: 94905271
-    product_id: 186
+    product: 186
 - model: scraper.productvariant
   pk: 144
   fields:
@@ -3714,7 +3714,7 @@
     color: null
     price: 33300 rub
     source_id: 179895456
-    product_id: 187
+    product: 187
 - model: scraper.productvariant
   pk: 145
   fields:
@@ -3724,7 +3724,7 @@
     color: null
     price: 31200 rub
     source_id: 179890114
-    product_id: 187
+    product: 187
 - model: scraper.productvariant
   pk: 146
   fields:
@@ -3734,7 +3734,7 @@
     color: null
     price: 28000 rub
     source_id: 179889957
-    product_id: 187
+    product: 187
 - model: scraper.productvariant
   pk: 147
   fields:
@@ -3744,7 +3744,7 @@
     color: null
     price: 24500 rub
     source_id: 222594856
-    product_id: 163
+    product: 163
 - model: scraper.productvariant
   pk: 148
   fields:
@@ -3754,7 +3754,7 @@
     color: null
     price: 77100 rub
     source_id: 236598595
-    product_id: 188
+    product: 188
 - model: scraper.productvariant
   pk: 149
   fields:
@@ -3764,7 +3764,7 @@
     color: null
     price: 47200 rub
     source_id: 213597289
-    product_id: 189
+    product: 189
 - model: scraper.productvariant
   pk: 150
   fields:
@@ -3774,7 +3774,7 @@
     color: null
     price: 24100 rub
     source_id: 231850525
-    product_id: 190
+    product: 190
 - model: scraper.productvariant
   pk: 151
   fields:
@@ -3784,7 +3784,7 @@
     color: null
     price: 37100 rub
     source_id: 147853947
-    product_id: 191
+    product: 191
 - model: scraper.productvariant
   pk: 152
   fields:
@@ -3794,7 +3794,7 @@
     color: null
     price: 44900 rub
     source_id: 182775296
-    product_id: 173
+    product: 173
 - model: scraper.productvariant
   pk: 153
   fields:
@@ -3804,7 +3804,7 @@
     color: null
     price: 13200 rub
     source_id: 212609274
-    product_id: 192
+    product: 192
 - model: scraper.productvariant
   pk: 154
   fields:
@@ -3814,7 +3814,7 @@
     color: null
     price: 26700 rub
     source_id: 209085496
-    product_id: 193
+    product: 193
 - model: scraper.productvariant
   pk: 155
   fields:
@@ -3824,7 +3824,7 @@
     color: null
     price: 78700 rub
     source_id: 118121309
-    product_id: 194
+    product: 194
 - model: scraper.productvariant
   pk: 156
   fields:
@@ -3834,7 +3834,7 @@
     color: null
     price: 13900 rub
     source_id: 207510930
-    product_id: 166
+    product: 166
 - model: scraper.productvariant
   pk: 157
   fields:
@@ -3844,7 +3844,7 @@
     color: null
     price: 68200 rub
     source_id: 162023705
-    product_id: 195
+    product: 195
 - model: scraper.productvariant
   pk: 158
   fields:
@@ -3854,7 +3854,7 @@
     color: null
     price: 19000 rub
     source_id: 217961472
-    product_id: 163
+    product: 163
 - model: scraper.productvariant
   pk: 159
   fields:
@@ -3864,7 +3864,7 @@
     color: null
     price: 21100 rub
     source_id: 200490090
-    product_id: 196
+    product: 196
 - model: scraper.productvariant
   pk: 160
   fields:
@@ -3874,7 +3874,7 @@
     color: null
     price: 20400 rub
     source_id: 204792700
-    product_id: 197
+    product: 197
 - model: scraper.productvariant
   pk: 161
   fields:
@@ -3884,7 +3884,7 @@
     color: null
     price: 43900 rub
     source_id: 160169781
-    product_id: 198
+    product: 198
 - model: scraper.productvariant
   pk: 162
   fields:
@@ -3894,7 +3894,7 @@
     color: null
     price: 20900 rub
     source_id: 153329095
-    product_id: 199
+    product: 199
 - model: scraper.productvariant
   pk: 163
   fields:
@@ -3904,7 +3904,7 @@
     color: null
     price: 19800 rub
     source_id: 222788158
-    product_id: 199
+    product: 199
 - model: scraper.productvariant
   pk: 164
   fields:
@@ -3914,7 +3914,7 @@
     color: null
     price: 86700 rub
     source_id: 147626333
-    product_id: 200
+    product: 200
 - model: scraper.productvariant
   pk: 165
   fields:
@@ -3924,7 +3924,7 @@
     color: null
     price: 34800 rub
     source_id: 221222600
-    product_id: 201
+    product: 201
 - model: scraper.productvariant
   pk: 166
   fields:
@@ -3934,7 +3934,7 @@
     color: null
     price: 42900 rub
     source_id: 217925922
-    product_id: 202
+    product: 202
 - model: scraper.productvariant
   pk: 167
   fields:
@@ -3944,7 +3944,7 @@
     color: null
     price: 22400 rub
     source_id: 169740062
-    product_id: 203
+    product: 203
 - model: scraper.productvariant
   pk: 168
   fields:
@@ -3954,7 +3954,7 @@
     color: null
     price: 55400 rub
     source_id: 108071781
-    product_id: 204
+    product: 204
 - model: scraper.productvariant
   pk: 169
   fields:
@@ -3964,7 +3964,7 @@
     color: null
     price: 30200 rub
     source_id: 208759847
-    product_id: 205
+    product: 205
 - model: scraper.productvariant
   pk: 170
   fields:
@@ -3974,7 +3974,7 @@
     color: null
     price: 32600 rub
     source_id: 180621863
-    product_id: 206
+    product: 206
 - model: scraper.productvariant
   pk: 171
   fields:
@@ -3984,7 +3984,7 @@
     color: null
     price: 32100 rub
     source_id: 180624673
-    product_id: 207
+    product: 207
 - model: scraper.productvariant
   pk: 172
   fields:
@@ -3994,7 +3994,7 @@
     color: null
     price: 33000 rub
     source_id: 95340711
-    product_id: 208
+    product: 208
 - model: scraper.productvariant
   pk: 173
   fields:
@@ -4004,7 +4004,7 @@
     color: null
     price: 24100 rub
     source_id: 219146092
-    product_id: 209
+    product: 209
 - model: scraper.productvariant
   pk: 174
   fields:
@@ -4014,7 +4014,7 @@
     color: null
     price: 48900 rub
     source_id: 109553604
-    product_id: 210
+    product: 210
 - model: scraper.productvariant
   pk: 175
   fields:
@@ -4024,7 +4024,7 @@
     color: null
     price: 15200 rub
     source_id: 242152937
-    product_id: 211
+    product: 211
 - model: scraper.productvariant
   pk: 176
   fields:
@@ -4034,7 +4034,7 @@
     color: null
     price: 51700 rub
     source_id: 97231864
-    product_id: 212
+    product: 212
 - model: scraper.productvariant
   pk: 177
   fields:
@@ -4044,7 +4044,7 @@
     color: null
     price: 19800 rub
     source_id: 85925740
-    product_id: 213
+    product: 213
 - model: scraper.productvariant
   pk: 178
   fields:
@@ -4054,7 +4054,7 @@
     color: null
     price: 37400 rub
     source_id: 144042660
-    product_id: 213
+    product: 213
 - model: scraper.productvariant
   pk: 179
   fields:
@@ -4064,7 +4064,7 @@
     color: null
     price: 20800 rub
     source_id: 221832828
-    product_id: 214
+    product: 214
 - model: scraper.productvariant
   pk: 180
   fields:
@@ -4074,7 +4074,7 @@
     color: null
     price: 28200 rub
     source_id: 208364266
-    product_id: 213
+    product: 213
 - model: scraper.productvariant
   pk: 181
   fields:
@@ -4084,7 +4084,7 @@
     color: null
     price: 57000 rub
     source_id: 213659783
-    product_id: 215
+    product: 215
 - model: scraper.productvariant
   pk: 182
   fields:
@@ -4094,7 +4094,7 @@
     color: null
     price: 50200 rub
     source_id: 237808941
-    product_id: 216
+    product: 216
 - model: scraper.productvariant
   pk: 183
   fields:
@@ -4104,7 +4104,7 @@
     color: null
     price: 103900 rub
     source_id: 206251543
-    product_id: 217
+    product: 217
 - model: scraper.productvariant
   pk: 184
   fields:
@@ -4114,7 +4114,7 @@
     color: null
     price: 49200 rub
     source_id: 221969140
-    product_id: 218
+    product: 218
 - model: scraper.productvariant
   pk: 185
   fields:
@@ -4124,7 +4124,7 @@
     color: null
     price: 27300 rub
     source_id: 100466091
-    product_id: 219
+    product: 219
 - model: scraper.productvariant
   pk: 186
   fields:
@@ -4134,7 +4134,7 @@
     color: null
     price: 32100 rub
     source_id: 235921062
-    product_id: 220
+    product: 220
 - model: scraper.productvariant
   pk: 187
   fields:
@@ -4144,7 +4144,7 @@
     color: null
     price: 37100 rub
     source_id: 190519226
-    product_id: 221
+    product: 221
 - model: scraper.productvariant
   pk: 188
   fields:
@@ -4154,7 +4154,7 @@
     color: null
     price: 14800 rub
     source_id: 202529370
-    product_id: 166
+    product: 166
 - model: scraper.productvariant
   pk: 189
   fields:
@@ -4164,7 +4164,7 @@
     color: null
     price: 17700 rub
     source_id: 250548748
-    product_id: 222
+    product: 222
 - model: scraper.productvariant
   pk: 190
   fields:
@@ -4174,7 +4174,7 @@
     color: null
     price: 31300 rub
     source_id: 237681427
-    product_id: 223
+    product: 223
 - model: scraper.productvariant
   pk: 191
   fields:
@@ -4184,7 +4184,7 @@
     color: null
     price: 70700 rub
     source_id: 173036307
-    product_id: 224
+    product: 224
 - model: scraper.productvariant
   pk: 192
   fields:
@@ -4194,7 +4194,7 @@
     color: null
     price: 84100 rub
     source_id: 153685713
-    product_id: 225
+    product: 225
 - model: scraper.productvariant
   pk: 193
   fields:
@@ -4204,7 +4204,7 @@
     color: null
     price: 40100 rub
     source_id: 150637876
-    product_id: 226
+    product: 226
 - model: scraper.productvariant
   pk: 194
   fields:
@@ -4214,7 +4214,7 @@
     color: null
     price: 96500 rub
     source_id: 174829049
-    product_id: 227
+    product: 227
 - model: scraper.productvariant
   pk: 195
   fields:
@@ -4224,7 +4224,7 @@
     color: null
     price: 27700 rub
     source_id: 147527169
-    product_id: 195
+    product: 195
 - model: scraper.productvariant
   pk: 196
   fields:
@@ -4234,7 +4234,7 @@
     color: null
     price: 35000 rub
     source_id: 209660753
-    product_id: 197
+    product: 197
 - model: scraper.productvariant
   pk: 197
   fields:
@@ -4244,7 +4244,7 @@
     color: null
     price: 32500 rub
     source_id: 243835933
-    product_id: 228
+    product: 228
 - model: scraper.productvariant
   pk: 198
   fields:
@@ -4254,7 +4254,7 @@
     color: null
     price: 43500 rub
     source_id: 96923787
-    product_id: 229
+    product: 229
 - model: scraper.productvariant
   pk: 199
   fields:
@@ -4264,7 +4264,7 @@
     color: null
     price: 30700 rub
     source_id: 208954333
-    product_id: 230
+    product: 230
 - model: scraper.productvariant
   pk: 200
   fields:
@@ -4274,7 +4274,7 @@
     color: null
     price: 28600 rub
     source_id: 211101394
-    product_id: 213
+    product: 213
 - model: scraper.productvariant
   pk: 201
   fields:
@@ -4284,7 +4284,7 @@
     color: null
     price: 133900 rub
     source_id: 95706848
-    product_id: 231
+    product: 231
 - model: scraper.productvariant
   pk: 202
   fields:
@@ -4294,7 +4294,7 @@
     color: null
     price: 69400 rub
     source_id: 151770613
-    product_id: 232
+    product: 232
 - model: scraper.productvariant
   pk: 203
   fields:
@@ -4304,7 +4304,7 @@
     color: null
     price: 21600 rub
     source_id: 164743461
-    product_id: 233
+    product: 233
 - model: scraper.productvariant
   pk: 204
   fields:
@@ -4314,7 +4314,7 @@
     color: null
     price: 129400 rub
     source_id: 197825096
-    product_id: 234
+    product: 234
 - model: scraper.productvariant
   pk: 205
   fields:
@@ -4324,7 +4324,7 @@
     color: null
     price: 190600 rub
     source_id: 161156870
-    product_id: 235
+    product: 235
 - model: scraper.productvariant
   pk: 206
   fields:
@@ -4334,7 +4334,7 @@
     color: null
     price: 351000 rub
     source_id: 40595800
-    product_id: 236
+    product: 236
 - model: scraper.productvariant
   pk: 207
   fields:
@@ -4344,7 +4344,7 @@
     color: null
     price: 22100 rub
     source_id: 228491574
-    product_id: 237
+    product: 237
 - model: scraper.productvariant
   pk: 208
   fields:
@@ -4354,7 +4354,7 @@
     color: null
     price: 26700 rub
     source_id: 224853156
-    product_id: 238
+    product: 238
 - model: scraper.productvariant
   pk: 209
   fields:
@@ -4364,7 +4364,7 @@
     color: null
     price: 31400 rub
     source_id: 171401361
-    product_id: 239
+    product: 239
 - model: scraper.productvariant
   pk: 210
   fields:
@@ -4374,7 +4374,7 @@
     color: null
     price: 16200 rub
     source_id: 233665616
-    product_id: 240
+    product: 240
 - model: scraper.productvariant
   pk: 211
   fields:
@@ -4384,7 +4384,7 @@
     color: null
     price: 12000 rub
     source_id: 233662535
-    product_id: 241
+    product: 241
 - model: scraper.productvariant
   pk: 212
   fields:
@@ -4394,7 +4394,7 @@
     color: null
     price: 15000 rub
     source_id: 233664053
-    product_id: 242
+    product: 242
 - model: scraper.productvariant
   pk: 213
   fields:
@@ -4404,7 +4404,7 @@
     color: null
     price: 11800 rub
     source_id: 233659723
-    product_id: 243
+    product: 243
 - model: scraper.productvariant
   pk: 214
   fields:
@@ -4414,7 +4414,7 @@
     color: null
     price: 26800 rub
     source_id: 89084112
-    product_id: 244
+    product: 244
 - model: scraper.productvariant
   pk: 215
   fields:
@@ -4424,7 +4424,7 @@
     color: null
     price: 32300 rub
     source_id: 186773856
-    product_id: 245
+    product: 245
 - model: scraper.productvariant
   pk: 216
   fields:
@@ -4434,7 +4434,7 @@
     color: null
     price: 67600 rub
     source_id: 143175719
-    product_id: 246
+    product: 246
 - model: scraper.productvariant
   pk: 217
   fields:
@@ -4444,7 +4444,7 @@
     color: null
     price: 22100 rub
     source_id: 143175453
-    product_id: 247
+    product: 247
 - model: scraper.productvariant
   pk: 218
   fields:
@@ -4454,7 +4454,7 @@
     color: null
     price: 152600 rub
     source_id: 106443126
-    product_id: 248
+    product: 248
 - model: scraper.productvariant
   pk: 219
   fields:
@@ -4464,7 +4464,7 @@
     color: null
     price: 113400 rub
     source_id: 106441308
-    product_id: 249
+    product: 249
 - model: scraper.productvariant
   pk: 220
   fields:
@@ -4474,7 +4474,7 @@
     color: null
     price: 62000 rub
     source_id: 106432564
-    product_id: 250
+    product: 250
 - model: scraper.productvariant
   pk: 221
   fields:
@@ -4484,7 +4484,7 @@
     color: null
     price: 539600 rub
     source_id: 93081887
-    product_id: 251
+    product: 251
 - model: scraper.productvariant
   pk: 222
   fields:
@@ -4494,7 +4494,7 @@
     color: null
     price: 17200 rub
     source_id: 170379471
-    product_id: 252
+    product: 252
 - model: scraper.productvariant
   pk: 223
   fields:
@@ -4504,7 +4504,7 @@
     color: null
     price: 66600 rub
     source_id: 152135970
-    product_id: 253
+    product: 253
 - model: scraper.productvariant
   pk: 224
   fields:
@@ -4514,7 +4514,7 @@
     color: null
     price: 62500 rub
     source_id: 215336647
-    product_id: 254
+    product: 254
 - model: scraper.productvariant
   pk: 225
   fields:
@@ -4524,7 +4524,7 @@
     color: null
     price: 682800 rub
     source_id: 225421340
-    product_id: 255
+    product: 255
 - model: scraper.productvariant
   pk: 226
   fields:
@@ -4534,7 +4534,7 @@
     color: null
     price: 24400 rub
     source_id: 234723195
-    product_id: 256
+    product: 256
 - model: scraper.productvariant
   pk: 227
   fields:
@@ -4544,7 +4544,7 @@
     color: null
     price: 20600 rub
     source_id: 234723194
-    product_id: 257
+    product: 257
 - model: scraper.productvariant
   pk: 228
   fields:
@@ -4554,7 +4554,7 @@
     color: null
     price: 24200 rub
     source_id: 217870149
-    product_id: 258
+    product: 258
 - model: scraper.productvariant
   pk: 229
   fields:
@@ -4564,7 +4564,7 @@
     color: null
     price: 49800 rub
     source_id: 223778459
-    product_id: 259
+    product: 259
 - model: scraper.productvariant
   pk: 230
   fields:
@@ -4574,7 +4574,7 @@
     color: null
     price: 12400 rub
     source_id: 165969282
-    product_id: 260
+    product: 260
 - model: scraper.productvariant
   pk: 231
   fields:
@@ -4584,7 +4584,7 @@
     color: null
     price: 39500 rub
     source_id: 226394347
-    product_id: 261
+    product: 261
 - model: scraper.productvariant
   pk: 232
   fields:
@@ -4594,7 +4594,7 @@
     color: null
     price: 23600 rub
     source_id: 220971849
-    product_id: 262
+    product: 262
 - model: scraper.productvariant
   pk: 233
   fields:
@@ -4604,7 +4604,7 @@
     color: null
     price: 9000 rub
     source_id: 214174484
-    product_id: 263
+    product: 263
 - model: scraper.productvariant
   pk: 234
   fields:
@@ -4614,7 +4614,7 @@
     color: null
     price: 12400 rub
     source_id: 230367608
-    product_id: 264
+    product: 264
 - model: scraper.productvariant
   pk: 235
   fields:
@@ -4624,7 +4624,7 @@
     color: null
     price: 28200 rub
     source_id: 165364667
-    product_id: 265
+    product: 265
 - model: scraper.productvariant
   pk: 236
   fields:
@@ -4634,7 +4634,7 @@
     color: null
     price: 24700 rub
     source_id: 196442859
-    product_id: 266
+    product: 266
 - model: scraper.productvariant
   pk: 237
   fields:
@@ -4644,7 +4644,7 @@
     color: null
     price: 44600 rub
     source_id: 168670029
-    product_id: 267
+    product: 267
 - model: scraper.productvariant
   pk: 238
   fields:
@@ -4654,7 +4654,7 @@
     color: null
     price: 15900 rub
     source_id: 120173993
-    product_id: 268
+    product: 268
 - model: scraper.productvariant
   pk: 239
   fields:
@@ -4664,7 +4664,7 @@
     color: null
     price: 20800 rub
     source_id: 165503132
-    product_id: 268
+    product: 268
 - model: scraper.productvariant
   pk: 240
   fields:
@@ -4674,7 +4674,7 @@
     color: null
     price: 17200 rub
     source_id: 170372416
-    product_id: 252
+    product: 252
 - model: scraper.productvariant
   pk: 241
   fields:
@@ -4684,7 +4684,7 @@
     color: null
     price: 18400 rub
     source_id: 214278239
-    product_id: 269
+    product: 269
 - model: scraper.productvariant
   pk: 242
   fields:
@@ -4694,7 +4694,7 @@
     color: null
     price: 15800 rub
     source_id: 204628940
-    product_id: 270
+    product: 270
 - model: scraper.productvariant
   pk: 243
   fields:
@@ -4704,7 +4704,7 @@
     color: null
     price: 15400 rub
     source_id: 209242110
-    product_id: 271
+    product: 271
 - model: scraper.productvariant
   pk: 244
   fields:
@@ -4714,7 +4714,7 @@
     color: null
     price: 29300 rub
     source_id: 223380487
-    product_id: 272
+    product: 272
 - model: scraper.productvariant
   pk: 245
   fields:
@@ -4724,7 +4724,7 @@
     color: null
     price: 30000 rub
     source_id: 235525024
-    product_id: 273
+    product: 273
 - model: scraper.productvariant
   pk: 246
   fields:
@@ -4734,7 +4734,7 @@
     color: null
     price: 29600 rub
     source_id: 235525026
-    product_id: 274
+    product: 274
 - model: scraper.productvariant
   pk: 247
   fields:
@@ -4744,7 +4744,7 @@
     color: null
     price: 17000 rub
     source_id: 213212738
-    product_id: 275
+    product: 275
 - model: scraper.productvariant
   pk: 248
   fields:
@@ -4754,7 +4754,7 @@
     color: null
     price: 93100 rub
     source_id: 228389793
-    product_id: 276
+    product: 276
 - model: scraper.productvariant
   pk: 249
   fields:
@@ -4764,7 +4764,7 @@
     color: null
     price: 154200 rub
     source_id: 141569417
-    product_id: 277
+    product: 277
 - model: scraper.productvariant
   pk: 250
   fields:
@@ -4774,7 +4774,7 @@
     color: null
     price: 141300 rub
     source_id: 131748115
-    product_id: 278
+    product: 278
 - model: scraper.productvariant
   pk: 251
   fields:
@@ -4784,7 +4784,7 @@
     color: null
     price: 222600 rub
     source_id: 141570007
-    product_id: 279
+    product: 279
 - model: scraper.productvariant
   pk: 252
   fields:
@@ -4794,7 +4794,7 @@
     color: null
     price: 194400 rub
     source_id: 141569725
-    product_id: 280
+    product: 280
 - model: scraper.productvariant
   pk: 253
   fields:
@@ -4804,7 +4804,7 @@
     color: null
     price: 248800 rub
     source_id: 131764196
-    product_id: 281
+    product: 281
 - model: scraper.productvariant
   pk: 254
   fields:
@@ -4814,7 +4814,7 @@
     color: null
     price: 198200 rub
     source_id: 131756751
-    product_id: 282
+    product: 282
 - model: scraper.productvariant
   pk: 255
   fields:
@@ -4824,7 +4824,7 @@
     color: null
     price: 92000 rub
     source_id: 168985350
-    product_id: 283
+    product: 283
 - model: scraper.productvariant
   pk: 256
   fields:
@@ -4834,7 +4834,7 @@
     color: null
     price: 68200 rub
     source_id: 166750205
-    product_id: 284
+    product: 284
 - model: scraper.productvariant
   pk: 257
   fields:
@@ -4844,7 +4844,7 @@
     color: null
     price: 11600 rub
     source_id: 205833992
-    product_id: 285
+    product: 285
 - model: scraper.productvariant
   pk: 258
   fields:
@@ -4854,7 +4854,7 @@
     color: null
     price: 16900 rub
     source_id: 223149561
-    product_id: 286
+    product: 286
 - model: scraper.productvariant
   pk: 259
   fields:
@@ -4864,7 +4864,7 @@
     color: null
     price: 12000 rub
     source_id: 207642030
-    product_id: 287
+    product: 287
 - model: scraper.productvariant
   pk: 260
   fields:
@@ -4874,7 +4874,7 @@
     color: null
     price: 15700 rub
     source_id: 207775313
-    product_id: 288
+    product: 288
 - model: scraper.productvariant
   pk: 261
   fields:
@@ -4884,7 +4884,7 @@
     color: null
     price: 21800 rub
     source_id: 143056659
-    product_id: 289
+    product: 289
 - model: scraper.productvariant
   pk: 262
   fields:
@@ -4894,7 +4894,7 @@
     color: null
     price: 50900 rub
     source_id: 200717571
-    product_id: 290
+    product: 290
 - model: scraper.productvariant
   pk: 263
   fields:
@@ -4904,7 +4904,7 @@
     color: null
     price: 64100 rub
     source_id: 30419733
-    product_id: 291
+    product: 291
 - model: scraper.productvariant
   pk: 264
   fields:
@@ -4914,7 +4914,7 @@
     color: null
     price: 25000 rub
     source_id: 212453891
-    product_id: 292
+    product: 292
 - model: scraper.productvariant
   pk: 265
   fields:
@@ -4924,7 +4924,7 @@
     color: null
     price: 18100 rub
     source_id: 212453890
-    product_id: 293
+    product: 293
 - model: scraper.productvariant
   pk: 266
   fields:
@@ -4934,7 +4934,7 @@
     color: null
     price: 29600 rub
     source_id: 231245334
-    product_id: 294
+    product: 294
 - model: scraper.productvariant
   pk: 267
   fields:
@@ -4944,7 +4944,7 @@
     color: null
     price: 27200 rub
     source_id: 178691692
-    product_id: 295
+    product: 295
 - model: scraper.productvariant
   pk: 268
   fields:
@@ -4954,7 +4954,7 @@
     color: null
     price: 22000 rub
     source_id: 111563990
-    product_id: 296
+    product: 296
 - model: scraper.productvariant
   pk: 269
   fields:
@@ -4964,7 +4964,7 @@
     color: null
     price: 14000 rub
     source_id: 219867441
-    product_id: 297
+    product: 297
 - model: scraper.productvariant
   pk: 270
   fields:
@@ -4974,7 +4974,7 @@
     color: null
     price: 23600 rub
     source_id: 220987230
-    product_id: 298
+    product: 298
 - model: scraper.productvariant
   pk: 271
   fields:
@@ -4984,7 +4984,7 @@
     color: null
     price: 10200 rub
     source_id: 203195762
-    product_id: 299
+    product: 299
 - model: scraper.productvariant
   pk: 272
   fields:
@@ -4994,7 +4994,7 @@
     color: null
     price: 23100 rub
     source_id: 229957046
-    product_id: 300
+    product: 300
 - model: scraper.productvariant
   pk: 273
   fields:
@@ -5004,7 +5004,7 @@
     color: null
     price: 16900 rub
     source_id: 222975414
-    product_id: 301
+    product: 301
 - model: scraper.productvariant
   pk: 274
   fields:
@@ -5014,7 +5014,7 @@
     color: null
     price: 12600 rub
     source_id: 207588474
-    product_id: 302
+    product: 302
 - model: scraper.productvariant
   pk: 275
   fields:
@@ -5024,7 +5024,7 @@
     color: null
     price: 12600 rub
     source_id: 207482892
-    product_id: 303
+    product: 303
 - model: scraper.productvariant
   pk: 276
   fields:
@@ -5034,7 +5034,7 @@
     color: null
     price: 15700 rub
     source_id: 207588475
-    product_id: 304
+    product: 304
 - model: scraper.productvariant
   pk: 277
   fields:
@@ -5044,7 +5044,7 @@
     color: null
     price: 66000 rub
     source_id: 51071081
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 278
   fields:
@@ -5054,7 +5054,7 @@
     color: null
     price: 106300 rub
     source_id: 51071784
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 279
   fields:
@@ -5064,7 +5064,7 @@
     color: null
     price: 439600 rub
     source_id: 51073846
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 280
   fields:
@@ -5074,7 +5074,7 @@
     color: null
     price: 126900 rub
     source_id: 51072551
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 281
   fields:
@@ -5084,7 +5084,7 @@
     color: null
     price: 36100 rub
     source_id: 51070375
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 282
   fields:
@@ -5094,7 +5094,7 @@
     color: null
     price: 160700 rub
     source_id: 51072983
-    product_id: 305
+    product: 305
 - model: scraper.productvariant
   pk: 283
   fields:
@@ -5104,7 +5104,7 @@
     color: null
     price: 14700 rub
     source_id: 152419602
-    product_id: 306
+    product: 306
 - model: scraper.productvariant
   pk: 284
   fields:
@@ -5114,7 +5114,7 @@
     color: null
     price: 37300 rub
     source_id: 51027433
-    product_id: 307
+    product: 307
 - model: scraper.productvariant
   pk: 285
   fields:
@@ -5124,7 +5124,7 @@
     color: null
     price: 35800 rub
     source_id: 51028326
-    product_id: 308
+    product: 308
 - model: scraper.productvariant
   pk: 286
   fields:
@@ -5134,7 +5134,7 @@
     color: null
     price: 40300 rub
     source_id: 51028829
-    product_id: 309
+    product: 309
 - model: scraper.productvariant
   pk: 287
   fields:
@@ -5144,7 +5144,7 @@
     color: null
     price: 35500 rub
     source_id: 51028531
-    product_id: 310
+    product: 310
 - model: scraper.productvariant
   pk: 288
   fields:
@@ -5154,7 +5154,7 @@
     color: null
     price: 81900 rub
     source_id: 51030346
-    product_id: 311
+    product: 311
 - model: scraper.productvariant
   pk: 289
   fields:
@@ -5164,4 +5164,4 @@
     color: null
     price: 51900 rub
     source_id: 98990336
-    product_id: 312
+    product: 312

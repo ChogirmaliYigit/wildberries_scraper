@@ -6,11 +6,15 @@ from users.models import OTPTypes, Token, User, UserOTP
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True, trim_whitespace=True)
+
     def create(self, validated_data):
         email = validated_data.get("email")
         if User.objects.filter(email=email).exists():
             raise exceptions.ValidationError(
-                {"message": "User with this email already exists"}
+                {
+                    "message": "Пользователь с таким адресом электронной почты уже существует"
+                }
             )
         user = User.objects.create_user(
             email=email,
@@ -43,7 +47,9 @@ class SignInSerializer(serializers.Serializer):
         )
 
         if not user:
-            raise serializers.ValidationError({"message": "Wrong email or password"})
+            raise serializers.ValidationError(
+                {"message": "Неправильный адрес электронной почты или пароль"}
+            )
 
         attrs["user"] = user
         return attrs
@@ -83,12 +89,12 @@ class ConfirmationSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = User.objects.filter(email=validated_data.get("email")).first()
         if not user:
-            raise exceptions.ValidationError({"message": "User not exists"})
+            raise exceptions.ValidationError({"message": "Пользователь не существует"})
         user_otp = UserOTP.objects.filter(
             user=user, code=validated_data.get("code"), type=OTPTypes.REGISTER
         ).first()
         if not user_otp:
-            raise exceptions.ValidationError({"message": "Wrong OTP"})
+            raise exceptions.ValidationError({"message": "Неправильный код"})
         user_otp.delete()
         return user
 
@@ -117,16 +123,16 @@ class ForgotPasswordSerializer(serializers.Serializer):
         re_password = validated_data.get("re_password", None)
         user = User.objects.filter(email=validated_data.get("email")).first()
         if not user:
-            raise exceptions.ValidationError({"message": "User not exists"})
+            raise exceptions.ValidationError({"message": "Пользователь не существует"})
         if (not password or not re_password) or password != re_password:
-            raise exceptions.ValidationError({"message": "Password didn't match"})
+            raise exceptions.ValidationError({"message": "Пароль не совпал"})
         otp_code = UserOTP.objects.filter(
             user=user,
             code=validated_data.get("code"),
             type=OTPTypes.FORGOT_PASSWORD,
         ).last()
         if not otp_code:
-            raise exceptions.ValidationError({"message": "Wrong OTP"})
+            raise exceptions.ValidationError({"message": "Неправильный код"})
         user.password = make_password(password)
         user.save(update_fields=["password"])
         otp_code.delete()
@@ -139,5 +145,5 @@ class SendOTPSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = User.objects.filter(email=validated_data.get("email")).first()
         if not user:
-            raise exceptions.ValidationError({"message": "User not exists"})
+            raise exceptions.ValidationError({"message": "Пользователь не существует"})
         return user

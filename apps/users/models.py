@@ -14,7 +14,12 @@ from apps.users.queryset.user import UserManager
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=1000, null=True, blank=True)
     username = None
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        error_messages={
+            "unique": "Пользователь с таким адресом электронной почты уже существует"
+        },
+    )
     profile_photo = models.ImageField(
         upload_to="users/profile_photos/", null=True, blank=True
     )

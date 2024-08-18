@@ -159,7 +159,7 @@ class FavoritesSerializer(serializers.ModelSerializer):
             .first()
         )
         if not product:
-            raise exceptions.ValidationError({"message": "Product not found"})
+            raise exceptions.ValidationError({"message": "Товар не найден"})
         favorite = Favorite.objects.create(user=request.user, product=product)
         return favorite
 
@@ -184,6 +184,6 @@ class LikesSerializer(serializers.ModelSerializer):
             .first()
         )
         if not product:
-            raise exceptions.ValidationError({"message": "Product not found"})
+            raise exceptions.ValidationError({"message": "Товар не найден"})
         like = Like.objects.create(user=request.user, product=product)
         return like

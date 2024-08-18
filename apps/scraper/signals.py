@@ -15,6 +15,6 @@ def update_comment_status(sender, instance, created, **kwargs):
     ):
         send_email(
             users=[instance.user],
-            subject=f"#{instance.pk} feedback status",
-            message=f"Dear {instance.user.full_name if instance.user.full_name else instance.user.email}!\n\nYour #{instance.pk} feedback is not accepted. Please double-check your comment and then send us again to check.",
+            subject=f"№{instance.pk} Статус обратной связи",
+            message=rf"Дорогой {instance.user.full_name if instance.user.full_name else instance.user.email}!\in\Ваш отзыв №{instance.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
         )

@@ -36,17 +36,17 @@ class CustomTokenAuthentication(TokenAuthentication):
 
         if token is None:
             raise AuthenticationFailed(
-                {"detail": "Invalid or expired token.", "logout": "true"}
+                {"detail": "Недействительный или просроченный токен.", "logout": "true"}
             )
 
         if not token.user.is_active:
             raise AuthenticationFailed(
-                {"detail": "User inactive or deleted.", "logout": "true"}
+                {"detail": "Пользователь неактивен или удален.", "logout": "true"}
             )
 
         if not token.is_active:
             raise AuthenticationFailed(
-                {"detail": "Your token is not active.", "logout": "true"}
+                {"detail": "Ваш токен не активен.", "logout": "true"}
             )
 
         return token.user, token
@@ -70,6 +70,8 @@ def send_otp(user: User, type_: str):
     UserOTP.objects.create(user=user, code=code, type=type_)
     if not settings.DEBUG:
         return send_email(
-            [user.email], "Email confirmation for Ozro", f"Your OTP code: {code}"
+            [user.email],
+            "Подтверждение по электронной почте для Озро",
+            f"Ваш код: {code}",
         )
     return None
