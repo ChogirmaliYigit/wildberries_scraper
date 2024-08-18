@@ -25,6 +25,11 @@ class ProductsListView(BaseListAPIView):
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
+
 
 class CommentsListView(BaseListCreateAPIView):
     queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 from bs4 import BeautifulSoup
 from dateutil.parser import ParserError, parse
+from django.conf import settings
 from django.db.models import Count
 from scraper.models import (
     Category,
@@ -47,6 +48,8 @@ class WildberriesClient:
     def save_categories_by_json(self, data: list) -> None:
         cat_objects = []
         for cat in data:
+            if not int(cat.get("id")) in settings.CATEGORIES_SOURCE_IDS:
+                continue
             category = Category(
                 source_id=cat.get("id"),
                 title=cat.get("name"),

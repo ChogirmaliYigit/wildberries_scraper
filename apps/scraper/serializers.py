@@ -5,6 +5,7 @@ from scraper.models import (
     Comment,
     CommentStatuses,
     Favorite,
+    Like,
     Product,
     ProductVariant,
 )
@@ -52,13 +53,25 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
 
 class ProductsSerializer(serializers.ModelSerializer):
     variants = ProductVariantsSerializer(many=True)
+    liked = serializers.BooleanField(read_only=True)
+    favorite = serializers.BooleanField(read_only=True)
+    likes = serializers.IntegerField(read_only=True)
 
     def to_representation(self, instance):
+        request = self.context.get("request")
         data = super().to_representation(instance)
         data["variants"] = ProductVariantsSerializer(
             instance.variants.all(), many=True
         ).data
         data["category"] = instance.category.title
+        if request:
+            data["liked"] = Like.objects.filter(
+                user=request.user, product=instance
+            ).exists()
+            data["favorite"] = Favorite.objects.filter(
+                user=request.user, product=instance
+            ).exists()
+        data["likes"] = Like.objects.filter(product=instance).count()
         return data
 
     class Meta:
@@ -68,6 +81,8 @@ class ProductsSerializer(serializers.ModelSerializer):
             "title",
             "category",
             "variants",
+            "liked",
+            "favorite",
         )
 
 
@@ -155,3 +170,20 @@ class FavoritesSerializer(serializers.ModelSerializer):
             "product",
             "product_id",
         )
+
+
+class LikesSerializer(serializers.ModelSerializer):
+    product = ProductsSerializer(many=False, read_only=True)
+    product_id = serializers.IntegerField(write_only=True)
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        product = (
+            Product.objects.prefetch_related("category")
+            .filter(id=validated_data.get("product_id"))
+            .first()
+        )
+        if not product:
+            raise exceptions.ValidationError({"message": "Product not found"})
+        like = Like.objects.create(user=request.user, product=product)
+        return like
