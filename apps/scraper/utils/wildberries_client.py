@@ -48,8 +48,8 @@ class WildberriesClient:
         cat_objects = []
         for cat in data:
             if (
-                int(cat.get("id")) not in settings.CATEGORIES_SOURCE_IDS
-                or int(cat.get("parent")) not in settings.CATEGORIES_SOURCE_IDS
+                int(cat.get("id", 0)) not in settings.CATEGORIES_SOURCE_IDS
+                or int(cat.get("parent", 0)) not in settings.CATEGORIES_SOURCE_IDS
             ):
                 continue
             category = Category(
