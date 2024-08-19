@@ -1,7 +1,7 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from rest_framework import generics
+from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
-from scraper.models import Category, Comment, CommentStatuses, Favorite, Product
+from scraper.models import Category, Comment, CommentStatuses, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
     CommentsSerializer,
@@ -44,6 +44,7 @@ class CommentsListView(BaseListCreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["request"] = self.request
+        context["comment"] = True
         return context
 
 
@@ -67,7 +68,7 @@ class UserCommentsListView(generics.ListAPIView):
         return context
 
 
-class FeedbacksListView(BaseListAPIView):
+class FeedbacksListView(BaseListCreateAPIView):
     queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
         reply_to__isnull=True, status=CommentStatuses.ACCEPTED
     )
@@ -108,3 +109,18 @@ class FavoritesListView(BaseListCreateAPIView):
         return Favorite.objects.prefetch_related("product", "user").filter(
             user=self.request.user
         )
+
+
+class LikeView(views.APIView):
+    def post(self, request, product_id):
+        if not request.user.is_authenticated:
+            raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
+        product = Product.objects.filter(pk=product_id).first()
+        if not product:
+            raise exceptions.ValidationError({"message": "Товар не найден"})
+        like = Like.objects.filter(user=request.user, product=product).first()
+        if like:
+            like.delete()
+        else:
+            Like.objects.create(user=request.user, product=product)
+        return response.Response({}, status.HTTP_200_OK)

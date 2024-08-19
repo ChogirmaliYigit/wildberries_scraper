@@ -53,8 +53,8 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
 
 class ProductsSerializer(serializers.ModelSerializer):
     variants = ProductVariantsSerializer(many=True)
-    liked = serializers.BooleanField(read_only=True)
-    favorite = serializers.BooleanField(read_only=True)
+    liked = serializers.BooleanField(read_only=True, default=False)
+    favorite = serializers.BooleanField(read_only=True, default=False)
     likes = serializers.IntegerField(read_only=True)
 
     def to_representation(self, instance):
@@ -64,7 +64,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             instance.variants.all(), many=True
         ).data
         data["category"] = instance.category.title
-        if request:
+        if request and request.user.is_authenticated:
             data["liked"] = Like.objects.filter(
                 user=request.user, product=instance
             ).exists()
@@ -113,6 +113,11 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
+        comment = self.context.get("comment", False)
+        if comment and not validated_data.get("reply_to"):
+            raise exceptions.ValidationError(
+                {"message": "Комментарий должен быть ответил кому-то"}
+            )
         source_id = validated_data.pop("source_id", None)
         validated_data["status"] = CommentStatuses.NOT_REVIEWED
         product = (

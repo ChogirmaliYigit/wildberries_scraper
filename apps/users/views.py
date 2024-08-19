@@ -65,7 +65,7 @@ class SignOutView(views.APIView):
         self.token_class.objects.filter(
             user=request.user, key=request.auth.key
         ).delete()
-        return response.Response({}, status.HTTP_204_NO_CONTENT)
+        return response.Response({}, status.HTTP_200_OK)
 
 
 class ConfirmationView(views.APIView):
