@@ -255,8 +255,13 @@ class WildberriesClient:
                             if self.check_image(img_url):
                                 link = img_url
                                 break
-                        if link:
-                            CommentFiles.objects.get_or_create(
+                        if (
+                            link
+                            and not CommentFiles.objects.filter(
+                                comment=comment_object, file_link=link
+                            ).exists()
+                        ):
+                            CommentFiles.objects.create(
                                 comment=comment_object,
                                 file_link=link,
                             )
