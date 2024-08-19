@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import ForeignKey
 from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
 from scraper.models import (
     Category,
     Comment,
@@ -11,6 +12,7 @@ from scraper.models import (
     ProductVariantImage,
 )
 from unfold.admin import ModelAdmin, TabularInline
+from unfold.decorators import display
 
 
 class ProductsInline(TabularInline):
@@ -33,16 +35,12 @@ class CategoryAdmin(ModelAdmin):
         "parent",
         "image_link",
         "source_id",
-        "slug_name",
-        "shard",
     )
     search_fields = (
         "title",
         "source_id",
         "image_link",
         "id",
-        "slug_name",
-        "shard",
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
@@ -74,8 +72,12 @@ class ProductAdmin(ModelAdmin):
         "title",
         "category",
         "root",
+        "likes",
     )
-    fields = list_display
+    fields = (
+        "title",
+        "category",
+    )
     search_fields = (
         "id",
         "title",
@@ -84,6 +86,10 @@ class ProductAdmin(ModelAdmin):
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
     show_facets = True
+
+    @display(description=_("Likes"))
+    def likes(self, instance):
+        return instance.product_likes.count()
 
 
 class ProductVariantImagesInline(TabularInline):
@@ -132,19 +138,15 @@ class CommentAdmin(ModelAdmin):
     actions = [
         "accept_all",
         "not_accept_all",
-        "update_file_links",
     ]
 
     def accept_all(self, request, queryset):
         queryset.update(status=CommentStatuses.ACCEPTED)
-        self.message_user(request, "Selected comments accepted", level=25)
+        self.message_user(request, _("Selected comments accepted"), level=25)
 
     def not_accept_all(self, request, queryset):
         queryset.update(status=CommentStatuses.NOT_ACCEPTED)
-        self.message_user(request, "Selected comments not accepted", level=30)
+        self.message_user(request, _("Selected comments not accepted"), level=30)
 
-    def update_file_links(self, request, queryset):
-        for file in CommentFiles.objects.all():
-            file.file_link = file.file_link[:17] + "1" + file.file_link[18:]
-            file.save(update_fields=["file_link"])
-        self.message_user(request, "done", level=25)
+    accept_all.short_description = _("Accept all")
+    not_accept_all.short_description = _("Not accept all")

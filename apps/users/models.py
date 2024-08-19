@@ -7,25 +7,32 @@ from core.models import BaseModel
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.users.queryset.user import UserManager
 
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
-    full_name = models.CharField(max_length=1000, null=True, blank=True)
+    full_name = models.CharField(
+        max_length=1000, null=True, blank=True, verbose_name=_("Full name")
+    )
     username = None
     email = models.EmailField(
         unique=True,
+        verbose_name=_("Email"),
         error_messages={
             "unique": "Пользователь с таким адресом электронной почты уже существует"
         },
     )
     profile_photo = models.ImageField(
-        upload_to="users/profile_photos/", null=True, blank=True
+        upload_to="users/profile_photos/",
+        null=True,
+        blank=True,
+        verbose_name=_("Profile photo"),
     )
 
     is_staff = models.BooleanField(default=False)
-    is_blocked = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False, verbose_name=_("Is blocked"))
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -34,6 +41,8 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "users_users"
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
 
 
 class Token(BaseModel):

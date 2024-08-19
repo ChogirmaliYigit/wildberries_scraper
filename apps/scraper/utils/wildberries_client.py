@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from dateutil.parser import ParserError, parse
 from django.conf import settings
-from django.db.models import Count
 from scraper.models import (
     Category,
     Comment,
@@ -82,9 +81,7 @@ class WildberriesClient:
     def get_products(self):
         currency = "rub"
 
-        categories = Category.objects.annotate(
-            num_sub_categories=Count("sub_categories")
-        ).filter(num_sub_categories=0)
+        categories = Category.objects.all()
         product_variant_source_ids = list(
             ProductVariant.objects.values_list("source_id", flat=True)
         )

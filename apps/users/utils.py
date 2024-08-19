@@ -36,17 +36,25 @@ class CustomTokenAuthentication(TokenAuthentication):
 
         if token is None:
             raise AuthenticationFailed(
-                {"detail": "Недействительный или просроченный токен.", "logout": "true"}
+                {
+                    "message": "Недействительный или просроченный токен.",
+                    "logout": "true",
+                }
             )
 
         if not token.user.is_active:
             raise AuthenticationFailed(
-                {"detail": "Пользователь неактивен или удален.", "logout": "true"}
+                {"message": "Пользователь неактивен или удален.", "logout": "true"}
+            )
+
+        if token.user.is_blocked:
+            raise AuthenticationFailed(
+                {"message": "Вы заблокированы администраторами", "logout": "true"}
             )
 
         if not token.is_active:
             raise AuthenticationFailed(
-                {"detail": "Ваш токен не активен.", "logout": "true"}
+                {"message": "Ваш токен не активен.", "logout": "true"}
             )
 
         return token.user, token
