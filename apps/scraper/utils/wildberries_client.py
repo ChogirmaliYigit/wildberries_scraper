@@ -52,7 +52,10 @@ class WildberriesClient:
                 int(cat.get("id", 0)),
                 int(cat.get("id", 0)) in settings.CATEGORIES_SOURCE_IDS,
             )
-            if int(cat.get("id", 0)) not in settings.CATEGORIES_SOURCE_IDS:
+            if (
+                not cat.get("parent")
+                and int(cat.get("id", 0)) not in settings.CATEGORIES_SOURCE_IDS
+            ):
                 continue
             category = Category(
                 source_id=cat.get("id"),
