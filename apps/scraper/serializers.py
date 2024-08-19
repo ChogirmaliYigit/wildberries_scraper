@@ -106,7 +106,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         replies = instance.replies.prefetch_related("user", "reply_to", "product").all()
         data["replied_comments"] = (
-            CommentsSerializer(replies, many=True).data if replies else {}
+            CommentsSerializer(replies, many=True).data if replies else []
         )
         data["files"] = self.get_files(instance, data)
         if instance.wb_user:
