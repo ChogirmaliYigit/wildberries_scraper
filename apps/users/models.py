@@ -66,8 +66,8 @@ class Token(BaseModel):
 
 
 class OTPTypes(models.TextChoices):
-    REGISTER = "register", "Register"
-    FORGOT_PASSWORD = "forgot_password", "Forgot password"
+    REGISTER = "register", _("Register")
+    FORGOT_PASSWORD = "forgot_password", _("Forgot password")
 
 
 class UserOTP(BaseModel):

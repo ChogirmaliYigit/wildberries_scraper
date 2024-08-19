@@ -125,9 +125,9 @@ class ProductVariantImage(BaseModel):
 
 
 class CommentStatuses(models.TextChoices):
-    ACCEPTED: tuple[str] = "accepted", "Accepted"
-    NOT_ACCEPTED: tuple[str] = "not_accepted", "Not accepted"
-    NOT_REVIEWED: tuple[str] = "not_reviewed", "Not reviewed"
+    ACCEPTED: tuple[str] = "accepted", _("Accepted")
+    NOT_ACCEPTED: tuple[str] = "not_accepted", _("Not accepted")
+    NOT_REVIEWED: tuple[str] = "not_reviewed", _("Not reviewed")
 
 
 class Comment(BaseModel):
@@ -186,9 +186,8 @@ class Comment(BaseModel):
             send_email(
                 users=[self.user.email],
                 subject=f"№{self.pk} Статус обратной связи",
-                message=rf"Дорогой {self.user.full_name if self.user.full_name else self.user.email}!\in\Ваш отзыв №{self.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
+                message=rf"Дорогой {str(self.user.full_name if self.user.full_name else self.user.email)}!\in\Ваш отзыв №{self.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
             )
-            print(f"Email sent to user from signal: {self.user}")
         return super().save(*args, **kwargs)
 
     class Meta:

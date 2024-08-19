@@ -65,7 +65,6 @@ def generate_otp_code(length: int = 6) -> str:
 
 
 def send_email(users: list[str], subject: str, message: str):
-    print(f"Email sent to users: {users}")
     return send_mail(
         subject=subject,
         message=message,
