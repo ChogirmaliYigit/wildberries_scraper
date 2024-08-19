@@ -22,7 +22,7 @@ def sign_in_response(user):
         },
     )
     user_data = UserSerializer(user).data
-    data = {"token": token.key, "user": user_data, "permissions": permissions}
+    data = {"token": token.key, "user": user_data}
     return SignInResponseSerializer(data).data
 
 

@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, CommentStatuses, Favorite, Like, Product
@@ -20,7 +21,7 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(BaseListAPIView):
-    queryset = Product.objects.prefetch_related("category").all()
+    queryset = Product.objects.prefetch_related("category").all().order_by("-id")
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
@@ -56,10 +57,12 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return Comment.objects.prefetch_related("product", "user", "reply_to").filter(
+        queryset = Comment.objects.all()
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
+        return queryset.prefetch_related("product", "user", "reply_to").filter(
             status=CommentStatuses.ACCEPTED,
             reply_to__isnull=False,
-            user=self.request.user,
         )
 
     def get_serializer_context(self):
@@ -87,14 +90,16 @@ class UserFeedbacksListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return Comment.objects.prefetch_related("product", "user", "reply_to").filter(
-            reply_to__isnull=True,
+        queryset = Comment.objects.all()
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
+        return queryset.prefetch_related("product", "user", "reply_to").filter(
             status=CommentStatuses.ACCEPTED,
-            user=self.request.user,
+            reply_to__isnull=True,
         )
 
 
-class FavoritesListView(BaseListCreateAPIView):
+class FavoritesListView(BaseListAPIView):
     serializer_class = FavoritesSerializer
     search_fields = [
         "product__title",
@@ -106,12 +111,32 @@ class FavoritesListView(BaseListCreateAPIView):
         return context
 
     def get_queryset(self):
-        return Favorite.objects.prefetch_related("product", "user").filter(
-            user=self.request.user
-        )
+        queryset = Favorite.objects.all()
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
+        return queryset.prefetch_related("product", "user")
+
+
+class FavoriteView(views.APIView):
+    @utils.swagger_auto_schema(responses={200: "{'favorite': true'"})
+    def post(self, request, product_id):
+        if not request.user.is_authenticated:
+            raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
+        product = Product.objects.filter(pk=product_id).first()
+        if not product:
+            raise exceptions.ValidationError({"message": "Товар не найден"})
+        favorite = Favorite.objects.filter(user=request.user, product=product).first()
+        if favorite:
+            favorite.delete()
+            is_favorite = False
+        else:
+            Favorite.objects.create(user=request.user, product=product)
+            is_favorite = True
+        return response.Response({"favorite": is_favorite}, status.HTTP_200_OK)
 
 
 class LikeView(views.APIView):
+    @utils.swagger_auto_schema(responses={200: "{'liked': true'"})
     def post(self, request, product_id):
         if not request.user.is_authenticated:
             raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
@@ -121,6 +146,8 @@ class LikeView(views.APIView):
         like = Like.objects.filter(user=request.user, product=product).first()
         if like:
             like.delete()
+            liked = False
         else:
             Like.objects.create(user=request.user, product=product)
-        return response.Response({}, status.HTTP_200_OK)
+            liked = True
+        return response.Response({"liked": liked}, status.HTTP_200_OK)

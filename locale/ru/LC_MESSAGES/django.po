@@ -60,7 +60,7 @@ msgstr "Изображение"
 #: apps/scraper/models.py:19 apps/scraper/models.py:73
 #: apps/scraper/models.py:132
 msgid "Source ID"
-msgstr "Идентификатор источника"
+msgstr "Артикул"
 
 #: apps/scraper/models.py:20
 msgid "Slug name"

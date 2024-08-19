@@ -11,4 +11,3 @@ class BaseListCreateAPIView(generics.ListCreateAPIView):
 
 class BaseListAPIView(generics.ListAPIView):
     permission_classes = (AllowAny,)
-    authentication_classes = ()

@@ -19,4 +19,5 @@ urlpatterns = [
     path("user-feedbacks", UserFeedbacksListView.as_view(), name="user-feedbacks-list"),
     path("favorites", FavoritesListView.as_view(), name="favorites-list"),
     path("like/<int:product_id>", LikeView.as_view(), name="like-a-product"),
+    path("favorite/<int:product_id>", LikeView.as_view(), name="favorite-a-product"),
 ]

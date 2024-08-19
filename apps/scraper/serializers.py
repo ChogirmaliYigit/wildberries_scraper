@@ -90,6 +90,10 @@ class ProductsSerializer(serializers.ModelSerializer):
 class CommentsSerializer(serializers.ModelSerializer):
     replied_comments = serializers.ListField(read_only=True)
     source_id = serializers.IntegerField()
+    rating = serializers.IntegerField(required=False, default=0)
+    file = serializers.FileField(write_only=True, required=False)
+    user = serializers.CharField(read_only=True)
+    files = serializers.ListSerializer(child=serializers.FileField(), read_only=True)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -100,6 +104,8 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["files"] = self.get_files(instance, data)
         if instance.wb_user:
             data["user"] = instance.wb_user
+        else:
+            data["user"] = instance.user.full_name or instance.user.email
         return data
 
     def get_files(self, comment, data):
@@ -120,11 +126,12 @@ class CommentsSerializer(serializers.ModelSerializer):
             )
         source_id = validated_data.pop("source_id", None)
         validated_data["status"] = CommentStatuses.NOT_REVIEWED
-        product = (
-            Product.objects.prefetch_related("category")
-            .filter(source_id=source_id)
+        variant = (
+            ProductVariant.objects.filter(source_id=source_id)
+            .prefetch_related("product")
             .first()
         )
+        product = variant.product if variant else None
         if source_id:
             if not product:
                 try:
@@ -149,6 +156,8 @@ class CommentsSerializer(serializers.ModelSerializer):
             "content",
             "rating",
             "files",
+            "file",
+            "reply_to",
             "replied_comments",
         )
 
@@ -156,18 +165,6 @@ class CommentsSerializer(serializers.ModelSerializer):
 class FavoritesSerializer(serializers.ModelSerializer):
     product = ProductsSerializer(many=False, read_only=True)
     product_id = serializers.IntegerField(write_only=True)
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        product = (
-            Product.objects.prefetch_related("category")
-            .filter(id=validated_data.get("product_id"))
-            .first()
-        )
-        if not product:
-            raise exceptions.ValidationError({"message": "Товар не найден"})
-        favorite = Favorite.objects.create(user=request.user, product=product)
-        return favorite
 
     class Meta:
         model = Favorite

@@ -79,7 +79,6 @@ class UserSerializer(serializers.ModelSerializer):
 class SignInResponseSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=40)
     user = UserSerializer()
-    permissions = serializers.ListField()
 
 
 class ConfirmationSerializer(serializers.Serializer):
