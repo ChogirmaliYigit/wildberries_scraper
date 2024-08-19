@@ -83,6 +83,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             "variants",
             "liked",
             "favorite",
+            "likes",
         )
 
 
