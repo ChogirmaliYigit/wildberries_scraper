@@ -34,6 +34,12 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 class ProductVariantsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    file_type = serializers.CharField(read_only=True)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["file_type"] = "image"
+        return data
 
     def get_images(self, variant):
         return [
@@ -48,6 +54,7 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
             "price",
             "source_id",
             "images",
+            "file_type",
         )
 
 
