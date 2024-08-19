@@ -122,7 +122,7 @@ msgstr "Изображения вариантов продукта"
 
 #: apps/scraper/models.py:128
 msgid "Accepted"
-msgstr "Accepted"
+msgstr "Принял"
 
 #: apps/scraper/models.py:129
 msgid "Not accepted"
