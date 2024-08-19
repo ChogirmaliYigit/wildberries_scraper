@@ -29,6 +29,7 @@ class CategoryAdmin(ModelAdmin):
         "parent",
         "image_link",
         "source_id",
+        "shard",
     )
     fields = (
         "title",
