@@ -87,12 +87,14 @@ class WildberriesClient:
         )
 
         for category in categories:
+            print("Category:", category)
             url = (
                 f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog?ab_testing=false&appType=1"
                 f"&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0"
             )
             soup = self.get_soup(url)
             data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+            print("Data:", data)
             roots = {}
             for p in data.get("data", {}).get("products", []):
                 root = roots.pop(str(p["root"]), [])
