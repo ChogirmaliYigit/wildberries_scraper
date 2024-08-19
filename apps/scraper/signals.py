@@ -7,6 +7,7 @@ from users.utils import send_email
 
 @receiver(post_save, sender=Comment)
 def update_comment_status(sender, instance, created, **kwargs):
+    print(created, instance.user, instance.status, settings.DEBUG)
     if (
         not created
         and instance.user
