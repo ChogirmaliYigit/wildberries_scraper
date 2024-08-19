@@ -16,7 +16,6 @@ from users.utils import send_otp, sign_in_response
 
 class SignUpView(views.APIView):
     permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
     serializer_class = SignUpSerializer
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})

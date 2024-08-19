@@ -91,7 +91,7 @@ class ConfirmationSerializer(serializers.Serializer):
             raise exceptions.ValidationError({"message": "Пользователь не существует"})
         user_otp = UserOTP.objects.filter(
             user=user, code=validated_data.get("code"), type=OTPTypes.REGISTER
-        ).first()
+        ).last()
         if not user_otp:
             raise exceptions.ValidationError({"message": "Неправильный код"})
         user_otp.delete()
