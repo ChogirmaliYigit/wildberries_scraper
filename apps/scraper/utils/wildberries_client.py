@@ -47,7 +47,10 @@ class WildberriesClient:
     def save_categories_by_json(self, data: list) -> None:
         cat_objects = []
         for cat in data:
-            if not int(cat.get("id")) in settings.CATEGORIES_SOURCE_IDS:
+            if (
+                int(cat.get("id")) not in settings.CATEGORIES_SOURCE_IDS
+                or int(cat.get("parent")) not in settings.CATEGORIES_SOURCE_IDS
+            ):
                 continue
             category = Category(
                 source_id=cat.get("id"),
