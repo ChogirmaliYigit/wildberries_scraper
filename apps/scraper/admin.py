@@ -9,7 +9,6 @@ from scraper.models import (
     CommentStatuses,
     Product,
     ProductVariant,
-    ProductVariantImage,
 )
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
@@ -63,8 +62,31 @@ class ProductVariantsInline(TabularInline):
         "price",
         "source_id",
     )
-    extra = 1
+    extra = 0
     show_change_link = True
+
+
+class ProductCommentsInline(TabularInline):
+    model = Comment
+    fields = (
+        "user",
+        "content",
+        "rating",
+        "status",
+    )
+    show_change_link = True
+    tab = True
+    readonly_fields = ("user",)
+    extra = 0
+
+    def user(self, obj):
+        if obj.user:
+            display_name = obj.user.full_name or obj.user.email
+        else:
+            display_name = obj.wb_user
+        return display_name
+
+    user.short_description = _("User")
 
 
 @admin.register(Product)
@@ -86,30 +108,10 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
-    show_facets = True
 
     @display(description=_("Likes"))
     def likes(self, instance):
         return instance.product_likes.count()
-
-
-class ProductVariantImagesInline(TabularInline):
-    model = ProductVariantImage
-    fields = ("image_link",)
-    extra = 1
-
-
-@admin.register(ProductVariant)
-class ProductVariantAdmin(ModelAdmin):
-    list_display = (
-        "product",
-        "price",
-        "color",
-        "source_id",
-    )
-    fields = list_display
-    search_fields = fields + ("id",)
-    inlines = [ProductVariantImagesInline]
 
 
 class CommentFilesInline(TabularInline):
@@ -149,5 +151,5 @@ class CommentAdmin(ModelAdmin):
         queryset.update(status=CommentStatuses.NOT_ACCEPTED)
         self.message_user(request, _("Selected comments not accepted"), level=30)
 
-    accept_all.short_description = _("Accept all")
-    not_accept_all.short_description = _("Not accept all")
+    accept_all.short_description = _("Accept selected comments")
+    not_accept_all.short_description = _("Not accept selected comments")

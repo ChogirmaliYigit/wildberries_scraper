@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-19 15:50+0500\n"
+"POT-Creation-Date: 2024-08-20 12:32+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,25 +20,37 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: apps/scraper/admin.py:91 apps/scraper/models.py:250
+#: apps/scraper/admin.py:85 apps/scraper/models.py:159
+#: apps/scraper/models.py:229 apps/scraper/models.py:245 apps/users/admin.py:46
+#: apps/users/models.py:44
+#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:43
+#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:33
+#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:15
+#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:33
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:38
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:54
+msgid "User"
+msgstr "Пользователь"
+
+#: apps/scraper/admin.py:108 apps/scraper/models.py:250
 msgid "Likes"
 msgstr "Нравится"
 
-#: apps/scraper/admin.py:146
+#: apps/scraper/admin.py:144
 msgid "Selected comments accepted"
 msgstr "Выбранные комментарии приняты"
 
-#: apps/scraper/admin.py:150
+#: apps/scraper/admin.py:148
 msgid "Selected comments not accepted"
 msgstr "Выбранные комментарии не принимаются"
 
-#: apps/scraper/admin.py:152
-msgid "Accept all"
-msgstr "Принять все"
+#: apps/scraper/admin.py:150
+msgid "Accept selected comments"
+  msgstr "Принять выбранные комментарии"
 
-#: apps/scraper/admin.py:153
-msgid "Not accept all"
-msgstr "Не принимать все"
+#: apps/scraper/admin.py:151
+msgid "Not accept selected comments"
+msgstr "Не принимать выбранные комментарии"
 
 #: apps/scraper/apps.py:8
 msgid "Data"
@@ -144,17 +156,6 @@ msgstr "Рейтинг"
 #: venv/lib/python3.11/site-packages/django_apscheduler/admin.py:159
 msgid "Status"
 msgstr "Статус"
-
-#: apps/scraper/models.py:159 apps/scraper/models.py:229
-#: apps/scraper/models.py:245 apps/users/admin.py:46 apps/users/models.py:44
-#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:43
-#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:33
-#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:15
-#: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:33
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:38
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:54
-msgid "User"
-msgstr "Пользователь"
 
 #: apps/scraper/models.py:162
 msgid "Wildberries user"
@@ -2616,3 +2617,9 @@ msgstr "Выберите запись"
 #: venv/lib/python3.11/site-packages/unfold/widgets.py:410
 msgid "Date"
 msgstr "Дата"
+
+#~ msgid "Accept all"
+#~ msgstr "Принять все"
+
+#~ msgid "Not accept all"
+#~ msgstr "Не принимать все"

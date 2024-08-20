@@ -1,4 +1,5 @@
 import json
+import random
 from datetime import datetime, timedelta, timezone
 
 from bs4 import BeautifulSoup
@@ -213,6 +214,7 @@ class WildberriesClient:
         """
 
         products = list(Product.objects.values("root", "id"))
+        random.shuffle(products)
         roots = set()
 
         for product in products:
