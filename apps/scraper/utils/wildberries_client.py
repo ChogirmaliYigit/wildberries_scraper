@@ -212,7 +212,7 @@ class WildberriesClient:
         Product comments list scraper
         """
 
-        products = list(Product.objects.values("root", "id"))
+        products = set(Product.objects.values("root", "id"))
         roots = set()
 
         for product in products:
