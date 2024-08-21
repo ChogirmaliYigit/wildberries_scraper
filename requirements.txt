@@ -16,3 +16,4 @@ django-import-export==4.1.1
 python-dateutil~=2.9.0.post0
 webdriver-manager==4.0.2
 setuptools==70.3.0
+gevent==24.2.1
