@@ -73,7 +73,8 @@ class WildberriesClient:
     def get_products(self):
         """Fetches and saves products and their variants."""
         currency = "rub"
-        categories = Category.objects.all()
+        categories = list(Category.objects.all())
+        random.shuffle(categories)
         existing_variant_source_ids = set(
             ProductVariant.objects.values_list("source_id", flat=True)
         )
