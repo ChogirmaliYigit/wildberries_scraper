@@ -6,6 +6,7 @@ from scraper.views import (
     FavoriteView,
     FeedbacksListView,
     LikeView,
+    ProductDetailView,
     ProductsListView,
     UserCommentsListView,
     UserFeedbacksListView,
@@ -14,6 +15,7 @@ from scraper.views import (
 urlpatterns = [
     path("categories", CategoriesListView.as_view(), name="categories-list"),
     path("products", ProductsListView.as_view(), name="products-list"),
+    path("product/<int:pk>", ProductDetailView.as_view(), name="product-detail"),
     path("comments", CommentsListView.as_view(), name="comments-list"),
     path("user-comments", UserCommentsListView.as_view(), name="user-comments-list"),
     path("feedbacks", FeedbacksListView.as_view(), name="feedbacks-list"),
