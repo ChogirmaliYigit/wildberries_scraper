@@ -12,7 +12,7 @@ from scraper.serializers import (
 
 
 class CategoriesListView(BaseListAPIView):
-    queryset = Category.objects.prefetch_related("parent").all()
+    queryset = Category.objects.all().prefetch_related("parent").order_by_("id")
     serializer_class = CategoriesSerializer
     filterset_class = CategoryFilter
     search_fields = [
@@ -43,8 +43,10 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(BaseListCreateAPIView):
-    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
-        status=CommentStatuses.ACCEPTED, reply_to__isnull=False
+    queryset = (
+        Comment.objects.prefetch_related("product", "user", "reply_to")
+        .filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
+        .order_by_("id")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -70,9 +72,13 @@ class UserCommentsListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-        return queryset.prefetch_related("product", "user", "reply_to").filter(
-            status=CommentStatuses.ACCEPTED,
-            reply_to__isnull=False,
+        return (
+            queryset.prefetch_related("product", "user", "reply_to")
+            .filter(
+                status=CommentStatuses.ACCEPTED,
+                reply_to__isnull=False,
+            )
+            .order_by_("id")
         )
 
     def get_serializer_context(self):
@@ -82,8 +88,10 @@ class UserCommentsListView(generics.ListAPIView):
 
 
 class FeedbacksListView(BaseListCreateAPIView):
-    queryset = Comment.objects.prefetch_related("product", "user", "reply_to").filter(
-        reply_to__isnull=True, status=CommentStatuses.ACCEPTED
+    queryset = (
+        Comment.objects.prefetch_related("product", "user", "reply_to")
+        .filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
+        .order_by_("id")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -103,9 +111,13 @@ class UserFeedbacksListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-        return queryset.prefetch_related("product", "user", "reply_to").filter(
-            status=CommentStatuses.ACCEPTED,
-            reply_to__isnull=True,
+        return (
+            queryset.prefetch_related("product", "user", "reply_to")
+            .filter(
+                status=CommentStatuses.ACCEPTED,
+                reply_to__isnull=True,
+            )
+            .order_by_("id")
         )
 
 
@@ -124,7 +136,7 @@ class FavoritesListView(BaseListAPIView):
         queryset = Favorite.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-        return queryset.prefetch_related("product", "user")
+        return queryset.prefetch_related("product", "user").order_by_("id")
 
 
 class FavoriteView(views.APIView):

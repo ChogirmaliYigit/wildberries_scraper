@@ -117,6 +117,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def get_files(self, comment, data):
         files = []
+        print("Comment file:", data.get("file"), comment.file)
         if data.get("file"):
             files.append(f"{settings.BACKEND_DOMAIN}{data.get('file')}")
         for file in comment.files.all():
