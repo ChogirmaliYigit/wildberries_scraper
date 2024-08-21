@@ -108,18 +108,17 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["replied_comments"] = (
             CommentsSerializer(replies, many=True).data if replies else []
         )
-        data["files"] = self.get_files(instance, data)
+        data["files"] = self.get_files(instance)
         if instance.wb_user:
             data["user"] = instance.wb_user
         elif instance.user:
             data["user"] = instance.user.full_name or instance.user.email
         return data
 
-    def get_files(self, comment, data):
+    def get_files(self, comment):
         files = []
-        print("Comment file:", data.get("file"), comment.file)
-        if data.get("file"):
-            files.append(f"{settings.BACKEND_DOMAIN}{data.get('file')}")
+        if comment.file:
+            files.append(f"{settings.BACKEND_DOMAIN}{comment.file}")
         for file in comment.files.all():
             if file.file_link:
                 files.append(file.file_link)
