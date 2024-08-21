@@ -119,7 +119,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         files = []
         if comment.file:
             files.append(
-                f"{settings.BACKEND_DOMAIN}/{settings.MEDIA_URL}/{comment.file}"
+                f"{settings.BACKEND_DOMAIN}/{settings.MEDIA_URL}{comment.file}"
             )
         for file in comment.files.all():
             if file.file_link:
