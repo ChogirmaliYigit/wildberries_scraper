@@ -44,17 +44,23 @@ class Command(BaseCommand):
             )
         elif scraper_type == "product":
             scheduler.add_job(
-                tasks.scrape_products, trigger="interval", seconds=interval
+                tasks.scrape_products,
+                trigger="interval",
+                seconds=interval,
+                max_instances=5,
             )
         elif scraper_type == "comment":
             scheduler.add_job(
-                tasks.scrape_product_comments, trigger="interval", seconds=interval
+                tasks.scrape_product_comments,
+                trigger="interval",
+                seconds=interval,
+                max_instances=5,
             )
 
         scheduler.add_job(
             tasks.delete_old_job_executions,
             trigger="interval",
-            minutes=30,
+            minutes=60,
             max_instances=1,
             replace_existing=True,
         )
