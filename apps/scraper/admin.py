@@ -26,20 +26,17 @@ class CategoryAdmin(ModelAdmin):
     list_display = (
         "title",
         "parent",
-        "image_link",
         "source_id",
         "shard",
     )
     fields = (
         "title",
         "parent",
-        "image_link",
         "source_id",
     )
     search_fields = (
         "title",
         "source_id",
-        "image_link",
         "id",
     )
     list_filter = ("parent",)
