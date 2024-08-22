@@ -112,9 +112,7 @@ class ProductVariantImage(BaseModel):
         related_name="images",
         verbose_name=_("Product variant"),
     )
-    image_link: str = models.TextField(
-        null=True, blank=True, verbose_name=_("Image link")
-    )
+    image_link: str = models.TextField(unique=True, verbose_name=_("Image link"))
 
     def __str__(self) -> str:
         return self.image_link
