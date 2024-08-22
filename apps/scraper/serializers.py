@@ -39,6 +39,9 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["file_type"] = "image"
+        data["link"] = (
+            f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"
+        )
         return data
 
     def get_images(self, variant):
