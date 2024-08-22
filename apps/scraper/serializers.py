@@ -113,6 +113,8 @@ class CommentsSerializer(serializers.ModelSerializer):
             data["user"] = instance.wb_user
         elif instance.user:
             data["user"] = instance.user.full_name or instance.user.email
+        else:
+            data["user"] = "Anonymous"
         return data
 
     def get_files(self, comment):
