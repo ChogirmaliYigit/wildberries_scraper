@@ -150,7 +150,18 @@ class CommentAdmin(ModelAdmin):
         "file",
         "source_id",
     )
-    search_fields = fields + ("id",)
+    search_fields = (
+        "id",
+        "user__full_name",
+        "user__email",
+        "wb_user",
+        "content",
+        "product__title",
+        "product__category__title",
+        "rating",
+        "reply_to__content",
+        "source_id",
+    )
     list_filter = ("status",)
     inlines = [CommentFilesInline]
     actions = [
