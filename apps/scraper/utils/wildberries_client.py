@@ -149,8 +149,11 @@ class WildberriesClient:
             return []
 
         images = []
-        for li in swiper.find_all("li", {"class": "swiper-slide slide"}):
-            img = li.find_next("img")
+        for li in swiper.find_all("li", {"class": "swiper-slide"}):
+            div = li.find_next("div", {"class": "slide__content img-plug"})
+            if not div:
+                continue
+            img = div.find_next("img")
             if img and img.get("src"):
                 images.append(img["src"])
         return images
