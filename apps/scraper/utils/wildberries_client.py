@@ -89,6 +89,7 @@ class WildberriesClient:
             data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
 
             products_data = data.get("data", {}).get("products", [])
+            random.shuffle(products_data)
             roots = {}
             for product in products_data:
                 roots.setdefault(product["root"], []).append(product)
