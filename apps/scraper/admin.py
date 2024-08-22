@@ -140,6 +140,17 @@ class CommentAdmin(ModelAdmin):
         "not_accept_all",
     ]
 
+    @display(description=_("User"))
+    def user_display(self, instance):
+        name = instance.wb_user
+        if not name and instance.user:
+            name = instance.user.full_name
+            if not name:
+                name = instance.user.email
+        else:
+            name = "Anonymous"
+        return name
+
     def accept_all(self, request, queryset):
         queryset.update(status=CommentStatuses.ACCEPTED)
         self.message_user(request, _("Selected comments accepted"), level=25)
