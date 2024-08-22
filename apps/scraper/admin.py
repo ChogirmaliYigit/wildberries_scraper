@@ -126,7 +126,12 @@ class CommentAdmin(ModelAdmin):
         "rating",
         "status",
     )
-    fields = list_display + (
+    fields = (
+        "user",
+        "product",
+        "content",
+        "rating",
+        "status",
         "wb_user",
         "reply_to",
         "file",
