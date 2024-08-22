@@ -120,7 +120,7 @@ class CommentFilesInline(TabularInline):
 @admin.register(Comment)
 class CommentAdmin(ModelAdmin):
     list_display = (
-        "user",
+        "user_display",
         "product",
         "content",
         "rating",
