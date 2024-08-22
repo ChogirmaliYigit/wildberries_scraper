@@ -9,6 +9,7 @@ from scraper.models import (
     CommentStatuses,
     Product,
     ProductVariant,
+    ProductVariantImage,
 )
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
@@ -109,6 +110,18 @@ class ProductAdmin(ModelAdmin):
     @display(description=_("Likes"))
     def likes(self, instance):
         return instance.product_likes.count()
+
+
+@admin.register(ProductVariantImage)
+class ProductVariantImageAdmin(ModelAdmin):
+    list_display = (
+        "variant",
+        "image_link",
+    )
+    fields = (
+        "variant",
+        "image_link",
+    )
 
 
 class CommentFilesInline(TabularInline):
