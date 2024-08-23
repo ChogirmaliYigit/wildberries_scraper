@@ -87,7 +87,12 @@ class ProductVariant(BaseModel):
     )
 
     def __str__(self) -> str:
-        return f"{self.product.title} ({self.color}) - {self.price}"
+        name = self.product.title
+        if self.color:
+            name += f" ({self.color}) "
+        if self.price:
+            name = f"{name.strip()} - {self.price}"
+        return name
 
     class Meta:
         verbose_name = _("Product variant")

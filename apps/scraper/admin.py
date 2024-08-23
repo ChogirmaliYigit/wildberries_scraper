@@ -107,7 +107,7 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
-    actions = ["delete_unused_products"]
+    # actions = ["delete_unused_products"]
 
     @display(description=_("Likes"))
     def likes(self, instance):
