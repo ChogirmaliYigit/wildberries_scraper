@@ -41,8 +41,13 @@ class CommentsFilter(django_filters.FilterSet):
 
         # If no comments found, filter by ProductVariants related to the product
         if not filtered_comments.exists():
-            product_variants = ProductVariant.objects.filter(product_id=value)
-            filtered_comments = queryset.filter(product__variants__in=product_variants)
+            product_variant = (
+                ProductVariant.objects.filter(product_id=value)
+                .select_related("product")
+                .first()
+            )
+            if product_variant:
+                filtered_comments = queryset.filter(product=product_variant.product)
 
         return filtered_comments
 
