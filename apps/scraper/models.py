@@ -1,10 +1,9 @@
 from core.models import BaseModel
-from django.conf import settings
 from django.db import models
 from django.db.models import Q, UniqueConstraint
 from django.utils.translation import gettext_lazy as _
+from scraper.utils.notify import send_comment_notification
 from users.models import User
-from users.utils import send_email
 
 
 class Category(BaseModel):
@@ -175,17 +174,8 @@ class Comment(BaseModel):
         return self.content
 
     def save(self, *args, **kwargs):
-        if (
-            self.pk
-            and self.user
-            and self.status == CommentStatuses.NOT_ACCEPTED
-            and not settings.DEBUG
-        ):
-            send_email(
-                users=[self.user.email],
-                subject=f"№{self.pk} Статус обратной связи",
-                message=rf"Дорогой {str(self.user.full_name if self.user.full_name else self.user.email)}!\n\nВаш отзыв №{self.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
-            )
+        if self.pk:
+            send_comment_notification(self)
         return super().save(*args, **kwargs)
 
     class Meta:

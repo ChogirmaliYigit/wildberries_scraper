@@ -11,6 +11,7 @@ from scraper.models import (
     ProductVariant,
     ProductVariantImage,
 )
+from scraper.utils.notify import send_comment_notification
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
@@ -186,6 +187,8 @@ class CommentAdmin(ModelAdmin):
 
     def not_accept_all(self, request, queryset):
         queryset.update(status=CommentStatuses.NOT_ACCEPTED)
+        for comment in list(queryset):
+            send_comment_notification(comment)
         self.message_user(request, _("Selected comments not accepted"), level=30)
 
     accept_all.short_description = _("Accept selected comments")
