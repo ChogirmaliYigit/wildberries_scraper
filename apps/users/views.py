@@ -104,7 +104,7 @@ class UserDetailView(views.APIView):
                 ),
             },
         ),
-        responses={200: "{}"},
+        responses={200: UserSerializer()},
     )
     def put(self, request):
         serializer = self.serializer_class(
@@ -112,7 +112,7 @@ class UserDetailView(views.APIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return response.Response({}, status.HTTP_200_OK)
+        return response.Response(serializer.data, status.HTTP_200_OK)
 
     @utils.swagger_auto_schema(responses={200: "{}"})
     def delete(self, request):

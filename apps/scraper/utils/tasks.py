@@ -22,7 +22,12 @@ def scrape_categories():
 
 def scrape_products():
     wildberries.get_products()
+    scrape_product_images()
 
 
 def scrape_product_comments():
     wildberries.get_product_comments()
+
+
+def scrape_product_images():
+    wildberries.get_all_product_variant_images()

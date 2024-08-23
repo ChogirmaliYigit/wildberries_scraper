@@ -159,6 +159,23 @@ class WildberriesClient:
                 images.append(img["src"])
         return images
 
+    def get_all_product_variant_images(self):
+        """Fetches and saves images for all product variants."""
+        variants = ProductVariant.objects.all()
+
+        image_objects = []
+        for variant in variants:
+            images = self.get_product_variant_images(variant.source_id)
+            for img_url in images:
+                image_objects.append(
+                    ProductVariantImage(variant=variant, image_link=img_url)
+                )
+
+        if image_objects:
+            ProductVariantImage.objects.bulk_create(
+                image_objects, ignore_conflicts=True
+            )
+
     def get_product_by_source_id(self, source_id: int) -> Product:
         """Scrapes a product and its variants by the given source_id."""
         currency = "rub"
