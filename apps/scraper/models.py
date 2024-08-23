@@ -2,7 +2,6 @@ from core.models import BaseModel
 from django.db import models
 from django.db.models import Q, UniqueConstraint
 from django.utils.translation import gettext_lazy as _
-from scraper.utils.notify import send_comment_notification
 from users.models import User
 
 
@@ -174,6 +173,8 @@ class Comment(BaseModel):
         return self.content
 
     def save(self, *args, **kwargs):
+        from scraper.utils.notify import send_comment_notification
+
         if self.pk:
             send_comment_notification(self)
         return super().save(*args, **kwargs)
