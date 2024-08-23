@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.db.models import Q
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
@@ -12,7 +13,11 @@ from scraper.serializers import (
 
 
 class CategoriesListView(BaseListAPIView):
-    queryset = Category.objects.all().prefetch_related("parent").order_by("-id")
+    queryset = (
+        Category.objects.filter(parent__isnull=True)
+        .prefetch_related("parent")
+        .order_by("-id")
+    )
     serializer_class = CategoriesSerializer
     filterset_class = CategoryFilter
     search_fields = [
@@ -21,7 +26,13 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(BaseListAPIView):
-    queryset = Product.objects.prefetch_related("category").all().order_by("-id")
+    queryset = (
+        Product.objects.filter(
+            Q(variants__images__isnull=False) | Q(product_comments__isnull=False)
+        )
+        .prefetch_related("category")
+        .order_by("-id")
+    )
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
@@ -33,7 +44,13 @@ class ProductsListView(BaseListAPIView):
 
 
 class ProductDetailView(generics.RetrieveAPIView):
-    queryset = Product.objects.prefetch_related("category").all().order_by("-id")
+    queryset = (
+        Product.objects.filter(
+            Q(variants__images__isnull=False) | Q(product_comments__isnull=False)
+        )
+        .prefetch_related("category")
+        .order_by("-id")
+    )
     serializer_class = ProductsSerializer
 
     def get_serializer_context(self):

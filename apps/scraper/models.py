@@ -181,6 +181,7 @@ class Comment(BaseModel):
     file = models.FileField(
         upload_to="comments/files/", null=True, blank=True, verbose_name=_("File")
     )
+    source_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.content

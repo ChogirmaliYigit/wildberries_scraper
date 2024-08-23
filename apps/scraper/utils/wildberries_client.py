@@ -261,6 +261,7 @@ class WildberriesClient:
                 "rating": comment.get("productValuation", 0),
                 "status": CommentStatuses.ACCEPTED,
                 "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
+                "source_date": published_date,
             },
         )
 

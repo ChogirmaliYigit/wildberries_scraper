@@ -71,7 +71,7 @@ class ProductsSerializer(serializers.ModelSerializer):
         data["variants"] = ProductVariantsSerializer(
             instance.variants.all(), many=True
         ).data
-        data["category"] = instance.category.title
+        data["category"] = instance.category.title if instance.category else ""
         if request and request.user.is_authenticated:
             data["liked"] = Like.objects.filter(
                 user=request.user, product=instance
@@ -169,6 +169,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             "file",
             "reply_to",
             "replied_comments",
+            "source_date",
         )
 
 
