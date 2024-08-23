@@ -1,9 +1,10 @@
 from django.conf import settings
-from scraper.models import CommentStatuses
 from users.utils import send_email
 
 
 def send_comment_notification(comment):
+    from scraper.models import CommentStatuses
+
     if (
         comment.user
         and comment.status == CommentStatuses.NOT_ACCEPTED
