@@ -184,7 +184,7 @@ class Comment(BaseModel):
             send_email(
                 users=[self.user.email],
                 subject=f"№{self.pk} Статус обратной связи",
-                message=rf"Дорогой {str(self.user.full_name if self.user.full_name else self.user.email)}!\in\Ваш отзыв №{self.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
+                message=rf"Дорогой {str(self.user.full_name if self.user.full_name else self.user.email)}!\n\nВаш отзыв №{self.pk} не принят. Пожалуйста, дважды проверьте свой комментарий, а затем отправьте нам его еще раз для проверки.",
             )
         return super().save(*args, **kwargs)
 
