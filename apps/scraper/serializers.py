@@ -116,6 +116,9 @@ class CommentsSerializer(serializers.ModelSerializer):
             data["user"] = instance.user.full_name or instance.user.email
         else:
             data["user"] = "Anonymous"
+        data["source_date"] = (
+            instance.source_date if instance.source_date else instance.created_at
+        )
         return data
 
     def get_files(self, comment):

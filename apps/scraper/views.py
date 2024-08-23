@@ -1,5 +1,4 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.db.models import Q
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
@@ -26,16 +25,23 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(BaseListAPIView):
-    queryset = (
-        Product.objects.filter(
-            Q(variants__images__isnull=False) | Q(product_comments__isnull=False)
-        )
-        .prefetch_related("category")
-        .order_by("-id")
-    )
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
+
+    def get_queryset(self):
+        queryset = (
+            Product.objects.filter(variants__images__isnull=False)
+            .prefetch_related("category")
+            .order_by("-id")
+        )
+        if not queryset.exists():
+            queryset = (
+                Product.objects.filter(product_comments__isnull=False)
+                .prefetch_related("category")
+                .order_by("-id")
+            )
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -44,14 +50,21 @@ class ProductsListView(BaseListAPIView):
 
 
 class ProductDetailView(generics.RetrieveAPIView):
-    queryset = (
-        Product.objects.filter(
-            Q(variants__images__isnull=False) | Q(product_comments__isnull=False)
-        )
-        .prefetch_related("category")
-        .order_by("-id")
-    )
     serializer_class = ProductsSerializer
+
+    def get_queryset(self):
+        queryset = (
+            Product.objects.filter(variants__images__isnull=False)
+            .prefetch_related("category")
+            .order_by("-id")
+        )
+        if not queryset.exists():
+            queryset = (
+                Product.objects.filter(product_comments__isnull=False)
+                .prefetch_related("category")
+                .order_by("-id")
+            )
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
