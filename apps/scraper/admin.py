@@ -107,10 +107,24 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
+    actions = ["delete_unused_products"]
 
     @display(description=_("Likes"))
     def likes(self, instance):
         return instance.product_likes.count()
+
+    def delete_unused_products(self, request, queryset):
+        queryset1 = Product.objects.filter(variants__images__isnull=True)
+        count1 = queryset1.count()
+        queryset2 = Product.objects.filter(product_comments__isnull=True)
+        count2 = queryset2.count()
+        queryset1.delete()
+        queryset2.delete()
+        self.message_user(
+            request,
+            f"{count1} + {count2} = {count1 + count2} products deleted",
+            level=30,
+        )
 
 
 @admin.register(ProductVariantImage)
