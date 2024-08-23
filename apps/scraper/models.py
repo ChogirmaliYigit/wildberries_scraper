@@ -101,6 +101,11 @@ class ProductVariant(BaseModel):
         ]
 
 
+class FileTypeChoices(models.TextChoices):
+    IMAGE: tuple[str] = "image", _("Image")
+    VIDEO: tuple[str] = "video", _("Video")
+
+
 class ProductVariantImage(BaseModel):
     variant: ProductVariant = models.ForeignKey(
         ProductVariant,
@@ -111,9 +116,12 @@ class ProductVariantImage(BaseModel):
         verbose_name=_("Product variant"),
     )
     image_link: str = models.TextField(unique=True, verbose_name=_("Image link"))
+    file_type = models.CharField(
+        max_length=20, choices=FileTypeChoices.choices, default=FileTypeChoices.IMAGE
+    )
 
     def __str__(self) -> str:
-        return self.image_link
+        return f"{self.image_link} {self.file_type}"
 
     class Meta:
         verbose_name = _("Product variant image")

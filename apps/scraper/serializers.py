@@ -34,11 +34,9 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 class ProductVariantsSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
-    file_type = serializers.CharField(read_only=True)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["file_type"] = "image"
         data["link"] = (
             f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"
         )
@@ -46,7 +44,8 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
 
     def get_images(self, variant):
         return [
-            pv.image_link for pv in variant.images.prefetch_related("variant").all()
+            {"link": pv.image_link, "type": pv.file_type}
+            for pv in variant.images.prefetch_related("variant").all()
         ]
 
     class Meta:
