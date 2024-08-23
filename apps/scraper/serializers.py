@@ -56,7 +56,6 @@ class ProductVariantsSerializer(serializers.ModelSerializer):
             "price",
             "source_id",
             "images",
-            "file_type",
         )
 
 
