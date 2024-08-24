@@ -8,6 +8,7 @@ from scraper.models import (
     Like,
     Product,
     ProductVariant,
+    RequestedComment,
 )
 from scraper.utils import wildberries
 
@@ -162,7 +163,14 @@ class CommentsSerializer(serializers.ModelSerializer):
             if product:
                 validated_data["product"] = product
         validated_data["user"] = request.user
-        return super().create(validated_data)
+        comment_instance = super().create(validated_data)
+
+        try:
+            RequestedComment.objects.create(**validated_data)
+        except Exception:
+            pass
+
+        return comment_instance
 
     class Meta:
         model = Comment

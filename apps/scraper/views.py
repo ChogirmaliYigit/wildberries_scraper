@@ -3,15 +3,7 @@ from django.db.models import Count
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
-from scraper.models import (
-    Category,
-    Comment,
-    CommentStatuses,
-    Favorite,
-    Like,
-    Product,
-    RequestedComment,
-)
+from scraper.models import Category, Comment, CommentStatuses, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
     CommentsSerializer,
@@ -123,18 +115,6 @@ class FeedbacksListView(BaseListCreateAPIView):
     search_fields = [
         "content",
     ]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        try:
-            RequestedComment.objects.create(**serializer.validated_data)
-        except Exception:
-            pass
-        return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class UserFeedbacksListView(generics.ListAPIView):
