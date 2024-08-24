@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from .models import Comment
+from .models import Comment, RequestedComment
 from .utils import wildberries
 
 
@@ -8,7 +8,8 @@ from .utils import wildberries
 def scrape_product_by_source_id(source_id, comment_id):
     try:
         product = wildberries.get_product_by_source_id(source_id)
-        if not product.category:
+        if product and not product.category:
+            product.delete()
             product = None
     except Exception as exc:
         product = None
@@ -21,6 +22,10 @@ def scrape_product_by_source_id(source_id, comment_id):
         comment_object = Comment.objects.get(id=comment_id)
     except Comment.DoesNotExist:
         return
+
+    rc = RequestedComment.objects.filter(id=comment_id + 1)
+    if rc.exists():
+        rc.delete()
 
     if product:
         comment_object.product = product
