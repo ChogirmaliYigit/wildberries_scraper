@@ -27,8 +27,12 @@ class CategoriesListView(BaseListAPIView):
 
 class ProductsListView(BaseListAPIView):
     queryset = (
-        Product.objects.annotate(images_count=Count("variants__images"))
-        .filter(images_count__gt=0, product_comments__isnull=False)
+        Product.objects.annotate(
+            images_count=Count("variants__images"),
+            comments_count=Count("product_comments"),
+        )
+        .filter(images_count__gt=0)
+        .filter(comments_count__gt=0)
         .prefetch_related("category", "variants__images")
         .distinct()
         .order_by("-id")
@@ -45,8 +49,12 @@ class ProductsListView(BaseListAPIView):
 
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = (
-        Product.objects.annotate(images_count=Count("variants__images"))
-        .filter(images_count__gt=0, product_comments__isnull=False)
+        Product.objects.annotate(
+            images_count=Count("variants__images"),
+            comments_count=Count("product_comments"),
+        )
+        .filter(images_count__gt=0)
+        .filter(comments_count__gt=0)
         .prefetch_related("category", "variants__images")
         .distinct()
         .order_by("-id")
@@ -63,6 +71,7 @@ class CommentsListView(BaseListCreateAPIView):
     queryset = (
         Comment.objects.prefetch_related("product", "user", "reply_to")
         .filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
+        .distinct("user", "product", "content")
         .annotate(
             annotated_source_date=Case(
                 When(source_date__isnull=False, then="source_date"),
@@ -70,8 +79,7 @@ class CommentsListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
-        .distinct("user", "product", "content")
-        .order_by("-annotated_source_date")
+        .order_by("user", "product", "content", "-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -99,6 +107,7 @@ class UserCommentsListView(generics.ListAPIView):
             queryset = queryset.filter(user=self.request.user)
         return (
             queryset.prefetch_related("product", "user", "reply_to")
+            .distinct("user", "product", "content")
             .filter(
                 status=CommentStatuses.ACCEPTED,
                 reply_to__isnull=False,
@@ -110,8 +119,7 @@ class UserCommentsListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
-            .distinct("user", "product", "content")
-            .order_by("-annotated_source_date")
+            .order_by("user", "product", "content", "-annotated_source_date")
         )
 
     def get_serializer_context(self):
@@ -124,6 +132,7 @@ class FeedbacksListView(BaseListCreateAPIView):
     queryset = (
         Comment.objects.prefetch_related("product", "user", "reply_to")
         .filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
+        .distinct("user", "product", "content")
         .annotate(
             annotated_source_date=Case(
                 When(source_date__isnull=False, then="source_date"),
@@ -131,8 +140,7 @@ class FeedbacksListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
-        .distinct("user", "product", "content")
-        .order_by("-annotated_source_date")
+        .order_by("user", "product", "content", "-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -158,6 +166,7 @@ class UserFeedbacksListView(generics.ListAPIView):
                 status=CommentStatuses.ACCEPTED,
                 reply_to__isnull=True,
             )
+            .distinct("user", "product", "content")
             .annotate(
                 annotated_source_date=Case(
                     When(source_date__isnull=False, then="source_date"),
@@ -165,8 +174,7 @@ class UserFeedbacksListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
-            .distinct("user", "product", "content")
-            .order_by("-annotated_source_date")
+            .order_by("user", "product", "content", "-annotated_source_date")
         )
 
 
