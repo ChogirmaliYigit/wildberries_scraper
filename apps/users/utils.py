@@ -61,7 +61,7 @@ class CustomTokenAuthentication(TokenAuthentication):
 
 
 def generate_otp_code(length: int = 6) -> str:
-    return "".join(random.choices(range(1, 10), k=length))
+    return "".join(random.choices([str(i) for i in range(1, 10)], k=length))
 
 
 def send_email(users: list[str], subject: str, message: str):
