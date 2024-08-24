@@ -130,7 +130,10 @@ class FeedbacksListView(BaseListCreateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        RequestedComment.objects.create(**serializer.validated_data)
+        try:
+            RequestedComment.objects.create(**serializer.validated_data)
+        except Exception:
+            pass
         return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 

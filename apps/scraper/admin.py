@@ -227,6 +227,11 @@ class CommentAdmin(ModelAdmin):
                 name = instance.user.email
         return name if name is not None else "Anonymous"
 
+    def get_queryset(self, request):
+        # Filter out instances of RequestedComment
+        queryset = super().get_queryset(request)
+        return queryset.exclude(requestedcomment__isnull=False)
+
 
 @admin.register(RequestedComment)
 class RequestedCommentAdmin(ModelAdmin):
@@ -310,7 +315,7 @@ class RequestedCommentAdmin(ModelAdmin):
 
     def accept_comment(self, request, pk):
         requested_comment = RequestedComment.objects.get(pk=pk)
-        comment = requested_comment
+        comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = CommentStatuses.ACCEPTED
         comment.save()
         requested_comment.delete()
@@ -323,7 +328,7 @@ class RequestedCommentAdmin(ModelAdmin):
 
     def reject_comment(self, request, pk):
         requested_comment = RequestedComment.objects.get(pk=pk)
-        comment = requested_comment
+        comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = CommentStatuses.NOT_ACCEPTED
         comment.save()
         requested_comment.delete()
@@ -341,4 +346,4 @@ class RequestedCommentAdmin(ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
