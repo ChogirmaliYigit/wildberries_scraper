@@ -43,6 +43,28 @@ class CategoryAdmin(ModelAdmin):
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
+    actions = [
+        "change_parent_128296",
+        "change_parent_306",
+        "change_parent_629",
+        "change_parent_566",
+    ]
+
+    def change_parent_128296(self, request, queryset):
+        queryset.update(parent_id=128296)
+        self.message_user(request, "Categories made child of 128296", level=25)
+
+    def change_parent_306(self, request, queryset):
+        queryset.update(parent_id=306)
+        self.message_user(request, "Categories made child of 306", level=25)
+
+    def change_parent_629(self, request, queryset):
+        queryset.update(parent_id=629)
+        self.message_user(request, "Categories made child of 629", level=25)
+
+    def change_parent_566(self, request, queryset):
+        queryset.update(parent_id=566)
+        self.message_user(request, "Categories made child of 566", level=25)
 
     def formfield_for_foreignkey(
         self, db_field: ForeignKey, request: HttpRequest, **kwargs
