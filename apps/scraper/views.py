@@ -1,5 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.db.models import Count
+from django.db.models import Case, Count, DateTimeField, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
@@ -63,7 +63,14 @@ class CommentsListView(BaseListCreateAPIView):
     queryset = (
         Comment.objects.prefetch_related("product", "user", "reply_to")
         .filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
-        .order_by("-id")
+        .annotate(
+            annotated_source_date=Case(
+                When(source_date__isnull=False, then="source_date"),
+                default="created_at",
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -95,7 +102,14 @@ class UserCommentsListView(generics.ListAPIView):
                 status=CommentStatuses.ACCEPTED,
                 reply_to__isnull=False,
             )
-            .order_by("-id")
+            .annotate(
+                annotated_source_date=Case(
+                    When(source_date__isnull=False, then="source_date"),
+                    default="created_at",
+                    output_field=DateTimeField(),
+                )
+            )
+            .order_by("-annotated_source_date")
         )
 
     def get_serializer_context(self):
@@ -108,7 +122,14 @@ class FeedbacksListView(BaseListCreateAPIView):
     queryset = (
         Comment.objects.prefetch_related("product", "user", "reply_to")
         .filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
-        .order_by("-id")
+        .annotate(
+            annotated_source_date=Case(
+                When(source_date__isnull=False, then="source_date"),
+                default="created_at",
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -134,7 +155,14 @@ class UserFeedbacksListView(generics.ListAPIView):
                 status=CommentStatuses.ACCEPTED,
                 reply_to__isnull=True,
             )
-            .order_by("-id")
+            .annotate(
+                annotated_source_date=Case(
+                    When(source_date__isnull=False, then="source_date"),
+                    default="created_at",
+                    output_field=DateTimeField(),
+                )
+            )
+            .order_by("-annotated_source_date")
         )
 
 

@@ -176,6 +176,7 @@ class WildberriesClient:
                 image_objects, ignore_conflicts=True
             )
 
+    @transaction.atomic
     def get_product_by_source_id(self, source_id: int) -> Product:
         """Scrapes a product and its variants by the given source_id."""
         currency = "rub"

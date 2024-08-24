@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Case, DateTimeField, When
 from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
@@ -107,10 +108,34 @@ class CommentsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get("request")
         data = super().to_representation(instance)
-        replies = instance.replies.prefetch_related("user", "reply_to", "product").all()
-        data["replied_comments"] = (
-            CommentsSerializer(replies, many=True).data if replies else []
-        )
+
+        # Collect all replies in a single list
+        def get_all_replies(comment):
+            replies = (
+                comment.replies.prefetch_related("user", "reply_to", "product")
+                .distinct()
+                .annotate(
+                    annotated_source_date=Case(
+                        When(source_date__isnull=False, then="source_date"),
+                        default="created_at",
+                        output_field=DateTimeField(),
+                    )
+                )
+                .order_by("-annotated_source_date")
+            )
+
+            all_replies = []
+            for reply in replies:
+                all_replies.append(reply)
+                all_replies.extend(
+                    get_all_replies(reply)
+                )  # Recursively collect replies
+
+            return all_replies
+
+        # Flatten replies
+        flattened_replies = get_all_replies(instance)
+        data["replied_comments"] = CommentsSerializer(flattened_replies, many=True).data
         data["files"] = self.get_files(instance)
         if instance.wb_user:
             data["user"] = instance.wb_user
