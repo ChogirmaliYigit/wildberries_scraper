@@ -70,6 +70,7 @@ class CommentsListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
+        .distinct("user", "product", "content")
         .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
@@ -109,6 +110,7 @@ class UserCommentsListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
+            .distinct("user", "product", "content")
             .order_by("-annotated_source_date")
         )
 
@@ -129,6 +131,7 @@ class FeedbacksListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
+        .distinct("user", "product", "content")
         .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
@@ -162,6 +165,7 @@ class UserFeedbacksListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
+            .distinct("user", "product", "content")
             .order_by("-annotated_source_date")
         )
 
