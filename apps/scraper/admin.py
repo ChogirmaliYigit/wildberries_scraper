@@ -38,11 +38,14 @@ class CategoryAdmin(ModelAdmin):
         "title",
         "parent",
         "source_id",
+        "slug_name",
     )
     search_fields = (
         "title",
         "source_id",
         "id",
+        "shard",
+        "slug_name",
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]

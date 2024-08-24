@@ -11,7 +11,7 @@ from scraper.models import (
     ProductVariant,
     RequestedComment,
 )
-from scraper.utils import wildberries
+from scraper.tasks import scrape_product_by_source_id
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -168,31 +168,28 @@ class CommentsSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         comment = self.context.get("comment", False)
+
         if comment and not validated_data.get("reply_to"):
             raise exceptions.ValidationError(
                 {"message": "Комментарий должен быть ответил кому-то"}
             )
+
         source_id = validated_data.pop("source_id", None)
-        validated_data["status"] = CommentStatuses.NOT_REVIEWED
         variant = (
             ProductVariant.objects.filter(source_id=source_id)
             .prefetch_related("product")
             .first()
         )
         product = variant.product if variant else None
-        if source_id:
-            if not product:
-                try:
-                    product = wildberries.get_product_by_source_id(source_id)
-                except Exception as exc:
-                    product = None
-                    print(
-                        f"Exception while scraping product by source id: {exc.__class__.__name__}: {exc}"
-                    )
-            if product:
-                validated_data["product"] = product
+
+        validated_data["product"] = product
         validated_data["user"] = request.user
+        validated_data["status"] = CommentStatuses.NOT_REVIEWED
+
         comment_instance = super().create(validated_data)
+
+        if source_id and not product:
+            scrape_product_by_source_id.delay(source_id, comment_instance.pk)
 
         try:
             RequestedComment.objects.create(**validated_data)

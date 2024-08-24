@@ -176,8 +176,30 @@ class WildberriesClient:
                 image_objects, ignore_conflicts=True
             )
 
+    def get_product_category(self, source_id) -> Category | None:
+        variant_detail_soup = self.get_soup(
+            f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
+        )
+        if not variant_detail_soup:
+            return None
+
+        product_page = variant_detail_soup.find("div", {"class": "product-page"})
+        if not product_page:
+            return None
+        breadcrumb_ul = product_page.find_next("ul", {"class": "breadcrumbs__list"})
+        if not breadcrumb_ul:
+            return None
+        breadcrumbs = breadcrumb_ul.find_all("li", {"class": "breadcrumbs__item"})
+        if not breadcrumbs:
+            return None
+        anchor_tag = breadcrumbs[-2].find_next("a", {"class": "breadcrumbs__link"})
+        if not anchor_tag:
+            return None
+        category = Category.objects.filter(slug_name=anchor_tag["href"]).last()
+        return category
+
     @transaction.atomic
-    def get_product_by_source_id(self, source_id: int) -> Product:
+    def get_product_by_source_id(self, source_id: int) -> Product | None:
         """Scrapes a product and its variants by the given source_id."""
         currency = "rub"
         url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr={currency}&dest=491&spp=30&ab_testing=false&nm={source_id}"
@@ -194,7 +216,7 @@ class WildberriesClient:
 
         product_object, _ = Product.objects.get_or_create(
             root=root,
-            defaults={"title": title},
+            defaults={"title": title, "category": self.get_product_category(source_id)},
         )
 
         variant_objects = []
