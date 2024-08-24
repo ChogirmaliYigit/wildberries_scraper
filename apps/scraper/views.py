@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.db.models import Count
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
@@ -26,9 +27,8 @@ class CategoriesListView(BaseListAPIView):
 
 class ProductsListView(BaseListAPIView):
     queryset = (
-        Product.objects.filter(
-            variants__images__isnull=False, product_comments__isnull=False
-        )
+        Product.objects.annotate(images_count=Count("variants__images"))
+        .filter(images_count__gt=0, product_comments__isnull=False)
         .prefetch_related("category", "variants__images")
         .distinct()
         .order_by("-id")
@@ -45,9 +45,8 @@ class ProductsListView(BaseListAPIView):
 
 class ProductDetailView(generics.RetrieveAPIView):
     queryset = (
-        Product.objects.filter(
-            variants__images__isnull=False, product_comments__isnull=False
-        )
+        Product.objects.annotate(images_count=Count("variants__images"))
+        .filter(images_count__gt=0, product_comments__isnull=False)
         .prefetch_related("category", "variants__images")
         .distinct()
         .order_by("-id")
