@@ -16,19 +16,6 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
 
-class ParentlessCategoriesFilter(admin.SimpleListFilter):
-    title = "Without parent"
-    parameter_name = "without_parent"
-
-    def lookups(self, request, model_admin):
-        return (("without_parent", "Without parent"),)
-
-    def queryset(self, request, queryset):
-        if self.value() == "without_parent":
-            return queryset.filter(parent__isnull=True)
-        return queryset
-
-
 class ProductsInline(TabularInline):
     model = Product
     fields = ("title",)
@@ -54,17 +41,14 @@ class CategoryAdmin(ModelAdmin):
         "source_id",
         "id",
     )
-    list_filter = (
-        "parent",
-        ParentlessCategoriesFilter,
-    )
+    list_filter = ("parent",)
     inlines = [ProductsInline]
-    actions = [
-        "change_parent_128296",
-        "change_parent_306",
-        "change_parent_629",
-        "change_parent_566",
-    ]
+    # actions = [
+    #     "change_parent_128296",
+    #     "change_parent_306",
+    #     "change_parent_629",
+    #     "change_parent_566",
+    # ]
 
     def change_parent_128296(self, request, queryset):
         parent = Category.objects.filter(source_id=128296).first()

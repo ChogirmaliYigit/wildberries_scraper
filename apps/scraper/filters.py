@@ -15,8 +15,15 @@ class CategoryFilter(django_filters.FilterSet):
 
 
 class ProductFilter(django_filters.FilterSet):
-    category_id = django_filters.NumberFilter(field_name="category_id")
+    category_id = django_filters.NumberFilter(method="filter_by_category")
     source_id = django_filters.NumberFilter(field_name="source_id")
+
+    def filter_by_category(self, queryset, name, value):
+        category_ids = [value]
+        category_ids.extend(
+            list(Category.objects.filter(parent_id=value).values_list("id", flat=True))
+        )
+        return queryset.filter(category_id__in=category_ids)
 
     class Meta:
         model = Product

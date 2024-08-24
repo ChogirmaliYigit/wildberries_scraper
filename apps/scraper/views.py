@@ -25,23 +25,16 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(BaseListAPIView):
+    queryset = (
+        Product.objects.filter(
+            variants__images__isnull=False, product_comments__isnull=False
+        )
+        .prefetch_related("category")
+        .order_by("-id")
+    )
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
-
-    def get_queryset(self):
-        queryset = (
-            Product.objects.filter(variants__images__isnull=False)
-            .prefetch_related("category")
-            .order_by("-id")
-        )
-        if not queryset.exists():
-            queryset = (
-                Product.objects.filter(product_comments__isnull=False)
-                .prefetch_related("category")
-                .order_by("-id")
-            )
-        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -50,21 +43,14 @@ class ProductsListView(BaseListAPIView):
 
 
 class ProductDetailView(generics.RetrieveAPIView):
-    serializer_class = ProductsSerializer
-
-    def get_queryset(self):
-        queryset = (
-            Product.objects.filter(variants__images__isnull=False)
-            .prefetch_related("category")
-            .order_by("-id")
+    queryset = (
+        Product.objects.filter(
+            variants__images__isnull=False, product_comments__isnull=False
         )
-        if not queryset.exists():
-            queryset = (
-                Product.objects.filter(product_comments__isnull=False)
-                .prefetch_related("category")
-                .order_by("-id")
-            )
-        return queryset
+        .prefetch_related("category")
+        .order_by("-id")
+    )
+    serializer_class = ProductsSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

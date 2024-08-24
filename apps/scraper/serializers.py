@@ -104,6 +104,7 @@ class CommentsSerializer(serializers.ModelSerializer):
     files = serializers.ListSerializer(child=serializers.FileField(), read_only=True)
 
     def to_representation(self, instance):
+        request = self.context.get("request")
         data = super().to_representation(instance)
         replies = instance.replies.prefetch_related("user", "reply_to", "product").all()
         data["replied_comments"] = (
@@ -119,6 +120,10 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["source_date"] = (
             instance.source_date if instance.source_date else instance.created_at
         )
+        if request and instance.user:
+            data["is_own"] = request.user is instance.user
+        else:
+            data["is_own"] = False
         return data
 
     def get_files(self, comment):
