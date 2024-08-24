@@ -214,9 +214,13 @@ class WildberriesClient:
         root = product_info["root"]
         title = product_info["name"]
 
+        category = self.get_product_category(source_id)
+        if not category:
+            return None
+
         product_object, _ = Product.objects.get_or_create(
             root=root,
-            defaults={"title": title, "category": self.get_product_category(source_id)},
+            defaults={"title": title, "category": category},
         )
 
         variant_objects = []
