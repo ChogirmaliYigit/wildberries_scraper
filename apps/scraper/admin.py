@@ -67,19 +67,23 @@ class CategoryAdmin(ModelAdmin):
     ]
 
     def change_parent_128296(self, request, queryset):
-        queryset.update(parent=Category.objects.filter(source_id=128296))
+        parent = Category.objects.filter(source_id=128296).first()
+        queryset.update(parent=parent)
         self.message_user(request, "Categories made child of 128296", level=25)
 
     def change_parent_306(self, request, queryset):
-        queryset.update(parent=Category.objects.filter(source_id=306))
+        parent = Category.objects.filter(source_id=306).first()
+        queryset.update(parent=parent)
         self.message_user(request, "Categories made child of 306", level=25)
 
     def change_parent_629(self, request, queryset):
-        queryset.update(parent=Category.objects.filter(source_id=629))
+        parent = Category.objects.filter(source_id=629).first()
+        queryset.update(parent=parent)
         self.message_user(request, "Categories made child of 629", level=25)
 
     def change_parent_566(self, request, queryset):
-        queryset.update(parent=Category.objects.filter(source_id=566))
+        parent = Category.objects.filter(source_id=566).first()
+        queryset.update(parent=parent)
         self.message_user(request, "Categories made child of 566", level=25)
 
     def formfield_for_foreignkey(
