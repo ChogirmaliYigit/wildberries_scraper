@@ -205,6 +205,12 @@ class Comment(BaseModel):
         verbose_name_plural = _("Comments")
 
 
+class RequestedComment(Comment):
+    class Meta:
+        verbose_name = _("Requested comment")
+        verbose_name_plural = _("Requested comments")
+
+
 class CommentFiles(BaseModel):
     comment: Comment = models.ForeignKey(
         Comment,
@@ -219,6 +225,19 @@ class CommentFiles(BaseModel):
     class Meta:
         verbose_name = _("Comment file")
         verbose_name_plural = _("Comment files")
+
+
+class RequestedCommentFile(CommentFiles):
+    requested_comment: RequestedComment = models.ForeignKey(
+        RequestedComment,
+        on_delete=models.CASCADE,
+        related_name="requested_files",
+        verbose_name=_("Comment"),
+    )
+
+    class Meta:
+        verbose_name = _("Requested comment file")
+        verbose_name_plural = _("Requested comment files")
 
 
 class Favorite(BaseModel):

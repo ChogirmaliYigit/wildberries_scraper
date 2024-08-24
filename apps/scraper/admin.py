@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.db.models import ForeignKey
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
+from django.urls import path, reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from scraper.models import (
     Category,
@@ -10,8 +12,9 @@ from scraper.models import (
     Product,
     ProductVariant,
     ProductVariantImage,
+    RequestedComment,
+    RequestedCommentFile,
 )
-from scraper.utils.notify import send_comment_notification
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
@@ -171,6 +174,13 @@ class CommentFilesInline(TabularInline):
     extra = 1
 
 
+class RequestedCommentFilesInline(TabularInline):
+    model = RequestedCommentFile
+    fields = ("file_link",)
+    fk_name = "requested_comment"
+    extra = 1
+
+
 @admin.register(Comment)
 class CommentAdmin(ModelAdmin):
     list_display = (
@@ -205,10 +215,6 @@ class CommentAdmin(ModelAdmin):
     )
     list_filter = ("status",)
     inlines = [CommentFilesInline]
-    actions = [
-        "accept_all",
-        "not_accept_all",
-    ]
 
     @display(description=_("User"))
     def user_display(self, instance):
@@ -219,17 +225,120 @@ class CommentAdmin(ModelAdmin):
             name = instance.user.full_name
             if not name:
                 name = instance.user.email
-        return name
+        return name if name is not None else "Anonymous"
 
-    def accept_all(self, request, queryset):
-        queryset.update(status=CommentStatuses.ACCEPTED)
-        self.message_user(request, _("Selected comments accepted"), level=25)
 
-    def not_accept_all(self, request, queryset):
-        queryset.update(status=CommentStatuses.NOT_ACCEPTED)
-        for comment in list(queryset):
-            send_comment_notification(comment)
-        self.message_user(request, _("Selected comments not accepted"), level=30)
+@admin.register(RequestedComment)
+class RequestedCommentAdmin(ModelAdmin):
+    list_display = (
+        "user_display",
+        "product",
+        "content",
+        "rating",
+        "status",
+        "action_buttons",
+    )
+    fields = (
+        "user",
+        "product",
+        "content",
+        "rating",
+        "status",
+        "wb_user",
+        "reply_to",
+        "file",
+        "source_id",
+    )
+    search_fields = (
+        "id",
+        "user__full_name",
+        "user__email",
+        "wb_user",
+        "content",
+        "product__title",
+        "product__category__title",
+        "rating",
+        "reply_to__content",
+        "source_id",
+    )
+    list_filter = ("status",)
+    inlines = [RequestedCommentFilesInline]
 
-    accept_all.short_description = _("Accept selected comments")
-    not_accept_all.short_description = _("Not accept selected comments")
+    @display(description=_("User"))
+    def user_display(self, instance):
+        name = "Anonymous"
+        if instance.wb_user:
+            name = instance.wb_user
+        elif instance.user:
+            name = instance.user.full_name
+            if not name:
+                name = instance.user.email
+        return name if name is not None else "Anonymous"
+
+    def action_buttons(self, obj):
+        accept_url = reverse("admin:accept_comment", args=[obj.pk])
+        reject_url = reverse("admin:reject_comment", args=[obj.pk])
+
+        return format_html(
+            '<div style="display: flex; width: 100%;">'
+            '<a class="inline-block border border-green-500 font-medium rounded-md text-center text-green-500 whitespace-nowrap dark:border-transparent dark:bg-green-500/20 dark:text-green-500" '
+            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{}">Accept</a> '
+            '<a class="inline-block border border-red-500 font-medium rounded-md text-center text-red-500 whitespace-nowrap dark:border-transparent dark:bg-red-500/20 dark:text-red-500" '
+            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{}">Reject</a>'
+            "</div>",
+            accept_url,
+            reject_url,
+        )
+
+    action_buttons.short_description = _("Actions")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "accept/<int:pk>/",
+                self.admin_site.admin_view(self.accept_comment),
+                name="accept_comment",
+            ),
+            path(
+                "reject/<int:pk>/",
+                self.admin_site.admin_view(self.reject_comment),
+                name="reject_comment",
+            ),
+        ]
+        return custom_urls + urls
+
+    def accept_comment(self, request, pk):
+        requested_comment = RequestedComment.objects.get(pk=pk)
+        comment = requested_comment
+        comment.status = CommentStatuses.ACCEPTED
+        comment.save()
+        requested_comment.delete()
+        self.message_user(request, _("Comment accepted"), level=25)
+        return HttpResponseRedirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("admin:scraper_comment_changelist")
+            )
+        )
+
+    def reject_comment(self, request, pk):
+        requested_comment = RequestedComment.objects.get(pk=pk)
+        comment = requested_comment
+        comment.status = CommentStatuses.NOT_ACCEPTED
+        comment.save()
+        requested_comment.delete()
+        self.message_user(request, _("Comment not accepted"), level=30)
+        return HttpResponseRedirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("admin:scraper_comment_changelist")
+            )
+        )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
