@@ -16,6 +16,19 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
 
+class ParentlessCategoriesFilter(admin.SimpleListFilter):
+    title = "Without parent"
+    parameter_name = "without_parent"
+
+    def lookups(self, request, model_admin):
+        return (("without_parent", "Without parent"),)
+
+    def queryset(self, request, queryset):
+        if self.value() == "without_parent":
+            return queryset.filter(parent__isnull=True)
+        return queryset
+
+
 class ProductsInline(TabularInline):
     model = Product
     fields = ("title",)
@@ -41,7 +54,10 @@ class CategoryAdmin(ModelAdmin):
         "source_id",
         "id",
     )
-    list_filter = ("parent",)
+    list_filter = (
+        "parent",
+        ParentlessCategoriesFilter,
+    )
     inlines = [ProductsInline]
     actions = [
         "change_parent_128296",
@@ -51,19 +67,19 @@ class CategoryAdmin(ModelAdmin):
     ]
 
     def change_parent_128296(self, request, queryset):
-        queryset.update(parent_id=128296)
+        queryset.update(parent=Category.objects.filter(source_id=128296))
         self.message_user(request, "Categories made child of 128296", level=25)
 
     def change_parent_306(self, request, queryset):
-        queryset.update(parent_id=306)
+        queryset.update(parent=Category.objects.filter(source_id=306))
         self.message_user(request, "Categories made child of 306", level=25)
 
     def change_parent_629(self, request, queryset):
-        queryset.update(parent_id=629)
+        queryset.update(parent=Category.objects.filter(source_id=629))
         self.message_user(request, "Categories made child of 629", level=25)
 
     def change_parent_566(self, request, queryset):
-        queryset.update(parent_id=566)
+        queryset.update(parent=Category.objects.filter(source_id=566))
         self.message_user(request, "Categories made child of 566", level=25)
 
     def formfield_for_foreignkey(
