@@ -29,7 +29,8 @@ class ProductsListView(BaseListAPIView):
         Product.objects.filter(
             variants__images__isnull=False, product_comments__isnull=False
         )
-        .prefetch_related("category")
+        .prefetch_related("category", "variants__images")
+        .distinct()
         .order_by("-id")
     )
     serializer_class = ProductsSerializer
@@ -47,7 +48,8 @@ class ProductDetailView(generics.RetrieveAPIView):
         Product.objects.filter(
             variants__images__isnull=False, product_comments__isnull=False
         )
-        .prefetch_related("category")
+        .prefetch_related("category", "variants__images")
+        .distinct()
         .order_by("-id")
     )
     serializer_class = ProductsSerializer
