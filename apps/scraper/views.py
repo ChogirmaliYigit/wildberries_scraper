@@ -1,5 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.db.models import Case, Count, DateTimeField, OuterRef, Subquery, When
+from django.db.models import Case, Count, DateTimeField, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
 from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
@@ -68,40 +68,24 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(BaseListCreateAPIView):
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-
-    def get_queryset(self):
-        # Annotate each comment with its source or creation date
-        annotated_comments = Comment.objects.filter(
-            status=CommentStatuses.ACCEPTED, reply_to__isnull=False
-        ).annotate(
+    queryset = (
+        Comment.objects.prefetch_related("product", "user", "reply_to")
+        .filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
+        .distinct("user", "product", "content")
+        .annotate(
             annotated_source_date=Case(
                 When(source_date__isnull=False, then="source_date"),
                 default="created_at",
                 output_field=DateTimeField(),
             )
         )
-
-        # Get the distinct comments in a subquery
-        distinct_comments = annotated_comments.filter(
-            id=Subquery(
-                annotated_comments.filter(
-                    user=OuterRef("user"),
-                    product=OuterRef("product"),
-                    content=OuterRef("content"),
-                )
-                .order_by("-annotated_source_date")
-                .values("id")[:1]  # Select only the latest comment's ID
-            )
-        )
-
-        # Finally, order the results by annotated source date
-        queryset = distinct_comments.order_by("-annotated_source_date")
-        return queryset
+        .order_by("user", "product", "content", "-annotated_source_date")
+    )
+    serializer_class = CommentsSerializer
+    filterset_class = CommentsFilter
+    search_fields = [
+        "content",
+    ]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -121,33 +105,22 @@ class UserCommentsListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-            # Annotate each comment with its source or creation date
-            annotated_comments = queryset.filter(
-                status=CommentStatuses.ACCEPTED, reply_to__isnull=False
-            ).annotate(
+        return (
+            queryset.prefetch_related("product", "user", "reply_to")
+            .distinct("user", "product", "content")
+            .filter(
+                status=CommentStatuses.ACCEPTED,
+                reply_to__isnull=False,
+            )
+            .annotate(
                 annotated_source_date=Case(
                     When(source_date__isnull=False, then="source_date"),
                     default="created_at",
                     output_field=DateTimeField(),
                 )
             )
-
-            # Get the distinct comments in a subquery
-            distinct_comments = annotated_comments.filter(
-                id=Subquery(
-                    annotated_comments.filter(
-                        user=OuterRef("user"),
-                        product=OuterRef("product"),
-                        content=OuterRef("content"),
-                    )
-                    .order_by("-annotated_source_date")
-                    .values("id")[:1]  # Select only the latest comment's ID
-                )
-            )
-
-            # Finally, order the results by annotated source date
-            queryset = distinct_comments.order_by("-annotated_source_date")
-            return queryset
+            .order_by("user", "product", "content", "-annotated_source_date")
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -156,40 +129,24 @@ class UserCommentsListView(generics.ListAPIView):
 
 
 class FeedbacksListView(BaseListCreateAPIView):
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-
-    def get_queryset(self):
-        # Annotate each comment with its source or creation date
-        annotated_comments = Comment.objects.filter(
-            status=CommentStatuses.ACCEPTED, reply_to__isnull=False
-        ).annotate(
+    queryset = (
+        Comment.objects.prefetch_related("product", "user", "reply_to")
+        .filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
+        .distinct("user", "product", "content")
+        .annotate(
             annotated_source_date=Case(
                 When(source_date__isnull=False, then="source_date"),
                 default="created_at",
                 output_field=DateTimeField(),
             )
         )
-
-        # Get the distinct comments in a subquery
-        distinct_comments = annotated_comments.filter(
-            id=Subquery(
-                annotated_comments.filter(
-                    user=OuterRef("user"),
-                    product=OuterRef("product"),
-                    content=OuterRef("content"),
-                )
-                .order_by("-annotated_source_date")
-                .values("id")[:1]  # Select only the latest comment's ID
-            )
-        )
-
-        # Finally, order the results by annotated source date
-        queryset = distinct_comments.order_by("-annotated_source_date")
-        return queryset
+        .order_by("user", "product", "content", "-annotated_source_date")
+    )
+    serializer_class = CommentsSerializer
+    filterset_class = CommentsFilter
+    search_fields = [
+        "content",
+    ]
 
 
 class UserFeedbacksListView(generics.ListAPIView):
@@ -203,33 +160,22 @@ class UserFeedbacksListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-            # Annotate each comment with its source or creation date
-            annotated_comments = queryset.filter(
-                status=CommentStatuses.ACCEPTED, reply_to__isnull=False
-            ).annotate(
+        return (
+            queryset.prefetch_related("product", "user", "reply_to")
+            .filter(
+                status=CommentStatuses.ACCEPTED,
+                reply_to__isnull=True,
+            )
+            .distinct("user", "product", "content")
+            .annotate(
                 annotated_source_date=Case(
                     When(source_date__isnull=False, then="source_date"),
                     default="created_at",
                     output_field=DateTimeField(),
                 )
             )
-
-            # Get the distinct comments in a subquery
-            distinct_comments = annotated_comments.filter(
-                id=Subquery(
-                    annotated_comments.filter(
-                        user=OuterRef("user"),
-                        product=OuterRef("product"),
-                        content=OuterRef("content"),
-                    )
-                    .order_by("-annotated_source_date")
-                    .values("id")[:1]  # Select only the latest comment's ID
-                )
-            )
-
-            # Finally, order the results by annotated source date
-            queryset = distinct_comments.order_by("-annotated_source_date")
-            return queryset
+            .order_by("user", "product", "content", "-annotated_source_date")
+        )
 
 
 class FavoritesListView(BaseListAPIView):
