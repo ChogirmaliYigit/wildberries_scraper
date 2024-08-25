@@ -350,3 +350,6 @@ class RequestedCommentAdmin(ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return True
