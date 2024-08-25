@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import Case, DateTimeField, When
+from django.db.models import Case, DateTimeField, OuterRef, Subquery, When
 from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
@@ -112,19 +112,32 @@ class CommentsSerializer(serializers.ModelSerializer):
 
         # Collect all replies in a single list
         def get_all_replies(comment):
-            replies = (
-                comment.replies.prefetch_related("user", "reply_to", "product")
-                .distinct("user", "product", "content")
-                .annotate(
-                    annotated_source_date=Case(
-                        When(source_date__isnull=False, then="source_date"),
-                        default="created_at",
-                        output_field=DateTimeField(),
-                    )
+            # Annotate each comment with its source or creation date
+            annotated_comments = comment.replies.filter(
+                status=CommentStatuses.ACCEPTED, reply_to__isnull=False
+            ).annotate(
+                annotated_source_date=Case(
+                    When(source_date__isnull=False, then="source_date"),
+                    default="created_at",
+                    output_field=DateTimeField(),
                 )
-                .order_by("user", "product", "content")
-                .order_by("-annotated_source_date")
             )
+
+            # Get the distinct comments in a subquery
+            distinct_comments = annotated_comments.filter(
+                id=Subquery(
+                    annotated_comments.filter(
+                        user=OuterRef("user"),
+                        product=OuterRef("product"),
+                        content=OuterRef("content"),
+                    )
+                    .order_by("-annotated_source_date")
+                    .values("id")[:1]  # Select only the latest comment's ID
+                )
+            )
+
+            # Finally, order the results by annotated source date
+            replies = distinct_comments.order_by("-annotated_source_date")
 
             all_replies = []
             for reply in replies:
