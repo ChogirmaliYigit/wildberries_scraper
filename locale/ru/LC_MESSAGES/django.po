@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-24 15:55+0500\n"
+"POT-Creation-Date: 2024-08-25 13:46+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,8 +20,8 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: apps/scraper/admin.py:119 apps/scraper/admin.py:221
-#: apps/scraper/admin.py:269 apps/scraper/models.py:168
+#: apps/scraper/admin.py:120 apps/scraper/admin.py:222
+#: apps/scraper/admin.py:275 apps/scraper/models.py:168
 #: apps/scraper/models.py:251 apps/scraper/models.py:267 apps/users/admin.py:46
 #: apps/users/models.py:44
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:43
@@ -33,19 +33,27 @@ msgstr ""
 msgid "User"
 msgstr "Пользователь"
 
-#: apps/scraper/admin.py:143 apps/scraper/models.py:272
+#: apps/scraper/admin.py:144 apps/scraper/models.py:272
 msgid "Likes"
 msgstr "Нравится"
 
-#: apps/scraper/admin.py:295
+#: apps/scraper/admin.py:298
+msgid "Accept"
+msgstr "Принять"
+
+#: apps/scraper/admin.py:300
+msgid "Reject"
+msgstr "Отклонить"
+
+#: apps/scraper/admin.py:303
 msgid "Actions"
 msgstr "Действия"
 
-#: apps/scraper/admin.py:311
+#: apps/scraper/admin.py:327
 msgid "Comment accepted"
 msgstr "Комментарий принят"
 
-#: apps/scraper/admin.py:320
+#: apps/scraper/admin.py:340
 msgid "Comment not accepted"
 msgstr "Комментарий не принят"
 
@@ -283,6 +291,31 @@ msgstr ""
 #: apps/users/queryset/user.py:35
 msgid "Superuser must have is_superuser=True."
 msgstr ""
+
+#: templates/admin/actions.html:22
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:22
+msgid "Run the selected action"
+msgstr "Запустить выбранное действие"
+
+#: templates/admin/actions.html:23
+msgid "Next"
+msgstr "Следующий"
+
+#: templates/admin/actions.html:41
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:41
+msgid "Click here to select the objects across all pages"
+msgstr "Нажмите здесь, чтобы выбрать объекты на всех страницах"
+
+#: templates/admin/actions.html:42
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:42
+#, python-format
+msgid "Select all %(total_count)s %(module_name)s"
+msgstr "Выбрать все %(total_count)s %(module_name)s"
+
+#: templates/admin/actions.html:48
+#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:48
+msgid "Clear selection"
+msgstr "Очистить выбор"
 
 #: venv/lib/python3.11/site-packages/click/_termui_impl.py:518
 #, python-brace-format
@@ -2222,23 +2255,6 @@ msgid ""
 "primary-600 underline whitespace-nowrap dark:text-primary-500\">this form</"
 "a>."
 msgstr ""
-
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:22
-msgid "Run the selected action"
-msgstr "Запустить выбранное действие"
-
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:41
-msgid "Click here to select the objects across all pages"
-msgstr "Нажмите здесь, чтобы выбрать объекты на всех страницах"
-
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:42
-#, python-format
-msgid "Select all %(total_count)s %(module_name)s"
-msgstr "Выбрать все %(total_count)s %(module_name)s"
-
-#: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:48
-msgid "Clear selection"
-msgstr "Очистить выбор"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/app_index.html:5
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/base_site.html:3

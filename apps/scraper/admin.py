@@ -290,12 +290,14 @@ class RequestedCommentAdmin(ModelAdmin):
         return format_html(
             '<div style="display: flex; width: 100%;">'
             '<a class="inline-block border border-green-500 font-medium rounded-md text-center text-green-500 whitespace-nowrap dark:border-transparent dark:bg-green-500/20 dark:text-green-500" '
-            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{}">Accept</a> '
+            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{accept_url}">{accept_text}</a> '
             '<a class="inline-block border border-red-500 font-medium rounded-md text-center text-red-500 whitespace-nowrap dark:border-transparent dark:bg-red-500/20 dark:text-red-500" '
-            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{}">Reject</a>'
+            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{reject_url}">{reject_text}</a>'
             "</div>",
-            accept_url,
-            reject_url,
+            accept_url=accept_url,
+            accept_text=_("Accept"),
+            reject_url=reject_url,
+            reject_text=_("Reject"),
         )
 
     action_buttons.short_description = _("Actions")
@@ -320,7 +322,7 @@ class RequestedCommentAdmin(ModelAdmin):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = CommentStatuses.ACCEPTED
-        comment.save()
+        comment.save(update_fields=["status"])
         requested_comment.delete()
         self.message_user(request, _("Comment accepted"), level=25)
         return HttpResponseRedirect(
@@ -333,7 +335,7 @@ class RequestedCommentAdmin(ModelAdmin):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = CommentStatuses.NOT_ACCEPTED
-        comment.save()
+        comment.save(update_fields=["status"])
         requested_comment.delete()
         self.message_user(request, _("Comment not accepted"), level=30)
         return HttpResponseRedirect(

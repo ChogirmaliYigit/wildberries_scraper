@@ -122,7 +122,8 @@ class CommentsSerializer(serializers.ModelSerializer):
                         output_field=DateTimeField(),
                     )
                 )
-                .order_by("user", "product", "content", "-annotated_source_date")
+                .order_by("user", "product", "content")
+                .order_by("-annotated_source_date")
             )
 
             all_replies = []

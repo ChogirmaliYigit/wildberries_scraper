@@ -79,7 +79,8 @@ class CommentsListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
-        .order_by("user", "product", "content", "-annotated_source_date")
+        .order_by("user", "product", "content")
+        .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -119,7 +120,8 @@ class UserCommentsListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
-            .order_by("user", "product", "content", "-annotated_source_date")
+            .order_by("user", "product", "content")
+            .order_by("-annotated_source_date")
         )
 
     def get_serializer_context(self):
@@ -140,7 +142,8 @@ class FeedbacksListView(BaseListCreateAPIView):
                 output_field=DateTimeField(),
             )
         )
-        .order_by("user", "product", "content", "-annotated_source_date")
+        .order_by("user", "product", "content")
+        .order_by("-annotated_source_date")
     )
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
@@ -174,7 +177,8 @@ class UserFeedbacksListView(generics.ListAPIView):
                     output_field=DateTimeField(),
                 )
             )
-            .order_by("user", "product", "content", "-annotated_source_date")
+            .order_by("user", "product", "content")
+            .order_by("-annotated_source_date")
         )
 
 
