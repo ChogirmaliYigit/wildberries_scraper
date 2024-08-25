@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-25 13:52+0500\n"
+"POT-Creation-Date: 2024-08-25 13:55+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -301,18 +301,18 @@ msgstr "Запустить выбранное действие"
 msgid "Next"
 msgstr "Следующий"
 
-#: templates/admin/actions.html:42
+#: templates/admin/actions.html:41
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:41
 msgid "Click here to select the objects across all pages"
 msgstr "Нажмите здесь, чтобы выбрать объекты на всех страницах"
 
-#: templates/admin/actions.html:43
+#: templates/admin/actions.html:42
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:42
 #, python-format
 msgid "Select all %(total_count)s %(module_name)s"
 msgstr "Выбрать все %(total_count)s %(module_name)s"
 
-#: templates/admin/actions.html:49
+#: templates/admin/actions.html:48
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:48
 msgid "Clear selection"
 msgstr "Очистить выбор"
