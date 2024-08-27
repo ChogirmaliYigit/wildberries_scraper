@@ -220,6 +220,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             "rating",
             "files",
             "file",
+            "file_type",
             "reply_to",
             "replied_comments",
             "source_date",
