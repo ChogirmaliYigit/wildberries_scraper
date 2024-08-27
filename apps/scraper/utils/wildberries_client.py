@@ -1,79 +1,91 @@
-import json
 import random
 from datetime import datetime, timedelta, timezone
 
+import requests
 from bs4 import BeautifulSoup
+from bs4.dammit import UnicodeDammit
 from dateutil.parser import ParserError, parse
-from django.conf import settings
 from django.db import transaction
+from django.db.models import Count
+from fake_useragent import UserAgent
 from scraper.models import (
     Category,
     Comment,
     CommentFiles,
     CommentStatuses,
+    FileTypeChoices,
     Product,
     ProductVariant,
     ProductVariantImage,
 )
 
-from .driver import WebDriver
-
 
 class WildberriesClient:
-    def __init__(self, base_url: str):
-        self.base_url = base_url
-        self.driver = WebDriver
+    def __init__(self):
+        self.ua = UserAgent()
 
-    def get_soup(self, url: str = None, scroll_bottom: bool = False) -> BeautifulSoup:
+    def get_headers(self, url):
+        return {
+            "User-Agent": self.ua.random,
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept": "application/json; charset=utf-8",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Referer": url,
+        }
+
+    def send_request(self, url):
+        data = {}
+        try:
+            response = requests.get(
+                url,
+                headers=self.get_headers(url),
+            )
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                except requests.exceptions.JSONDecodeError:
+                    data = {}
+        except requests.exceptions.SSLError:
+            pass
+        return data
+
+    def get_soup(
+        self, url: str = None, image: bool = False
+    ) -> BeautifulSoup | None | str:
         """Returns a BeautifulSoup object of the requested URL's HTML content."""
-        web_driver = self.driver(url or self.base_url)
-        html_content = web_driver.get_html_content(scroll_bottom)
-        return BeautifulSoup(html_content, "html.parser")
+        try:
+            response = requests.get(url, headers=self.get_headers(url))
+            content_type = response.headers.get("Content-Type", "")
+            if "image" in content_type and image:
+                return "image"
+            if response.status_code != 200:
+                return None
+        except requests.exceptions.ConnectionError:
+            return None
+        return BeautifulSoup(
+            UnicodeDammit(
+                response.content, ["latin-1", "iso-8859-1", "windows-1251"]
+            ).unicode_markup,
+            "html.parser",
+        )
 
     def check_image(self, image_url: str) -> bool:
         """Checks if an image exists at the given URL."""
-        web_driver = self.driver(image_url)
-        return web_driver.check_image_existence()
-
-    def get_categories(self):
-        """Fetches and saves categories from Wildberries."""
-        url = "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
-        soup = self.get_soup(url)
-        data = json.loads(soup.find("pre").text) if soup.find("pre") else []
-        self.save_categories_by_json(data)
-
-    @transaction.atomic
-    def save_categories_by_json(self, data: list) -> None:
-        """Recursively saves categories from the JSON data."""
-        categories_to_create = []
-        category_cache = {}
-
-        for cat in data:
-            if (
-                not cat.get("parent")
-                and int(cat.get("id", 0)) not in settings.CATEGORIES_SOURCE_IDS
-            ):
-                continue
-
-            category = Category(
-                source_id=cat.get("id"),
-                title=cat.get("name"),
-                slug_name=cat.get("url"),
-                shard=cat.get("shard"),
-                parent=category_cache.get(cat.get("parent")),
-            )
-            categories_to_create.append(category)
-            category_cache[cat.get("id")] = category
-
-            if cat.get("childs"):
-                self.save_categories_by_json(cat.get("childs"))
-
-        Category.objects.bulk_create(categories_to_create, ignore_conflicts=True)
+        soup = self.get_soup(image_url, image=True)
+        if isinstance(soup, str) and soup == "image":
+            return True
+        elif isinstance(soup, BeautifulSoup):
+            title = soup.find("title")
+            if title and hasattr(title, "text") and title.text != "404 Not Found":
+                return True
+        return False
 
     def get_products(self):
         """Fetches and saves products and their variants."""
         currency = "rub"
-        categories = list(Category.objects.all())
+        categories = list(set(Category.objects.all()))
         random.shuffle(categories)
         existing_variant_source_ids = set(
             ProductVariant.objects.values_list("source_id", flat=True)
@@ -85,8 +97,7 @@ class WildberriesClient:
                 f"?ab_testing=false&appType=1&cat={category.source_id}"
                 f"&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0"
             )
-            soup = self.get_soup(url)
-            data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+            data = self.send_request(url)
 
             products_data = data.get("data", {}).get("products", [])
             random.shuffle(products_data)
@@ -157,11 +168,14 @@ class WildberriesClient:
             img = div.find_next("img")
             if img and img.get("src"):
                 images.append(img["src"])
+                break
         return images
 
     def get_all_product_variant_images(self):
-        """Fetches and saves images for all product variants."""
-        variants = ProductVariant.objects.all()
+        """Fetches and saves images for product variants which there is no image yet."""
+        variants = ProductVariant.objects.annotate(image_count=Count("images")).filter(
+            image_count=0
+        )
 
         image_objects = []
         for variant in variants:
@@ -203,8 +217,9 @@ class WildberriesClient:
         """Scrapes a product and its variants by the given source_id."""
         currency = "rub"
         url = f"https://card.wb.ru/cards/v2/detail?appType=1&curr={currency}&dest=491&spp=30&ab_testing=false&nm={source_id}"
-        soup = self.get_soup(url)
-        product_data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+        product_data = self.send_request(url)
+        if not product_data:
+            return None
 
         if not product_data.get("data"):
             print(f"No data found for product with source_id {source_id}")
@@ -257,9 +272,11 @@ class WildberriesClient:
             roots.add(root)
 
             url = f"https://feedbacks2.wb.ru/feedbacks/v1/{root}"
-            soup = self.get_soup(url)
-            data = json.loads(soup.find("pre").text) if soup.find("pre") else {}
+            data = self.send_request(url)
+
             feedbacks = data.get("feedbacks", [])
+            if not feedbacks:
+                continue
 
             for comment in feedbacks:
                 self.save_comment(comment, product["id"])
@@ -281,18 +298,30 @@ class WildberriesClient:
         ):
             return
 
+        rating = comment.get("productValuation", 0)
+        if rating != 5:
+            return
+
         comment_object, _ = Comment.objects.get_or_create(
             product_id=product_id,
             content=comment.get("text"),
             defaults={
-                "rating": comment.get("productValuation", 0),
+                "rating": rating,
                 "status": CommentStatuses.ACCEPTED,
                 "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
                 "source_date": published_date,
             },
         )
 
-        self.save_comment_images(comment_object, comment.get("photo", []))
+        images_saved = self.save_comment_images(
+            comment_object, comment.get("photo", [])
+        )
+        video_saved = self.save_comment_videos(
+            comment_object, comment.get("video", None)
+        )
+
+        if not images_saved and not video_saved:
+            comment_object.delete()
 
     def save_comment_images(self, comment_object, photo_ids):
         """Saves images associated with a comment."""
@@ -307,14 +336,31 @@ class WildberriesClient:
                     link = img_url
                     break
 
-            if (
-                link
-                and not CommentFiles.objects.filter(
-                    comment=comment_object, file_link=link
-                ).exists()
-            ):
+            if link:
                 image_objects.append(
-                    CommentFiles(comment=comment_object, file_link=link)
+                    CommentFiles(
+                        comment=comment_object,
+                        file_link=link,
+                        file_type=FileTypeChoices.IMAGE,
+                    )
                 )
+        if image_objects:
+            CommentFiles.objects.bulk_create(image_objects, ignore_conflicts=True)
+            return True
+        return False
 
-        CommentFiles.objects.bulk_create(image_objects, ignore_conflicts=True)
+    def save_comment_videos(self, comment_object, video):
+        """Saves videos associated with a comment."""
+        if isinstance(video, dict):
+            basket_id, uuid = video["id"].split("/")
+            link = "https://videofeedback0{}.wbbasket.ru/{}/index.m3u8".format(
+                basket_id, uuid
+            )
+            if link:
+                CommentFiles.objects.create(
+                    comment=comment_object,
+                    file_link=link,
+                    file_type=FileTypeChoices.VIDEO,
+                )
+                return True
+        return False

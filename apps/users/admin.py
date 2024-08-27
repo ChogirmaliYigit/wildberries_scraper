@@ -62,6 +62,7 @@ class UserAdmin(ModelAdmin):
                     "Permissions",
                     {
                         "fields": (
+                            "is_active",
                             "is_staff",
                             "is_superuser",
                             "groups",

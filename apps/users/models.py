@@ -32,6 +32,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     )
 
     is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False, verbose_name=_("Is blocked"))
 
     USERNAME_FIELD = "email"

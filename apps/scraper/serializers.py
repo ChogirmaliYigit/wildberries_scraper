@@ -142,27 +142,34 @@ class CommentsSerializer(serializers.ModelSerializer):
             ).data
         data["files"] = self.get_files(instance)
         if instance.wb_user:
-            data["user"] = instance.wb_user
+            user = instance.wb_user
         elif instance.user:
-            data["user"] = instance.user.full_name or instance.user.email
+            user = instance.user.full_name or instance.user.email
         else:
-            data["user"] = "Anonymous"
+            user = "Anonymous"
+        data["user"] = user
         data["source_date"] = (
             instance.source_date if instance.source_date else instance.created_at
         )
         if request and instance.user:
-            data["is_own"] = request.user is instance.user
+            is_own = request.user is instance.user
         else:
-            data["is_own"] = False
+            is_own = False
+        data["is_own"] = is_own
         return data
 
     def get_files(self, comment):
         files = []
         if comment.file:
-            files.append(f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}")
+            files.append(
+                {
+                    "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
+                    "type": comment.file_type,
+                }
+            )
         for file in comment.files.all():
             if file.file_link:
-                files.append(file.file_link)
+                files.append({"link": file.file_link, "type": file.file_type})
         return files
 
     def create(self, validated_data):
@@ -184,7 +191,11 @@ class CommentsSerializer(serializers.ModelSerializer):
 
         validated_data["product"] = product
         validated_data["user"] = request.user
-        validated_data["status"] = CommentStatuses.NOT_REVIEWED
+        if request.query_params.get("direct", False):
+            status = CommentStatuses.ACCEPTED
+        else:
+            status = CommentStatuses.NOT_REVIEWED
+        validated_data["status"] = status
 
         comment_instance = super().create(validated_data)
 

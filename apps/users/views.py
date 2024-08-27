@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from drf_yasg import openapi, utils
 from rest_framework import permissions, response, status, views
 from users.models import OTPTypes, Token, User
@@ -116,7 +115,17 @@ class UserDetailView(views.APIView):
 
     @utils.swagger_auto_schema(responses={200: "{}"})
     def delete(self, request):
-        user = get_object_or_404(User, pk=request.user.pk)
+        user = User.objects.filter(pk=request.user.pk).first()
+        if not user:
+            return response.Response(
+                {"message": "Пользователь не существует"}, status.HTTP_404_NOT_FOUND
+            )
+
+        Token.objects.filter(user=user).delete()
+
+        if hasattr(request.user, "auth_token"):
+            request.user.auth_token.delete()
+
         user.delete()
         return response.Response({}, status.HTTP_200_OK)
 

@@ -26,6 +26,7 @@ class UserManager(BaseUserManager, BaseManager):
         """
         Create and save a superuser with the given email and password.
         """
+        extra_fields.setdefault("is_active", True)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
