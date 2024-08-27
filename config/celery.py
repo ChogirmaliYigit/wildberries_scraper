@@ -1,5 +1,7 @@
 import os
 
+from django.conf import settings
+
 from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -12,11 +14,11 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "scrape_wildberries_products": {
         "task": "scrape_products",
-        "schedule": 10,  # settings.SCRAPE_PRODUCTS_SECONDS,
+        "schedule": settings.SCRAPE_PRODUCTS_SECONDS,
     },
     "scrape_wildberries_comments": {
         "task": "scrape_comments",
-        "schedule": 20,  # settings.SCRAPE_COMMENTS_SECONDS
+        "schedule": settings.SCRAPE_COMMENTS_SECONDS,
     },
 }
 app.conf.timezone = "Asia/Tashkent"
