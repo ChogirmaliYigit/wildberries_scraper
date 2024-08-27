@@ -191,7 +191,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
         validated_data["product"] = product
         validated_data["user"] = request.user
-        if request.query_params.get("direct", False):
+        if request.query_params.get("direct", "false") == "true":
             status = CommentStatuses.ACCEPTED
         else:
             status = CommentStatuses.NOT_REVIEWED
