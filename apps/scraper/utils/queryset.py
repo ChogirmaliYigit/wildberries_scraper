@@ -38,9 +38,7 @@ def get_filtered_comments(queryset=None):
     optimized_query = annotated_query.select_related("product", "user", "reply_to")
 
     # Step 3: Filter by accepted status and non-null reply_to
-    optimized_query = optimized_query.filter(
-        status=CommentStatuses.ACCEPTED, reply_to__isnull=False
-    )
+    optimized_query = optimized_query.filter(status=CommentStatuses.ACCEPTED)
 
     # Step 4: Use distinct after filtering and annotating
     optimized_query = optimized_query.distinct("user", "product", "content")

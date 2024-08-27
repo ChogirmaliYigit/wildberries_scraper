@@ -25,10 +25,12 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(BaseListAPIView):
-    queryset = get_filtered_products()
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
+
+    def get_queryset(self):
+        return get_filtered_products()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -37,8 +39,10 @@ class ProductsListView(BaseListAPIView):
 
 
 class ProductDetailView(generics.RetrieveAPIView):
-    queryset = get_filtered_products()
     serializer_class = ProductsSerializer
+
+    def get_queryset(self):
+        return get_filtered_products()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -47,12 +51,14 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(BaseListCreateAPIView):
-    queryset = get_filtered_comments(Comment.objects.filter(reply_to__isnull=False))
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
         "content",
     ]
+
+    def get_queryset(self):
+        return get_filtered_comments(Comment.objects.filter(reply_to__isnull=False))
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -81,12 +87,14 @@ class UserCommentsListView(generics.ListAPIView):
 
 
 class FeedbacksListView(BaseListCreateAPIView):
-    queryset = get_filtered_comments(Comment.objects.filter(reply_to__isnull=True))
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
         "content",
     ]
+
+    def get_queryset(self):
+        return get_filtered_comments(Comment.objects.filter(reply_to__isnull=True))
 
 
 class UserFeedbacksListView(generics.ListAPIView):
