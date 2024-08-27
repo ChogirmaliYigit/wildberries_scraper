@@ -1,15 +1,10 @@
-from django.conf import settings
 from users.utils import send_email
 
 
 def send_comment_notification(comment):
     from scraper.models import CommentStatuses
 
-    if (
-        comment.user
-        and comment.status == CommentStatuses.NOT_ACCEPTED
-        and not settings.DEBUG
-    ):
+    if comment.user and comment.status == CommentStatuses.NOT_ACCEPTED:
         send_email(
             users=[comment.user.email],
             subject=f"№{comment.pk} Статус обратной связи",

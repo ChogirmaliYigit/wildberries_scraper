@@ -74,12 +74,10 @@ def send_email(users: list[str], subject: str, message: str):
 
 
 def send_otp(user: User, type_: str):
-    code = generate_otp_code() if not settings.DEBUG else "000000"
+    code = generate_otp_code()
     UserOTP.objects.create(user=user, code=code, type=type_)
-    if not settings.DEBUG:
-        return send_email(
-            [user.email],
-            "Подтверждение по электронной почте для Озро",
-            f"Ваш код: {code}",
-        )
-    return None
+    return send_email(
+        [user.email],
+        "Подтверждение по электронной почте для Озро",
+        f"Ваш код: {code}",
+    )
