@@ -1,0 +1,106 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: wildberries_scraper_db
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_INITDB_ARGS=--auth=md5
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+
+  web:
+    container_name: wildberries_scraper_backend
+    restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+        - ./static:/home/app/web/static
+        - ./media:/home/app/web/media
+        - ./locale:/home/app/web/locale
+    security_opt:
+      - seccomp:unconfined
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Tashkent
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    container_name: wildberries_scraper_redis
+    image: redis:7.2.4-alpine
+    restart: always
+
+  celery_worker:
+    container_name: wildberries_scraper_celery_worker
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    image: celery_worker
+    command: /start-celeryworker
+    volumes:
+      - .:/home/app/web/
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
+
+  celery_beat:
+    container_name: wildberries_scraper_celery_beat
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    image: celery_beat
+    command: /start-celerybeat
+    volumes:
+      - .:/home/app/web/
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./static:/static
+      - ./media:/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
