@@ -89,18 +89,5 @@ services:
       - db
       - web
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-      - ./static:/static
-      - ./media:/media
-      - /etc/letsencrypt:/etc/letsencrypt
-    depends_on:
-      - web
-
 volumes:
   postgres_data:
