@@ -47,7 +47,7 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(BaseListCreateAPIView):
-    queryset = get_filtered_comments()
+    queryset = get_filtered_comments(Comment.objects.filter(reply_to__isnull=False))
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -69,7 +69,7 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        queryset = Comment.objects.all()
+        queryset = Comment.objects.filter(reply_to__isnull=False)
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
         return get_filtered_comments(queryset)
@@ -81,7 +81,7 @@ class UserCommentsListView(generics.ListAPIView):
 
 
 class FeedbacksListView(BaseListCreateAPIView):
-    queryset = get_filtered_comments()
+    queryset = get_filtered_comments(Comment.objects.filter(reply_to__isnull=True))
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -97,7 +97,7 @@ class UserFeedbacksListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        queryset = Comment.objects.all()
+        queryset = Comment.objects.filter(reply_to__isnull=True)
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
         return get_filtered_comments(queryset)
