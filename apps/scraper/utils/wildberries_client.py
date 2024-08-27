@@ -3,10 +3,9 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 from bs4 import BeautifulSoup
-from bs4.dammit import UnicodeDammit
 from dateutil.parser import ParserError, parse
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from fake_useragent import UserAgent
 from scraper.models import (
     Category,
@@ -64,12 +63,7 @@ class WildberriesClient:
                 return None
         except requests.exceptions.ConnectionError:
             return None
-        return BeautifulSoup(
-            UnicodeDammit(
-                response.content, ["latin-1", "iso-8859-1", "windows-1251"]
-            ).unicode_markup,
-            "html.parser",
-        )
+        return BeautifulSoup(response.text, "html.parser")
 
     def check_image(self, image_url: str) -> bool:
         """Checks if an image exists at the given URL."""
@@ -150,32 +144,35 @@ class WildberriesClient:
 
     def get_product_variant_images(self, source_id):
         """Fetches the image URLs for a product variant."""
-        variant_detail_soup = self.get_soup(
-            f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
-        )
-        if not variant_detail_soup:
-            return []
-
-        swiper = variant_detail_soup.find("ul", {"class": "swiper-wrapper"})
-        if not swiper:
-            return []
-
+        source_id = str(source_id)
         images = []
-        for li in swiper.find_all("li", {"class": "swiper-slide"}):
-            div = li.find_next("div", {"class": "slide__content img-plug"})
-            if not div:
-                continue
-            img = div.find_next("img")
-            if img and img.get("src"):
-                images.append(img["src"])
-                break
+        split_options = [
+            (2, 5),
+            (2, 6),
+            (3, 5),
+            (3, 6),
+            (4, 5),
+            (4, 6),
+            (5, 5),
+            (5, 6),
+        ]
+        for option in split_options:
+            for basket_id in range(1, 20):
+                img_url = f"https://basket-0{basket_id}.wbbasket.ru/vol{source_id[:option[0]]}/part{source_id[:option[1]]}/{source_id}/images/c246x328/{basket_id}.webp"
+                if self.check_image(img_url):
+                    images.append(img_url)
         return images
 
     def get_all_product_variant_images(self):
         """Fetches and saves images for product variants which there is no image yet."""
-        variants = ProductVariant.objects.annotate(image_count=Count("images")).filter(
-            image_count=0
+        variants = list(
+            ProductVariant.objects.annotate(
+                images_count=Count(
+                    "images", distinct=True, filter=Q(images__isnull=False)
+                )
+            ).filter(images_count__gt=0)
         )
+        random.shuffle(variants)
 
         image_objects = []
         for variant in variants:
