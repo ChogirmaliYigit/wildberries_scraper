@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "django_filters",
-    "django_apscheduler",
+    "django_celery_beat",
     "core",
     "users",
     "scraper",
@@ -188,14 +188,10 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": "3/second", "user": "5/second"},
+    "EXCEPTION_HANDLER": "core.utils.custom_exception_handler",
 }
 
 BACKEND_DOMAIN = env.str("BACKEND_DOMAIN", "http://127.0.0.1:8000")
-
-APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
-APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
-
-WILDBERRIES_BASE_SCRAPE_URL = env.str("WILDBERRIES_BASE_SCRAPE_URL")
 
 EMAIL_HOST = env.str("EMAIL_HOST")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", False)
@@ -208,14 +204,20 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
 
 CATEGORIES_SOURCE_IDS = [128296, 306, 629, 566]
 
+NEW_PRODUCTS_DAYS = 3
+
 # CELERY CONFIGURATION
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", "redis://redis:6379")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
-REDIS_DB = 0
+REDIS_HOST = env.str("REDIS_HOST", "redis")
+REDIS_PORT = env.int("REDIS_PORT", 6379)
+REDIS_DB = env.int("REDIS_DB", 0)
+
+SCRAPE_CATEGORIES_SECONDS = env.float("SCRAPE_CATEGORIES_SECONDS")
+SCRAPE_PRODUCTS_SECONDS = env.float("SCRAPE_PRODUCTS_SECONDS")
+SCRAPE_COMMENTS_SECONDS = env.float("SCRAPE_COMMENTS_SECONDS")

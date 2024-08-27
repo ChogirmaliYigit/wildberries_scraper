@@ -20,6 +20,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             email=email,
             password=validated_data.get("password"),
             full_name=validated_data.get("full_name"),
+            is_active=False,
         )
         return user
 
@@ -48,7 +49,11 @@ class SignInSerializer(serializers.Serializer):
 
         if not user:
             raise serializers.ValidationError(
-                {"message": "Неправильный адрес электронной почты или пароль"}
+                {"message": "Неправильный адрес электронной почты или пароль"},
+            )
+        if not user.is_active:
+            raise serializers.ValidationError(
+                {"message": "Пользователь неактивен"},
             )
 
         attrs["user"] = user
@@ -95,6 +100,8 @@ class ConfirmationSerializer(serializers.Serializer):
         if not user_otp:
             raise exceptions.ValidationError({"message": "Неправильный код"})
         user_otp.delete()
+        user.is_active = True
+        user.save(update_fields=["is_active"])
         return user
 
 
@@ -103,7 +110,6 @@ class TokenSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data["token"] = instance.key
         data["user"] = UserSerializer(instance.user).data
-        data["permissions"] = list(instance.user.get_all_permissions())
         return data
 
     class Meta:
@@ -145,4 +151,9 @@ class SendOTPSerializer(serializers.Serializer):
         user = User.objects.filter(email=validated_data.get("email")).first()
         if not user:
             raise exceptions.ValidationError({"message": "Пользователь не существует"})
+        user_otp = UserOTP.objects.filter(
+            user=user, code=validated_data.get("code"), type=OTPTypes.REGISTER
+        ).last()
+        if user_otp:
+            user_otp.delete()
         return user

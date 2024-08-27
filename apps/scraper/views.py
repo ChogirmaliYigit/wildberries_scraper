@@ -1,15 +1,15 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.db.models import Case, Count, DateTimeField, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, response, status, views
-from scraper.filters import CategoryFilter, CommentsFilter, ProductFilter
-from scraper.models import Category, Comment, CommentStatuses, Favorite, Like, Product
+from scraper.filters import CommentsFilter, ProductFilter
+from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
     CommentsSerializer,
     FavoritesSerializer,
     ProductsSerializer,
 )
+from scraper.utils.queryset import get_filtered_comments, get_filtered_products
 
 
 class CategoriesListView(BaseListAPIView):
@@ -19,24 +19,13 @@ class CategoriesListView(BaseListAPIView):
         .order_by("-id")
     )
     serializer_class = CategoriesSerializer
-    filterset_class = CategoryFilter
     search_fields = [
         "title",
     ]
 
 
 class ProductsListView(BaseListAPIView):
-    queryset = (
-        Product.objects.annotate(
-            images_count=Count("variants__images"),
-            comments_count=Count("product_comments"),
-        )
-        .filter(images_count__gt=0)
-        .filter(comments_count__gt=0)
-        .prefetch_related("category", "variants__images")
-        .distinct()
-        .order_by("-id")
-    )
+    queryset = get_filtered_products()
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
@@ -48,17 +37,7 @@ class ProductsListView(BaseListAPIView):
 
 
 class ProductDetailView(generics.RetrieveAPIView):
-    queryset = (
-        Product.objects.annotate(
-            images_count=Count("variants__images"),
-            comments_count=Count("product_comments"),
-        )
-        .filter(images_count__gt=0)
-        .filter(comments_count__gt=0)
-        .prefetch_related("category", "variants__images")
-        .distinct()
-        .order_by("-id")
-    )
+    queryset = get_filtered_products()
     serializer_class = ProductsSerializer
 
     def get_serializer_context(self):
@@ -68,19 +47,7 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(BaseListCreateAPIView):
-    queryset = (
-        Comment.objects.prefetch_related("product", "user", "reply_to")
-        .filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
-        .distinct("user", "product", "content")
-        .annotate(
-            annotated_source_date=Case(
-                When(source_date__isnull=False, then="source_date"),
-                default="created_at",
-                output_field=DateTimeField(),
-            )
-        )
-        .order_by("user", "product", "content", "-annotated_source_date")
-    )
+    queryset = get_filtered_comments()
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -105,22 +72,7 @@ class UserCommentsListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-        return (
-            queryset.prefetch_related("product", "user", "reply_to")
-            .distinct("user", "product", "content")
-            .filter(
-                status=CommentStatuses.ACCEPTED,
-                reply_to__isnull=False,
-            )
-            .annotate(
-                annotated_source_date=Case(
-                    When(source_date__isnull=False, then="source_date"),
-                    default="created_at",
-                    output_field=DateTimeField(),
-                )
-            )
-            .order_by("user", "product", "content", "-annotated_source_date")
-        )
+        return get_filtered_comments(queryset)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -129,19 +81,7 @@ class UserCommentsListView(generics.ListAPIView):
 
 
 class FeedbacksListView(BaseListCreateAPIView):
-    queryset = (
-        Comment.objects.prefetch_related("product", "user", "reply_to")
-        .filter(reply_to__isnull=True, status=CommentStatuses.ACCEPTED)
-        .distinct("user", "product", "content")
-        .annotate(
-            annotated_source_date=Case(
-                When(source_date__isnull=False, then="source_date"),
-                default="created_at",
-                output_field=DateTimeField(),
-            )
-        )
-        .order_by("user", "product", "content", "-annotated_source_date")
-    )
+    queryset = get_filtered_comments()
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
@@ -160,22 +100,7 @@ class UserFeedbacksListView(generics.ListAPIView):
         queryset = Comment.objects.all()
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user=self.request.user)
-        return (
-            queryset.prefetch_related("product", "user", "reply_to")
-            .filter(
-                status=CommentStatuses.ACCEPTED,
-                reply_to__isnull=True,
-            )
-            .distinct("user", "product", "content")
-            .annotate(
-                annotated_source_date=Case(
-                    When(source_date__isnull=False, then="source_date"),
-                    default="created_at",
-                    output_field=DateTimeField(),
-                )
-            )
-            .order_by("user", "product", "content", "-annotated_source_date")
-        )
+        return get_filtered_comments(queryset)
 
 
 class FavoritesListView(BaseListAPIView):
@@ -196,37 +121,35 @@ class FavoritesListView(BaseListAPIView):
         return queryset.prefetch_related("product", "user").order_by("-id")
 
 
+def make_favorite(request, product_id, model):
+    if not request.user.is_authenticated:
+        raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
+    product = Product.objects.filter(pk=product_id).first()
+    if not product:
+        raise exceptions.ValidationError({"message": "Товар не найден"})
+    _object = model.objects.filter(user=request.user, product=product).first()
+    if _object:
+        _object.delete()
+        favorite = False
+    else:
+        model.objects.create(user=request.user, product=product)
+        favorite = True
+    return favorite
+
+
 class FavoriteView(views.APIView):
     @utils.swagger_auto_schema(responses={200: "{'favorite': true'"})
     def post(self, request, product_id):
-        if not request.user.is_authenticated:
-            raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
-        product = Product.objects.filter(pk=product_id).first()
-        if not product:
-            raise exceptions.ValidationError({"message": "Товар не найден"})
-        favorite = Favorite.objects.filter(user=request.user, product=product).first()
-        if favorite:
-            favorite.delete()
-            is_favorite = False
-        else:
-            Favorite.objects.create(user=request.user, product=product)
-            is_favorite = True
-        return response.Response({"favorite": is_favorite}, status.HTTP_200_OK)
+        return response.Response(
+            {"favorite": make_favorite(request, product_id, Favorite)},
+            status.HTTP_200_OK,
+        )
 
 
 class LikeView(views.APIView):
     @utils.swagger_auto_schema(responses={200: "{'liked': true'"})
     def post(self, request, product_id):
-        if not request.user.is_authenticated:
-            raise exceptions.ValidationError({"message": "Пользователь не авторизован"})
-        product = Product.objects.filter(pk=product_id).first()
-        if not product:
-            raise exceptions.ValidationError({"message": "Товар не найден"})
-        like = Like.objects.filter(user=request.user, product=product).first()
-        if like:
-            like.delete()
-            liked = False
-        else:
-            Like.objects.create(user=request.user, product=product)
-            liked = True
-        return response.Response({"liked": liked}, status.HTTP_200_OK)
+        return response.Response(
+            {"liked": make_favorite(request, product_id, Like)},
+            status.HTTP_200_OK,
+        )

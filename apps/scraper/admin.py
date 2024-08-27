@@ -49,32 +49,6 @@ class CategoryAdmin(ModelAdmin):
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
-    # actions = [
-    #     "change_parent_128296",
-    #     "change_parent_306",
-    #     "change_parent_629",
-    #     "change_parent_566",
-    # ]
-
-    def change_parent_128296(self, request, queryset):
-        parent = Category.objects.filter(source_id=128296).first()
-        queryset.update(parent=parent)
-        self.message_user(request, "Categories made child of 128296", level=25)
-
-    def change_parent_306(self, request, queryset):
-        parent = Category.objects.filter(source_id=306).first()
-        queryset.update(parent=parent)
-        self.message_user(request, "Categories made child of 306", level=25)
-
-    def change_parent_629(self, request, queryset):
-        parent = Category.objects.filter(source_id=629).first()
-        queryset.update(parent=parent)
-        self.message_user(request, "Categories made child of 629", level=25)
-
-    def change_parent_566(self, request, queryset):
-        parent = Category.objects.filter(source_id=566).first()
-        queryset.update(parent=parent)
-        self.message_user(request, "Categories made child of 566", level=25)
 
     def formfield_for_foreignkey(
         self, db_field: ForeignKey, request: HttpRequest, **kwargs
@@ -139,11 +113,20 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
-    # actions = ["delete_unused_products"]
 
     @display(description=_("Likes"))
     def likes(self, instance):
         return instance.product_likes.count()
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if request.user.is_superuser:
+            actions["delete_unused_products"] = (
+                self.delete_unused_products,
+                "delete_unused_products",
+                "Delete unused products",
+            )
+        return actions
 
     def delete_unused_products(self, request, queryset):
         queryset1 = Product.objects.filter(variants__images__isnull=True)
@@ -184,8 +167,7 @@ class RequestedCommentFilesInline(TabularInline):
     extra = 1
 
 
-@admin.register(Comment)
-class CommentAdmin(ModelAdmin):
+class BaseCommentAdmin(ModelAdmin):
     list_display = (
         "user_display",
         "product",
@@ -217,7 +199,6 @@ class CommentAdmin(ModelAdmin):
         "source_id",
     )
     list_filter = ("status",)
-    inlines = [CommentFilesInline]
 
     @display(description=_("User"))
     def user_display(self, instance):
@@ -229,78 +210,48 @@ class CommentAdmin(ModelAdmin):
             if not name:
                 name = instance.user.email
         return name if name is not None else "Anonymous"
+
+
+@admin.register(Comment)
+class CommentAdmin(BaseCommentAdmin):
+    inlines = [CommentFilesInline]
 
     def get_queryset(self, request):
         # Filter out instances of RequestedComment
         queryset = super().get_queryset(request)
-        return queryset.exclude(requestedcomment__isnull=False)
+        return queryset.filter(requestedcomment__isnull=True)
 
 
 @admin.register(RequestedComment)
-class RequestedCommentAdmin(ModelAdmin):
-    list_display = (
-        "user_display",
-        "product",
-        "content",
-        "rating",
-        "status",
-        "action_buttons",
-    )
-    fields = (
-        "user",
-        "product",
-        "content",
-        "rating",
-        "status",
-        "wb_user",
-        "reply_to",
-        "file",
-        "source_id",
-    )
-    search_fields = (
-        "id",
-        "user__full_name",
-        "user__email",
-        "wb_user",
-        "content",
-        "product__title",
-        "product__category__title",
-        "rating",
-        "reply_to__content",
-        "source_id",
-    )
-    list_filter = ("status",)
+class RequestedCommentAdmin(BaseCommentAdmin):
     inlines = [RequestedCommentFilesInline]
 
-    @display(description=_("User"))
-    def user_display(self, instance):
-        name = "Anonymous"
-        if instance.wb_user:
-            name = instance.wb_user
-        elif instance.user:
-            name = instance.user.full_name
-            if not name:
-                name = instance.user.email
-        return name if name is not None else "Anonymous"
+    def get_list_display(self, request):
+        list_display = super().get_list_display(request)
+        return list_display + ("action_buttons",)
 
+    @display(description=_("Actions"))
     def action_buttons(self, obj):
         accept_url = reverse("admin:accept_comment", args=[obj.pk])
         reject_url = reverse("admin:reject_comment", args=[obj.pk])
 
-        return format_html(
-            '<div style="display: flex; width: 100%;">'
-            '<a class="inline-block border border-green-500 font-medium rounded-md text-center text-green-500 whitespace-nowrap dark:border-transparent dark:bg-green-500/20 dark:text-green-500" '
-            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{accept_url}">{accept_text}</a> '
-            '<a class="inline-block border border-red-500 font-medium rounded-md text-center text-red-500 whitespace-nowrap dark:border-transparent dark:bg-red-500/20 dark:text-red-500" '
-            'style="flex: 1; text-align: center; display: block; padding: 5px 10px; margin: 0 2px;" href="{reject_url}">{reject_text}</a>'
-            "</div>",
-            accept_url=accept_url,
-            accept_text=_("Accept"),
-            reject_url=reject_url,
-            reject_text=_("Reject"),
-        )
+        def get_button(color, url, text) -> str:
+            button_div = '<div style="display: flex; width: 100%;">{content}</div>'
+            button_template = (
+                '<a class="inline-block border border-{color}-500 font-medium rounded-md text-center text-{'
+                "color}-500 whitespace-nowrap dark:border-transparent dark:bg-{color}-500/20 "
+                'dark:text-{color}-500" style="flex: 1; text-align: center; display: block; padding: 5px '
+                '10px; margin: 0 2px;" href="{url}">{text}</a>'
+            )
 
-    action_buttons.short_description = _("Actions")
+            return button_div.format(
+                content=button_template.format(color=color, url=url, text=text)
+            )
+
+        return format_html(
+            get_button(color="green", url=accept_url, text=_("Accept")),
+            get_button(color="red", url=reject_url, text=_("Reject")),
+        )
 
     def get_urls(self):
         urls = super().get_urls()
@@ -319,25 +270,25 @@ class RequestedCommentAdmin(ModelAdmin):
         return custom_urls + urls
 
     def accept_comment(self, request, pk):
-        requested_comment = RequestedComment.objects.get(pk=pk)
-        comment = Comment.objects.get(pk=requested_comment.pk - 1)
-        comment.status = CommentStatuses.ACCEPTED
-        comment.save(update_fields=["status"])
-        requested_comment.delete()
-        self.message_user(request, _("Comment accepted"), level=25)
-        return HttpResponseRedirect(
-            request.META.get(
-                "HTTP_REFERER", reverse("admin:scraper_comment_changelist")
-            )
-        )
+        return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
 
     def reject_comment(self, request, pk):
+        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED)
+
+    def update_comment(self, request, pk: int, status: CommentStatuses):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
-        comment.status = CommentStatuses.NOT_ACCEPTED
+        comment.status = status
         comment.save(update_fields=["status"])
         requested_comment.delete()
-        self.message_user(request, _("Comment not accepted"), level=30)
+
+        msg = _("Comment not accepted")
+        level = 30
+        if status == CommentStatuses.ACCEPTED:
+            msg = _("Comment accepted")
+            level = 25
+        self.message_user(request, msg, level=level)
+
         return HttpResponseRedirect(
             request.META.get(
                 "HTTP_REFERER", reverse("admin:scraper_comment_changelist")

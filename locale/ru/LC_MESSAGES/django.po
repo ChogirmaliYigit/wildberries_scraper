@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-25 13:55+0500\n"
+"POT-Creation-Date: 2024-08-26 23:40+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,10 +20,9 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: apps/scraper/admin.py:120 apps/scraper/admin.py:222
-#: apps/scraper/admin.py:275 apps/scraper/models.py:168
-#: apps/scraper/models.py:251 apps/scraper/models.py:267 apps/users/admin.py:46
-#: apps/users/models.py:44
+#: apps/scraper/admin.py:95 apps/scraper/admin.py:200
+#: apps/scraper/models.py:168 apps/scraper/models.py:257
+#: apps/scraper/models.py:273 apps/users/admin.py:46 apps/users/models.py:45
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:43
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:33
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:15
@@ -33,29 +32,29 @@ msgstr ""
 msgid "User"
 msgstr "Пользователь"
 
-#: apps/scraper/admin.py:144 apps/scraper/models.py:272
+#: apps/scraper/admin.py:118 apps/scraper/models.py:278
 msgid "Likes"
 msgstr "Нравится"
 
-#: apps/scraper/admin.py:298
-msgid "Accept"
-msgstr "Принять"
-
-#: apps/scraper/admin.py:300
-msgid "Reject"
-msgstr "Отклонить"
-
-#: apps/scraper/admin.py:303
+#: apps/scraper/admin.py:230
 msgid "Actions"
 msgstr "Действия"
 
-#: apps/scraper/admin.py:327
-msgid "Comment accepted"
-msgstr "Комментарий принят"
+#: apps/scraper/admin.py:251
+msgid "Accept"
+msgstr "Принять"
 
-#: apps/scraper/admin.py:340
+#: apps/scraper/admin.py:256
+msgid "Reject"
+msgstr "Отклонить"
+
+#: apps/scraper/admin.py:289
 msgid "Comment not accepted"
 msgstr "Комментарий не принят"
+
+#: apps/scraper/admin.py:292
+msgid "Comment accepted"
+msgstr "Комментарий принят"
 
 #: apps/scraper/apps.py:8
 msgid "Data"
@@ -100,8 +99,8 @@ msgid "Root"
 msgstr "Корень"
 
 #: apps/scraper/models.py:63 apps/scraper/models.py:86
-#: apps/scraper/models.py:149 apps/scraper/models.py:248
-#: apps/scraper/models.py:264
+#: apps/scraper/models.py:149 apps/scraper/models.py:254
+#: apps/scraper/models.py:270
 msgid "Product"
 msgstr "Продукт"
 
@@ -179,54 +178,54 @@ msgstr "Отвечать на"
 msgid "File"
 msgstr "Файл"
 
-#: apps/scraper/models.py:204 apps/scraper/models.py:219
-#: apps/scraper/models.py:235
+#: apps/scraper/models.py:207 apps/scraper/models.py:222
+#: apps/scraper/models.py:241
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/_object_history_list.html:24
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/_object_history_list.html:56
 msgid "Comment"
 msgstr "Комментарий"
 
-#: apps/scraper/models.py:205
+#: apps/scraper/models.py:208
 msgid "Comments"
 msgstr "Комментарии"
 
-#: apps/scraper/models.py:210
+#: apps/scraper/models.py:213
 msgid "Requested comment"
 msgstr "Запрошенный комментарий"
 
-#: apps/scraper/models.py:211
+#: apps/scraper/models.py:214
 msgid "Requested comments"
 msgstr "Запрошенные комментарии"
 
-#: apps/scraper/models.py:222
+#: apps/scraper/models.py:225
 msgid "File link"
 msgstr "Ссылка на файл"
 
-#: apps/scraper/models.py:226
+#: apps/scraper/models.py:232
 msgid "Comment file"
 msgstr "Файл комментариев"
 
-#: apps/scraper/models.py:227
+#: apps/scraper/models.py:233
 msgid "Comment files"
 msgstr "Файлы комментариев"
 
-#: apps/scraper/models.py:239
+#: apps/scraper/models.py:245
 msgid "Requested comment file"
 msgstr "Файл комментариев"
 
-#: apps/scraper/models.py:240
+#: apps/scraper/models.py:246
 msgid "Requested comment files"
 msgstr "Файлы комментариев"
 
-#: apps/scraper/models.py:255
+#: apps/scraper/models.py:261
 msgid "Favorite"
 msgstr "Избранное"
 
-#: apps/scraper/models.py:256
+#: apps/scraper/models.py:262
 msgid "Favorites"
 msgstr "Избранное"
 
-#: apps/scraper/models.py:271
+#: apps/scraper/models.py:277
 msgid "Like"
 msgstr "Нравиться"
 
@@ -256,11 +255,11 @@ msgstr "Да"
 msgid "No"
 msgstr "Нет"
 
-#: apps/users/admin.py:41 apps/users/models.py:35
+#: apps/users/admin.py:41 apps/users/models.py:36
 msgid "Is blocked"
 msgstr "Заблокировано?"
 
-#: apps/users/apps.py:8 apps/users/models.py:45
+#: apps/users/apps.py:8 apps/users/models.py:46
 msgid "Users"
 msgstr "Пользователи"
 
@@ -276,19 +275,19 @@ msgstr "Электронная почта"
 msgid "Profile photo"
 msgstr "Фото профиля"
 
-#: apps/users/models.py:69
+#: apps/users/models.py:70
 msgid "Register"
 msgstr "Зарегистрироваться"
 
-#: apps/users/models.py:70
+#: apps/users/models.py:71
 msgid "Forgot password"
 msgstr "Забыли пароль"
 
-#: apps/users/queryset/user.py:33
+#: apps/users/queryset/user.py:34
 msgid "Superuser must have is_staff=True."
 msgstr ""
 
-#: apps/users/queryset/user.py:35
+#: apps/users/queryset/user.py:36
 msgid "Superuser must have is_superuser=True."
 msgstr ""
 
@@ -1912,6 +1911,10 @@ msgstr ""
 #, python-format
 msgid "Unable to connect to qpid with SASL mechanism %s"
 msgstr ""
+
+#: venv/lib/python3.11/site-packages/timezone_field/rest_framework.py:10
+msgid "A valid timezone is required."
+msgstr "Требуется действительный часовой пояс."
 
 #: venv/lib/python3.11/site-packages/unfold/admin.py:293
 #: venv/lib/python3.11/site-packages/unfold/admin.py:314
