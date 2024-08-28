@@ -75,10 +75,12 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(reply_to__isnull=False)
         if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
-        return get_filtered_comments(queryset)
+            queryset = Comment.objects.filter(
+                user=self.request.user, reply_to__isnull=False
+            )
+            return get_filtered_comments(queryset)
+        return []
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -105,10 +107,12 @@ class UserFeedbacksListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(reply_to__isnull=True)
         if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
-        return get_filtered_comments(queryset)
+            queryset = Comment.objects.filter(
+                user=self.request.user, reply_to__isnull=True
+            )
+            return get_filtered_comments(queryset)
+        return []
 
 
 class FavoritesListView(BaseListAPIView):
