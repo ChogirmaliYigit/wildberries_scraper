@@ -16,10 +16,9 @@ def remove_duplicates(apps, schema_editor):
             file_link=duplicate["file_link"],
             file_type=duplicate["file_type"],
             comment=duplicate["comment"],
-        ).order_by("id")[
-            1:
-        ]  # Keep the first object, delete the rest
-        objects.delete()
+        ).order_by("id")
+        for obj in objects[1:]:
+            obj.delete()
 
 
 class Migration(migrations.Migration):
