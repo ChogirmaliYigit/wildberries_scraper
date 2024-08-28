@@ -42,7 +42,7 @@ class SignInSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         user = authenticate(
-            request=self.context.get("request"),
+            # request=self.context.get("request"),
             email=attrs.get("email").lower(),
             password=attrs.get("password"),
         )
