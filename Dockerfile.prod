@@ -1,5 +1,5 @@
 # FINAL STAGE
-FROM python:3.11.5
+FROM python:3.11.5 as builder
 
 # create directory for the app user
 RUN mkdir -p /home/app
