@@ -80,7 +80,7 @@ class UserCommentsListView(generics.ListAPIView):
                 user=self.request.user, reply_to__isnull=False
             )
             return get_filtered_comments(queryset)
-        return []
+        return Comment.objects.none()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -112,7 +112,7 @@ class UserFeedbacksListView(generics.ListAPIView):
                 user=self.request.user, reply_to__isnull=True
             )
             return get_filtered_comments(queryset)
-        return []
+        return Comment.objects.none()
 
 
 class FavoritesListView(BaseListAPIView):
