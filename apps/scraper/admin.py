@@ -39,6 +39,7 @@ class CategoryAdmin(ModelAdmin):
         "parent",
         "source_id",
         "slug_name",
+        "shard",
     )
     search_fields = (
         "title",
