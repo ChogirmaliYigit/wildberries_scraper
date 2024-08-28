@@ -34,7 +34,9 @@ class ProductFilter(django_filters.FilterSet):
         limit_date = (
             datetime.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
         ).date()
-        return queryset.filter(created_at__date__gte=limit_date)
+        return queryset.filter(created_at__date__gte=limit_date).order_by(
+            "-created_date"
+        )
 
     class Meta:
         model = Product
