@@ -85,4 +85,5 @@ class CommentsFilter(django_filters.FilterSet):
             "rating",
             "status",
             "user_id",
+            "feedback_id",
         ]
