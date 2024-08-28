@@ -167,12 +167,6 @@ class RequestedCommentFilesInline(TabularInline):
     extra = 1
 
 
-@admin.register(CommentFiles)
-class CommentFilesAdmin(ModelAdmin):
-    list_display = ("comment", "file_link", "file_type")
-    fields = list_display
-
-
 class BaseCommentAdmin(ModelAdmin):
     list_display = (
         "user_display",

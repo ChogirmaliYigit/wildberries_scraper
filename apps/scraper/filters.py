@@ -50,7 +50,7 @@ class CommentsFilter(django_filters.FilterSet):
         field_name="status", choices=CommentStatuses.choices
     )
     user_id = django_filters.NumberFilter(field_name="user_id")
-    feedback_id = django_filters.NumberFilter(field_name="reply_to_id")
+    feedback_id = django_filters.NumberFilter(method="filter_by_feedback")
 
     def filter_by_product_or_variant(self, queryset, name, value):
         # First, try to filter comments by product_id
@@ -76,6 +76,11 @@ class CommentsFilter(django_filters.FilterSet):
             )
             .order_by("user", "product", "content", "-annotated_source_date")
         )
+
+    def filter_by_feedback(self, queryset, name, value):
+        if value:
+            return queryset.filter(reply_to_id=value)
+        return queryset
 
     class Meta:
         model = Comment
