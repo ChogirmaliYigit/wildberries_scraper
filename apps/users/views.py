@@ -115,7 +115,7 @@ class UserDetailView(views.APIView):
 
     @utils.swagger_auto_schema(responses={200: "{}"})
     def delete(self, request):
-        user = User.objects.filter(pk=request.user.pk).first()
+        user = User.objects.filter(email=request.user.email).first()
         if not user:
             return response.Response(
                 {"message": "Пользователь не существует"}, status.HTTP_404_NOT_FOUND
@@ -127,6 +127,10 @@ class UserDetailView(views.APIView):
             request.user.auth_token.delete()
 
         user.delete()
+        try:
+            request.user.delete()
+        except Exception:
+            pass
         return response.Response({}, status.HTTP_200_OK)
 
 

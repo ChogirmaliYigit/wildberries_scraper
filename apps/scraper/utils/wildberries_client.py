@@ -299,16 +299,17 @@ class WildberriesClient:
         if rating != 5:
             return
 
-        comment_object, _ = Comment.objects.get_or_create(
-            product_id=product_id,
-            content=comment.get("text"),
-            defaults={
-                "rating": rating,
-                "status": CommentStatuses.ACCEPTED,
-                "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
-                "source_date": published_date,
-            },
-        )
+        if comment.get("text"):
+            comment_object, _ = Comment.objects.get_or_create(
+                product_id=product_id,
+                content=comment.get("text"),
+                defaults={
+                    "rating": rating,
+                    "status": CommentStatuses.ACCEPTED,
+                    "wb_user": comment.get("wbUserDetails", {}).get("name", ""),
+                    "source_date": published_date,
+                },
+            )
 
         images_saved = self.save_comment_images(
             comment_object, comment.get("photo", [])
@@ -354,10 +355,12 @@ class WildberriesClient:
                 basket_id, uuid
             )
             if link:
-                CommentFiles.objects.create(
+                c, _ = CommentFiles.objects.get_or_create(
                     comment=comment_object,
-                    file_link=link,
-                    file_type=FileTypeChoices.VIDEO,
+                    defaults={
+                        "file_link": link,
+                        "file_type": FileTypeChoices.VIDEO,
+                    },
                 )
                 return True
         return False

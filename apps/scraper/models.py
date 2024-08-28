@@ -221,9 +221,7 @@ class CommentFiles(BaseModel):
         related_name="files",
         verbose_name=_("Comment"),
     )
-    file_link: str = models.TextField(
-        null=True, blank=True, verbose_name=_("File link")
-    )
+    file_link: str = models.TextField(unique=True, verbose_name=_("File link"))
     file_type = models.CharField(
         max_length=20, choices=FileTypeChoices.choices, default=FileTypeChoices.IMAGE
     )
