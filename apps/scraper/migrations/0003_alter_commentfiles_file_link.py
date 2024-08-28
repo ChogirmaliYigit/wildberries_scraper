@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("scraper", "0001_initial"),
+        ("scraper", "0002_remove_duplicates"),
     ]
 
     operations = [
