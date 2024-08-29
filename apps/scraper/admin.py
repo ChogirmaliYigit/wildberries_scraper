@@ -50,6 +50,7 @@ class CategoryAdmin(ModelAdmin):
     )
     list_filter = ("parent",)
     inlines = [ProductsInline]
+    autocomplete_fields = ["parent"]
 
     def formfield_for_foreignkey(
         self, db_field: ForeignKey, request: HttpRequest, **kwargs
@@ -114,6 +115,7 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     inlines = [ProductVariantsInline]
+    autocomplete_fields = ["category"]
 
     @display(description=_("Likes"))
     def likes(self, instance):
@@ -143,6 +145,19 @@ class ProductAdmin(ModelAdmin):
         )
 
 
+@admin.register(ProductVariant)
+class ProductVariantAdmin(ModelAdmin):
+    list_display = (
+        "product",
+        "color",
+        "price",
+        "source_id",
+    )
+    fields = list_display
+    autocomplete_fields = ("product",)
+    search_fields = ("product__title",)
+
+
 @admin.register(ProductVariantImage)
 class ProductVariantImageAdmin(ModelAdmin):
     list_display = (
@@ -153,6 +168,7 @@ class ProductVariantImageAdmin(ModelAdmin):
         "variant",
         "image_link",
     )
+    autocomplete_fields = ("variant",)
 
 
 class CommentFilesInline(TabularInline):
@@ -200,6 +216,11 @@ class BaseCommentAdmin(ModelAdmin):
         "source_id",
     )
     list_filter = ("status",)
+    autocomplete_fields = [
+        "user",
+        "product",
+        "reply_to",
+    ]
 
     @display(description=_("User"))
     def user_display(self, instance):

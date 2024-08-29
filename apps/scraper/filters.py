@@ -27,6 +27,7 @@ class ProductFilter(django_filters.FilterSet):
         return (
             queryset.annotate(likes_count=Count("product_likes"))
             .filter(likes_count__gt=2)
+            .exclude(likes_count=1)
             .order_by("-likes_count")
         )
 
