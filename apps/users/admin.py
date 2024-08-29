@@ -23,6 +23,12 @@ class UserAdmin(ModelAdmin):
     )
     actions = ["block_users", "unblock_users"]
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if not request.user.is_superuser:
+            queryset = queryset.exclude(is_superuser=True)
+        return queryset
+
     def block_users(self, request, queryset):
         queryset.update(is_blocked=True)
         self.message_user(request, _("Selected users are blocked"), level=30)
@@ -87,3 +93,9 @@ class TokenAdmin(ModelAdmin):
     fields = list_display
     search_fields = ("id", "key", "user__full_name", "user__email")
     list_filter = ("is_active",)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if not request.user.is_superuser:
+            queryset = queryset.exclude(user__is_superuser=True)
+        return queryset
