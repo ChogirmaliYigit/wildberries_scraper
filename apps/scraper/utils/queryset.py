@@ -1,26 +1,14 @@
-from django.db.models import Case, Count, DateTimeField, F, Q, When
-from scraper.models import Comment, CommentStatuses, Product
+from django.db.models import Case, DateTimeField, Exists, OuterRef, When
+from scraper.models import Comment, CommentStatuses, Product, ProductVariantImage
 
 
 def get_filtered_products():
-    products_with_image_count = Product.objects.annotate(
-        variants_with_images=Count(
-            "variants__images", distinct=True, filter=Q(variants__images__isnull=False)
-        )
-    )
-
-    products_with_total_variants = products_with_image_count.annotate(
-        total_variants=Count("variants", distinct=True)
-    )
-
-    products_with_all_images = products_with_total_variants.filter(
-        variants_with_images=F("total_variants")
-    )
-
-    filtered_products = products_with_all_images.filter(
-        product_comments__isnull=False
-    ).distinct()
-    return filtered_products
+    return Product.objects.annotate(
+        has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
+        has_images=Exists(
+            ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
+        ),
+    ).filter(has_comments=True, has_images=True)
 
 
 def get_filtered_comments(queryset=None):
