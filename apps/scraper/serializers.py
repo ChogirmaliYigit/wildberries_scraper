@@ -4,6 +4,7 @@ from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
     Comment,
+    CommentFiles,
     CommentStatuses,
     Favorite,
     Like,
@@ -12,6 +13,44 @@ from scraper.models import (
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
+
+
+def get_files(comment):
+    files = []
+    if comment.file:
+        files.append(
+            {
+                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
+                "type": comment.file_type,
+            }
+        )
+    for file in comment.files.all():
+        if file.file_link:
+            files.append({"link": file.file_link, "type": file.file_type})
+    return files
+
+
+# Collect all replies in a single list
+def get_all_replies(comment):
+    replies = (
+        comment.replies.prefetch_related("user", "reply_to", "product")
+        .distinct("user", "product", "content")
+        .annotate(
+            annotated_source_date=Case(
+                When(source_date__isnull=False, then="source_date"),
+                default="created_at",
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("user", "product", "content", "-annotated_source_date")
+    )
+
+    all_replies = []
+    for reply in replies:
+        all_replies.append(reply)
+        all_replies.extend(get_all_replies(reply))  # Recursively collect replies
+
+    return all_replies
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -82,6 +121,13 @@ class ProductsSerializer(serializers.ModelSerializer):
                 user=request.user, product=instance
             ).exists()
         data["likes"] = Like.objects.filter(product=instance).count()
+        comment = CommentFiles.objects.filter(
+            comment=instance.product_comments.first()
+        ).first()
+        data["image"] = {
+            "link": comment.file_link,
+            "type": comment.file_type,
+        }
         return data
 
     class Meta:
@@ -110,37 +156,17 @@ class CommentsSerializer(serializers.ModelSerializer):
         _replies = self.context.get("replies", True)
         data = super().to_representation(instance)
 
-        # Collect all replies in a single list
-        def get_all_replies(comment):
-            replies = (
-                comment.replies.prefetch_related("user", "reply_to", "product")
-                .distinct("user", "product", "content")
-                .annotate(
-                    annotated_source_date=Case(
-                        When(source_date__isnull=False, then="source_date"),
-                        default="created_at",
-                        output_field=DateTimeField(),
-                    )
-                )
-                .order_by("user", "product", "content", "-annotated_source_date")
-            )
-
-            all_replies = []
-            for reply in replies:
-                all_replies.append(reply)
-                all_replies.extend(
-                    get_all_replies(reply)
-                )  # Recursively collect replies
-
-            return all_replies
-
         if _replies:
             # Flatten replies
             flattened_replies = get_all_replies(instance)
-            data["replied_comments"] = CommentsSerializer(
-                flattened_replies, many=True, context={"replies": False}
-            ).data
-        data["files"] = self.get_files(instance)
+            data["replied_comments"] = (
+                CommentsSerializer(
+                    flattened_replies, many=True, context={"replies": False}
+                ).data
+                if flattened_replies
+                else []
+            )
+        data["files"] = get_files(instance)
         if instance.wb_user:
             user = instance.wb_user
         elif instance.user:
@@ -152,25 +178,11 @@ class CommentsSerializer(serializers.ModelSerializer):
             instance.source_date if instance.source_date else instance.created_at
         )
         if request and instance.user:
-            is_own = request.user is instance.user
+            is_own = request.user.id == instance.user.id
         else:
             is_own = False
         data["is_own"] = is_own
         return data
-
-    def get_files(self, comment):
-        files = []
-        if comment.file:
-            files.append(
-                {
-                    "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
-                    "type": comment.file_type,
-                }
-            )
-        for file in comment.files.all():
-            if file.file_link:
-                files.append({"link": file.file_link, "type": file.file_type})
-        return files
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -202,10 +214,11 @@ class CommentsSerializer(serializers.ModelSerializer):
         if source_id and not product:
             scrape_product_by_source_id.delay(source_id, comment_instance.pk)
 
-        try:
-            RequestedComment.objects.create(**validated_data)
-        except Exception:
-            pass
+        if request.query_params.get("direct", "false") != "true":
+            try:
+                RequestedComment.objects.create(**validated_data)
+            except Exception:
+                pass
 
         return comment_instance
 
@@ -225,6 +238,39 @@ class CommentsSerializer(serializers.ModelSerializer):
             "replied_comments",
             "source_date",
         )
+
+
+class CommentDetailSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["files"] = get_files(instance)
+        data["source_date"] = (
+            instance.source_date if instance.source_date else instance.created_at
+        )
+        flattened_replies = get_all_replies(instance)
+        data["replied_comments"] = (
+            CommentsSerializer(flattened_replies, many=True).data
+            if flattened_replies
+            else None
+        )
+
+    class Meta:
+        model = Comment
+        fields = (
+            "id",
+            "product",
+            "source_id",
+            "content",
+            "rating",
+            "status",
+            "reply_to",
+            "source_date",
+        )
+        extra_kwargs = {
+            "status": {"read_only": True},
+            "product": {"read_only": True},
+            "source_date": {"read_only": True},
+        }
 
 
 class FavoritesSerializer(serializers.ModelSerializer):

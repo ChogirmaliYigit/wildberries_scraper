@@ -5,6 +5,7 @@ from scraper.filters import CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
+    CommentDetailSerializer,
     CommentsSerializer,
     FavoritesSerializer,
     ProductsSerializer,
@@ -65,6 +66,13 @@ class CommentsListView(BaseListCreateAPIView):
         context["request"] = self.request
         context["comment"] = True
         return context
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CommentDetailSerializer
+
+    def get_queryset(self):
+        pass
 
 
 class UserCommentsListView(generics.ListAPIView):
