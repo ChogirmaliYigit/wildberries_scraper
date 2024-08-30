@@ -311,15 +311,15 @@ class WildberriesClient:
                 },
             )
 
-        images_saved = self.save_comment_images(
-            comment_object, comment.get("photo", [])
-        )
-        video_saved = self.save_comment_videos(
-            comment_object, comment.get("video", None)
-        )
+            images_saved = self.save_comment_images(
+                comment_object, comment.get("photo", [])
+            )
+            video_saved = self.save_comment_videos(
+                comment_object, comment.get("video", None)
+            )
 
-        if not images_saved and not video_saved:
-            comment_object.delete()
+            if not images_saved and not video_saved:
+                comment_object.delete()
 
     def save_comment_images(self, comment_object, photo_ids):
         """Saves images associated with a comment."""
