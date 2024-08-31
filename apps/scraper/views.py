@@ -81,7 +81,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserCommentsListView(generics.ListAPIView):
-    serializer_class = CommentDetailSerializer
+    serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
     search_fields = [
         "content",
