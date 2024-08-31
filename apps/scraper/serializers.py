@@ -200,8 +200,8 @@ class CommentsSerializer(serializers.ModelSerializer):
             .first()
         )
         product = variant.product if variant else None
-
-        validated_data["product"] = product
+        if product:
+            validated_data["product"] = product
         validated_data["user"] = request.user
         if request.query_params.get("direct", "false") == "true":
             status = CommentStatuses.ACCEPTED

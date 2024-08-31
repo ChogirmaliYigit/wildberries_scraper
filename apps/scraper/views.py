@@ -75,7 +75,9 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     ]
 
     def get_queryset(self):
-        return get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        return (
+            get_filtered_comments(Comment.objects.filter(user=self.request.user)) or []
+        )
 
 
 class UserCommentsListView(generics.ListAPIView):
