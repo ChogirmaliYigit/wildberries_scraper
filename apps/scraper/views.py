@@ -1,6 +1,6 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
 from drf_yasg import utils
-from rest_framework import exceptions, generics, response, status, views
+from rest_framework import exceptions, generics, permissions, response, status, views
 from scraper.filters import CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
@@ -70,6 +70,9 @@ class CommentsListView(BaseListCreateAPIView):
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentDetailSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
 
     def get_queryset(self):
         get_filtered_comments(Comment.objects.filter(user=self.request.user))
@@ -81,11 +84,12 @@ class UserCommentsListView(generics.ListAPIView):
     search_fields = [
         "content",
     ]
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            get_filtered_comments(Comment.objects.filter(user=self.request.user))
-        return Comment.objects.none()
+        get_filtered_comments(Comment.objects.filter(user=self.request.user))
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
