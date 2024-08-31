@@ -253,6 +253,7 @@ class CommentDetailSerializer(serializers.ModelSerializer):
             if flattened_replies
             else None
         )
+        return data
 
     class Meta:
         model = Comment
