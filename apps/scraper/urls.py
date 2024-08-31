@@ -1,6 +1,7 @@
 from django.urls import path
 from scraper.views import (
     CategoriesListView,
+    CommentDetailView,
     CommentsListView,
     FavoritesListView,
     FavoriteView,
@@ -20,6 +21,11 @@ urlpatterns = [
     path("user-comments", UserCommentsListView.as_view(), name="user-comments-list"),
     path("feedbacks", FeedbacksListView.as_view(), name="feedbacks-list"),
     path("user-feedbacks", UserFeedbacksListView.as_view(), name="user-feedbacks-list"),
+    path(
+        "user-feedbacks/<int:pk>",
+        CommentDetailView.as_view(),
+        name="user-feedback-detail",
+    ),
     path("favorites", FavoritesListView.as_view(), name="favorites-list"),
     path("like/<int:product_id>", LikeView.as_view(), name="like-a-product"),
     path(

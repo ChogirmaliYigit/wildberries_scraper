@@ -1,5 +1,12 @@
-from django.db.models import Case, DateTimeField, Exists, OuterRef, When
-from scraper.models import Comment, CommentStatuses, Product, ProductVariantImage
+from django.db.models import DateTimeField, Exists, OuterRef
+from django.db.models.functions import Coalesce
+from scraper.models import (
+    Comment,
+    CommentFiles,
+    CommentStatuses,
+    Product,
+    ProductVariantImage,
+)
 
 
 def get_filtered_products():
@@ -12,29 +19,14 @@ def get_filtered_products():
 
 
 def get_filtered_comments(queryset=None):
-    if not queryset:
+    if queryset is None:
         queryset = Comment.objects.all()
-    annotated_query = queryset.annotate(
-        annotated_source_date=Case(
-            When(source_date__isnull=False, then="source_date"),
-            default="created_at",
-            output_field=DateTimeField(),
+    queryset = queryset.annotate(
+        has_files=Exists(CommentFiles.objects.filter(comment=OuterRef("pk")))
+    ).filter(has_files=True, status=CommentStatuses.ACCEPTED, content__isnull=False)
+    queryset = queryset.annotate(
+        ordering_date=Coalesce(
+            "source_date", "created_at", output_field=DateTimeField()
         )
-    )
-
-    # Step 2: Apply select_related for single-valued relationships
-    optimized_query = annotated_query.select_related("product", "user", "reply_to")
-
-    # Step 3: Filter by accepted status and non-null reply_to
-    optimized_query = optimized_query.filter(
-        status=CommentStatuses.ACCEPTED, content__isnull=False
-    )
-
-    # Step 4: Use distinct after filtering and annotating
-    optimized_query = optimized_query.distinct("user", "product", "content")
-
-    # Step 5: Order by the annotated source date and other fields
-    optimized_query = optimized_query.order_by(
-        "user", "product", "content", "-annotated_source_date"
-    )
-    return optimized_query
+    ).order_by("-ordering_date")
+    return queryset

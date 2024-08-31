@@ -72,7 +72,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentDetailSerializer
 
     def get_queryset(self):
-        pass
+        get_filtered_comments(Comment.objects.filter(user=self.request.user))
 
 
 class UserCommentsListView(generics.ListAPIView):
