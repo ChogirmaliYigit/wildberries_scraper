@@ -84,10 +84,7 @@ class UserCommentsListView(generics.ListAPIView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            queryset = Comment.objects.filter(
-                user=self.request.user, reply_to__isnull=False
-            )
-            return get_filtered_comments(queryset)
+            get_filtered_comments(Comment.objects.filter(user=self.request.user))
         return Comment.objects.none()
 
     def get_serializer_context(self):
