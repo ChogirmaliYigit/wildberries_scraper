@@ -2,7 +2,7 @@ from core.views import BaseListAPIView, BaseListCreateAPIView
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from scraper.filters import CommentsFilter, ProductFilter
-from scraper.models import Category, Comment, Favorite, Like, Product
+from scraper.models import Category, Comment, CommentStatuses, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
     CommentDetailSerializer,
@@ -74,10 +74,13 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticated,
     ]
 
-    def get_queryset(self):
-        return (
-            get_filtered_comments(Comment.objects.filter(user=self.request.user)) or []
-        )
+    def get_object(self):
+        queryset = Comment.objects.filter(
+            user=self.request.user, status=CommentStatuses.ACCEPTED
+        ).order_by("-id")
+        if queryset:
+            return queryset.get(pk=self.kwargs["pk"])
+        raise exceptions.ValidationError({"message": "Комментарий не найден"})
 
 
 class UserCommentsListView(generics.ListAPIView):
@@ -91,7 +94,9 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        return Comment.objects.filter(
+            user=self.request.user, status=CommentStatuses.ACCEPTED
+        ).order_by("-id")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
