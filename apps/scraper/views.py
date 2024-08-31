@@ -75,7 +75,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     ]
 
     def get_queryset(self):
-        get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        return get_filtered_comments(Comment.objects.filter(user=self.request.user))
 
 
 class UserCommentsListView(generics.ListAPIView):
@@ -89,7 +89,7 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        return get_filtered_comments(Comment.objects.filter(user=self.request.user))
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
