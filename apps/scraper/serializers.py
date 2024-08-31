@@ -145,7 +145,7 @@ class ProductsSerializer(serializers.ModelSerializer):
 
 class CommentsSerializer(serializers.ModelSerializer):
     replied_comments = serializers.ListField(read_only=True)
-    source_id = serializers.IntegerField()
+    source_id = serializers.IntegerField(required=False)
     rating = serializers.IntegerField(required=False, default=0)
     file = serializers.FileField(write_only=True, required=False)
     user = serializers.CharField(read_only=True)
