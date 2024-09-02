@@ -129,7 +129,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             "type": comment.file_type,
         }
         data["link"] = (
-            f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"
+            f"https://wildberries.ru/catalog/{instance.variants.first().source_id}/detail.aspx"
         )
         return data
 
