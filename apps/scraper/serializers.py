@@ -128,9 +128,9 @@ class ProductsSerializer(serializers.ModelSerializer):
             "link": comment.file_link,
             "type": comment.file_type,
         }
-        data["link"] = (
-            f"https://wildberries.ru/catalog/{instance.variants.first().source_id}/detail.aspx"
-        )
+        source_id = instance.variants.first().source_id
+        data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
+        data["source_id"] = source_id
         return data
 
     class Meta:
