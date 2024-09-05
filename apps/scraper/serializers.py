@@ -186,7 +186,11 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title
-        data["product_image"] = get_files(instance)[0]
+        image = None
+        files = get_files(instance)
+        if len(files) > 0:
+            image = files[0]
+        data["product_image"] = image
         return data
 
     def create(self, validated_data):
