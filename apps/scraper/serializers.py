@@ -10,6 +10,7 @@ from scraper.models import (
     Like,
     Product,
     ProductVariant,
+    ProductVariantImage,
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
@@ -187,9 +188,14 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["is_own"] = is_own
         data["product_name"] = instance.product.title
         image = None
-        files = get_files(instance)
-        if len(files) > 0:
-            image = files[0]
+        variant_image = ProductVariantImage.objects.filter(
+            variant=instance.product.variants.first()
+        ).first()
+        if variant_image:
+            image = {
+                "link": variant_image.image_link,
+                "type": variant_image.file_type,
+            }
         data["product_image"] = image
         return data
 
