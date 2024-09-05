@@ -185,6 +185,11 @@ class CommentsSerializer(serializers.ModelSerializer):
         else:
             is_own = False
         data["is_own"] = is_own
+        data["product_name"] = instance.product.title
+        data["product_image"] = {
+            "link": instance.file_link,
+            "type": instance.file_type,
+        }
         return data
 
     def create(self, validated_data):
