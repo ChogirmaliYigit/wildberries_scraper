@@ -81,7 +81,10 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset = Comment.objects.filter(user=self.request.user)
         if queryset:
             queryset = get_filtered_comments(queryset)
-            return queryset.filter(pk=self.kwargs["pk"]).first()
+            obj = queryset.filter(pk=self.kwargs["pk"]).first()
+            if not obj:
+                raise exceptions.ValidationError({"message": "Комментарий не найден"})
+            return obj
         raise exceptions.ValidationError({"message": "Комментарий не найден"})
 
 
