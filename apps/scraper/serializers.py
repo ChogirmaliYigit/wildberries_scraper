@@ -188,9 +188,13 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
         image = None
-        variant_image = ProductVariantImage.objects.filter(
-            variant=instance.product.variants.first()
-        ).first()
+        variant_image = (
+            ProductVariantImage.objects.filter(
+                variant=instance.product.variants.first()
+            ).first()
+            if instance.product
+            else None
+        )
         if variant_image:
             image = {
                 "link": variant_image.image_link,
