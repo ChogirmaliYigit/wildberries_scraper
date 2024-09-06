@@ -59,7 +59,10 @@ class CommentsListView(BaseListCreateAPIView):
     ]
 
     def get_queryset(self):
-        return get_filtered_comments(Comment.objects.filter(reply_to__isnull=False))
+        queryset = Comment.objects.filter(reply_to__isnull=False)
+        if not queryset:
+            return Comment.objects.none()
+        return get_filtered_comments(queryset)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -75,9 +78,10 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     ]
 
     def get_object(self):
-        queryset = get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        queryset = Comment.objects.filter(user=self.request.user)
         if queryset:
-            return queryset.get(pk=self.kwargs["pk"])
+            queryset = get_filtered_comments(queryset)
+            return queryset.filter(pk=self.kwargs["pk"]).first()
         raise exceptions.ValidationError({"message": "Комментарий не найден"})
 
 
@@ -92,7 +96,12 @@ class UserCommentsListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return get_filtered_comments(Comment.objects.filter(user=self.request.user))
+        queryset = Comment.objects.filter(
+            user=self.request.user, reply_to__isnull=False
+        )
+        if not queryset:
+            return Comment.objects.none()
+        return get_filtered_comments(queryset)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -108,7 +117,10 @@ class FeedbacksListView(BaseListCreateAPIView):
     ]
 
     def get_queryset(self):
-        return get_filtered_comments(Comment.objects.filter(reply_to__isnull=True))
+        queryset = Comment.objects.filter(reply_to__isnull=True)
+        if not queryset:
+            return Comment.objects.none()
+        return get_filtered_comments(queryset)
 
 
 class UserFeedbacksListView(generics.ListAPIView):
@@ -123,6 +135,8 @@ class UserFeedbacksListView(generics.ListAPIView):
             queryset = Comment.objects.filter(
                 user=self.request.user, reply_to__isnull=True
             )
+            if not queryset:
+                return Comment.objects.none()
             return get_filtered_comments(queryset)
         return Comment.objects.none()
 

@@ -186,7 +186,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         else:
             is_own = False
         data["is_own"] = is_own
-        data["product_name"] = instance.product.title
+        data["product_name"] = instance.product.title if instance.product else None
         image = None
         variant_image = ProductVariantImage.objects.filter(
             variant=instance.product.variants.first()
