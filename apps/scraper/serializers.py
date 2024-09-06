@@ -7,6 +7,7 @@ from scraper.models import (
     CommentFiles,
     CommentStatuses,
     Favorite,
+    FileTypeChoices,
     Like,
     Product,
     ProductVariant,
@@ -19,12 +20,14 @@ from scraper.tasks import scrape_product_by_source_id
 def get_files(comment):
     files = []
     if comment.file:
-        files.append(
-            {
-                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
-                "type": comment.file_type,
-            }
-        )
+        comment_file = {
+            "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
+            "type": comment.file_type,
+            "stream": False,
+        }
+        if comment.file_type == FileTypeChoices.VIDEO:
+            comment_file["stream"] = True
+        files.append(comment_file)
     for file in comment.files.all():
         if file.file_link:
             files.append({"link": file.file_link, "type": file.file_type})
