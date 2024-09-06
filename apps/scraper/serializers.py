@@ -29,8 +29,11 @@ def get_files(comment):
             comment_file["stream"] = True
         files.append(comment_file)
     for file in comment.files.all():
+        comment_file = {"link": file.file_link, "type": file.file_type, "stream": False}
+        if file.file_type == FileTypeChoices.VIDEO:
+            comment_file["stream"] = True
         if file.file_link:
-            files.append({"link": file.file_link, "type": file.file_type})
+            files.append(comment_file)
     return files
 
 
