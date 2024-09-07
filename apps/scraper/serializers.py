@@ -19,21 +19,25 @@ from scraper.tasks import scrape_product_by_source_id
 
 def get_files(comment):
     files = []
-    if comment.file:
-        comment_file = {
-            "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
-            "type": comment.file_type,
-            "stream": False,
+
+    # Helper function to process files
+    def process_file(_link, file_type):
+        return {
+            "link": _link,
+            "type": file_type,
+            "stream": file_type == FileTypeChoices.VIDEO,
         }
-        if comment.file_type == FileTypeChoices.VIDEO:
-            comment_file["stream"] = True
-        files.append(comment_file)
+
+    # Process the single `comment.file`
+    if comment.file:
+        file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
+        files.append(process_file(file_link, comment.file_type))
+
+    # Process files from `comment.files.all()`
     for file in comment.files.all():
-        comment_file = {"link": file.file_link, "type": file.file_type, "stream": False}
-        if file.file_type == FileTypeChoices.VIDEO:
-            comment_file["stream"] = True
-        if file.file_link:
-            files.append(comment_file)
+        if file.file_link:  # Ensure the file has a link
+            files.append(process_file(file.file_link, file.file_type))
+
     return files
 
 

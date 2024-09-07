@@ -23,6 +23,7 @@ class Category(BaseModel):
         null=True, blank=True, verbose_name=_("Slug name")
     )
     shard: str = models.TextField(null=True, blank=True, verbose_name=_("Shard"))
+    position: int = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.title

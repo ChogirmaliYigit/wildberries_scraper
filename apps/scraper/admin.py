@@ -337,9 +337,9 @@ class RequestedCommentAdmin(BaseCommentAdmin):
     def action_buttons(self, obj):
         accept_url = reverse("admin:accept_comment", args=[obj.pk])
         reject_url = reverse("admin:reject_comment", args=[obj.pk])
+        button_div = '<div style="display: flex; width: 100%;">{content}</div>'
 
         def get_button(color, url, text) -> str:
-            button_div = '<div style="display: flex; width: 100%;">{content}</div>'
             button_template = (
                 '<a class="inline-block border border-{color}-500 font-medium rounded-md text-center text-{'
                 "color}-500 whitespace-nowrap dark:border-transparent dark:bg-{color}-500/20 "
@@ -347,13 +347,13 @@ class RequestedCommentAdmin(BaseCommentAdmin):
                 '10px; margin: 0 2px;" href="{url}">{text}</a>'
             )
 
-            return button_div.format(
-                content=button_template.format(color=color, url=url, text=text)
-            )
+            return button_template.format(color=color, url=url, text=text)
 
         return format_html(
-            get_button(color="green", url=accept_url, text=_("Accept")),
-            get_button(color="red", url=reject_url, text=_("Reject")),
+            button_div.format(
+                context=get_button(color="green", url=accept_url, text=_("Accept"))
+                + get_button(color="red", url=reject_url, text=_("Reject"))
+            )
         )
 
     def get_urls(self):

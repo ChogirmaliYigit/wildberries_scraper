@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import django_filters
 from django.conf import settings
 from django.db.models import Case, Count, DateTimeField, When
+from django.utils import timezone
 from scraper.models import Category, Comment, CommentStatuses, Product, ProductVariant
 
 
@@ -25,17 +26,14 @@ class ProductFilter(django_filters.FilterSet):
 
     def get_popular_products(self, queryset):
         return (
-            queryset.annotate(likes_count=Count("product_likes"))
+            queryset.annotate(likes_count=Count("product_likes", distinct=True))
             .filter(likes_count__gt=2)
-            .exclude(likes_count=1)
             .order_by("-likes_count")
         )
 
     def get_new_products(self, queryset):
-        limit_date = (
-            datetime.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
-        ).date()
-        return queryset.filter(created_at__date__gte=limit_date).order_by("-created_at")
+        limit_date = timezone.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
+        return queryset.filter(created_at__gte=limit_date).order_by("-created_at")
 
     class Meta:
         model = Product

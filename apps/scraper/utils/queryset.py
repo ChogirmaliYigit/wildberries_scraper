@@ -4,18 +4,24 @@ from scraper.models import Comment, CommentStatuses, Product, ProductVariantImag
 
 
 def get_filtered_products():
-    return Product.objects.annotate(
-        has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
-        has_images=Exists(
-            ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-        ),
-    ).filter(has_comments=True, has_images=True)
+    return (
+        Product.objects.annotate(
+            has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
+            has_images=Exists(
+                ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
+            ),
+        )
+        .filter(has_comments=True, has_images=True)
+        .distinct()
+    )
 
 
 def get_filtered_comments(queryset=None):
     if queryset is None:
         queryset = Comment.objects.all()
-    queryset = queryset.filter(status=CommentStatuses.ACCEPTED, content__isnull=False)
+    queryset = queryset.filter(
+        status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
+    )
     queryset = queryset.annotate(
         ordering_date=Coalesce(
             "source_date", "created_at", output_field=DateTimeField()

@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from scraper.filters import CommentsFilter, ProductFilter
@@ -17,7 +18,20 @@ class CategoriesListView(BaseListAPIView):
     queryset = (
         Category.objects.filter(parent__isnull=True)
         .prefetch_related("parent")
-        .order_by("-id")
+        .annotate(
+            custom_order=Case(
+                When(
+                    position=0, then=Value(1)
+                ),  # Categories with position=0 are treated as lower priority
+                default=Value(
+                    0
+                ),  # Categories with position > 0 are treated as higher priority
+                output_field=IntegerField(),
+            )
+        )
+        .order_by(
+            "custom_order", "-position"
+        )  # Order by custom_order first, then by position in descending order
     )
     serializer_class = CategoriesSerializer
     search_fields = [
