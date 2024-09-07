@@ -116,6 +116,7 @@ class CategoryAdmin(ModelAdmin):
         "source_id",
         "slug_name",
         "shard",
+        "position",
     )
     search_fields = (
         "title",
