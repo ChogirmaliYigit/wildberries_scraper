@@ -351,7 +351,7 @@ class RequestedCommentAdmin(BaseCommentAdmin):
 
         return format_html(
             button_div.format(
-                context=get_button(color="green", url=accept_url, text=_("Accept"))
+                content=get_button(color="green", url=accept_url, text=_("Accept"))
                 + get_button(color="red", url=reject_url, text=_("Reject"))
             )
         )
