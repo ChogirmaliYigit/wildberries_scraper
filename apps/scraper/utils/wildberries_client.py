@@ -355,12 +355,14 @@ class WildberriesClient:
                 basket_id, uuid
             )
             if link:
-                c, _ = CommentFiles.objects.get_or_create(
-                    comment=comment_object,
-                    defaults={
-                        "file_link": link,
-                        "file_type": FileTypeChoices.VIDEO,
-                    },
-                )
-                return True
+                comment = CommentFiles.objects.filter(comment=comment_object)
+                if not comment:
+                    CommentFiles.objects.get_or_create(
+                        comment=comment_object,
+                        defaults={
+                            "file_link": link,
+                            "file_type": FileTypeChoices.VIDEO,
+                        },
+                    )
+                    return True
         return False
