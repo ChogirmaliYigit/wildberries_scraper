@@ -70,6 +70,23 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return data
 
+    def update(self, instance, validated_data):
+        # Extract the fields from validated_data
+        email = validated_data.get("email", None)
+        password = validated_data.get("password", None)
+
+        # Update the instance fields if they are not None
+        if email is not None or email != "":
+            instance.email = email
+        if password is not None or password != "":
+            # Set password only if it's not None and not empty string
+            if password:
+                instance.set_password(password)
+
+        # Save the updated instance
+        instance.save()
+        return instance
+
     class Meta:
         model = User
         fields = (
@@ -80,7 +97,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {
             "password": {"write_only": True, "required": False},
-            "email": {"required": False},
+            "email": {"required": False, "allow_blank": True},
         }
 
 
