@@ -27,7 +27,7 @@ class ProductFilter(django_filters.FilterSet):
     def get_popular_products(self, queryset):
         return (
             queryset.annotate(likes_count=Count("product_likes", distinct=True))
-            .filter(likes_count__gt=1)
+            .filter(likes_count__gt=0)
             .order_by("-likes_count")
         )
 
