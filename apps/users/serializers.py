@@ -88,8 +88,6 @@ class UserSerializer(serializers.ModelSerializer):
             # Set password only if it's not None and not empty string
             if password:
                 instance.set_password(password)
-        else:
-            instance.set_password(instance.password)
 
         return super().update(instance, validated_data)
 
