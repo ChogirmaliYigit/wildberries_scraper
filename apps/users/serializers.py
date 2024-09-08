@@ -61,6 +61,11 @@ class SignInSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, allow_null=True
+    )
+    email = serializers.EmailField(required=False, allow_null=True, allow_blank=True)
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data["profile_photo"] = (
@@ -71,21 +76,18 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        # Extract the fields from validated_data
-        email = validated_data.get("email", None)
-        password = validated_data.get("password", None)
+        email = validated_data.pop("email", None)
+        password = validated_data.pop("password", None)
 
         # Update the instance fields if they are not None
         if email is not None or email != "":
-            instance.email = email
+            validated_data["email"] = email
         if password is not None or password != "":
             # Set password only if it's not None and not empty string
             if password:
                 instance.set_password(password)
 
-        # Save the updated instance
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
     class Meta:
         model = User
@@ -95,10 +97,6 @@ class UserSerializer(serializers.ModelSerializer):
             "profile_photo",
             "password",
         )
-        extra_kwargs = {
-            "password": {"write_only": True, "required": False},
-            "email": {"required": False, "allow_blank": True},
-        }
 
 
 class SignInResponseSerializer(serializers.Serializer):
