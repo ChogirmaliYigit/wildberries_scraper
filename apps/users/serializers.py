@@ -82,10 +82,14 @@ class UserSerializer(serializers.ModelSerializer):
         # Update the instance fields if they are not None
         if email is not None or email != "":
             validated_data["email"] = email
+        else:
+            validated_data["email"] = instance.email
         if password is not None or password != "":
             # Set password only if it's not None and not empty string
             if password:
                 instance.set_password(password)
+        else:
+            instance.set_password(instance.password)
 
         return super().update(instance, validated_data)
 
