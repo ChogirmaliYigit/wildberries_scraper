@@ -25,6 +25,7 @@ class ProductVariantsInline(TabularInline):
         "price",
         "source_id",
     )
+    readonly_fields = fields
     extra = 0
     show_change_link = True
 
@@ -113,12 +114,14 @@ class ProductAdmin(ModelAdmin):
 class CommentFilesInline(TabularInline):
     model = CommentFiles
     fields = ("file_link",)
+    readonly_fields = fields
     extra = 1
 
 
 class RequestedCommentFilesInline(TabularInline):
     model = RequestedCommentFile
     fields = ("file_link",)
+    readonly_fields = fields
     fk_name = "requested_comment"
     extra = 1
 
