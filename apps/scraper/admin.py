@@ -202,7 +202,7 @@ class CommentAdmin(BaseCommentAdmin):
         # Filter out instances of RequestedComment
         queryset = super().get_queryset(request)
         queryset = queryset.filter(requestedcomment__isnull=True)
-        return queryset.filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
+        return queryset.filter(status=CommentStatuses.ACCEPTED)
 
 
 @admin.register(RequestedComment)
