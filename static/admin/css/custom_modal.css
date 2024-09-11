@@ -1,0 +1,55 @@
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.85); /* Darker backdrop */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* Ensure it's above other content */
+    width: 100%;
+    height: 100%;
+}
+
+/* Modal content */
+.modal-content {
+    background-color: #333; /* Dark background */
+    color: #fff; /* Light text */
+    border-radius: 0.5rem; /* Rounded corners */
+    padding: 5px;
+    margin: 0;
+    max-width: 400px; /* Max width for modal */
+    width: 80%;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* More prominent shadow */
+    z-index: 1060; /* Ensure modal content is above overlay */
+    min-height: 50%; /* Let height adjust */
+    max-height: 80%; /* Ensure modal doesn't exceed view height */
+    display: flex;
+    flex-direction: column; /* Ensures header, body, and footer are stacked */
+    justify-content: center; /* Centers the content vertically */
+}
+
+/* Modal body */
+.modal-body {
+    text-align: center;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    width: auto; /* Let the button take its natural width */
+}
+
+/* Container for the buttons in the modal */
+.d-grid {
+    display: grid;
+    gap: 10px;
+    justify-content: center; /* Center the buttons horizontally */
+    justify-items: center; /* Align buttons in the center of each grid cell */
+}

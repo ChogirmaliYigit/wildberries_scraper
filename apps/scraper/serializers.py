@@ -84,35 +84,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
         )
 
 
-class ProductVariantsSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["link"] = (
-            f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"
-        )
-        return data
-
-    def get_images(self, variant):
-        return [
-            {"link": pv.image_link, "type": pv.file_type}
-            for pv in variant.images.prefetch_related("variant").all()
-        ]
-
-    class Meta:
-        model = ProductVariant
-        fields = (
-            "id",
-            "color",
-            "price",
-            "source_id",
-            "images",
-        )
-
-
 class ProductsSerializer(serializers.ModelSerializer):
-    variants = ProductVariantsSerializer(many=True)
     liked = serializers.BooleanField(read_only=True, default=False)
     favorite = serializers.BooleanField(read_only=True, default=False)
     likes = serializers.IntegerField(read_only=True)
@@ -120,9 +92,6 @@ class ProductsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get("request")
         data = super().to_representation(instance)
-        data["variants"] = ProductVariantsSerializer(
-            instance.variants.all(), many=True
-        ).data
         data["category"] = instance.category.title if instance.category else ""
         if request and request.user.is_authenticated:
             data["liked"] = Like.objects.filter(
@@ -283,6 +252,11 @@ class CommentDetailSerializer(serializers.ModelSerializer):
             else None
         )
         return data
+
+    def update(self, instance, validated_data):
+        if instance.status == CommentStatuses.NOT_ACCEPTED:
+            instance.status = CommentStatuses.NOT_REVIEWED
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Comment

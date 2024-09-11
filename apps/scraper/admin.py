@@ -1,142 +1,20 @@
 from django.contrib import admin
-from django.db.models import Exists, ForeignKey, OuterRef
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from scraper.admin_filters import ReplyToFilter
 from scraper.models import (
-    Category,
     Comment,
     CommentFiles,
     CommentStatuses,
     Product,
     ProductVariant,
-    ProductVariantImage,
     RequestedComment,
     RequestedCommentFile,
 )
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
-
-
-class HasCommentsFilter(admin.SimpleListFilter):
-    title = _("Comments")
-    parameter_name = "has_comments"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", _("Have comment")),
-            ("no", _("Have no comment")),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk")))
-            ).filter(has_comments=True)
-        elif self.value() == "no":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk")))
-            ).filter(has_comments=False)
-        return queryset
-
-
-class HasImagesInVariantsFilter(admin.SimpleListFilter):
-    title = _("Images in Variants")
-    parameter_name = "has_images_in_variants"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", _("Have image")),
-            ("no", _("Have no image")),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.annotate(
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                )
-            ).filter(has_images=True)
-        elif self.value() == "no":
-            return queryset.annotate(
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                )
-            ).filter(has_images=False)
-        return queryset
-
-
-class HasCommentsAndImagesFilter(admin.SimpleListFilter):
-    title = _("Comments and Images in Variants")
-    parameter_name = "has_comments_and_images"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", _("Have comment and image")),
-            ("no", _("Have no comments and no images")),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                ),
-            ).filter(has_comments=True, has_images=True)
-        elif self.value() == "no":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                ),
-            ).filter(has_comments=False, has_images=False)
-        return queryset
-
-
-class ProductsInline(TabularInline):
-    model = Product
-    fields = ("title",)
-    extra = 1
-    show_change_link = True
-
-
-@admin.register(Category)
-class CategoryAdmin(ModelAdmin):
-    list_display = (
-        "title",
-        "parent",
-        "source_id",
-        "shard",
-    )
-    fields = (
-        "title",
-        "parent",
-        "source_id",
-        "slug_name",
-        "shard",
-        "position",
-    )
-    search_fields = (
-        "title",
-        "source_id",
-        "id",
-        "shard",
-        "slug_name",
-    )
-    list_filter = ("parent",)
-    inlines = [ProductsInline]
-    autocomplete_fields = ["parent"]
-
-    def formfield_for_foreignkey(
-        self, db_field: ForeignKey, request: HttpRequest, **kwargs
-    ):
-        if db_field.name == "parent":
-            object_id = request.resolver_match.kwargs.get("object_id")
-            if object_id:
-                kwargs["queryset"] = Category.objects.exclude(pk=object_id)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class ProductVariantsInline(TabularInline):
@@ -148,29 +26,6 @@ class ProductVariantsInline(TabularInline):
     )
     extra = 0
     show_change_link = True
-
-
-class ProductCommentsInline(TabularInline):
-    model = Comment
-    fields = (
-        "user",
-        "content",
-        "rating",
-        "status",
-    )
-    show_change_link = True
-    tab = True
-    readonly_fields = ("user",)
-    extra = 0
-
-    def user(self, obj):
-        if obj.user:
-            display_name = obj.user.full_name or obj.user.email
-        else:
-            display_name = obj.wb_user
-        return display_name
-
-    user.short_description = _("User")
 
 
 @admin.register(Product)
@@ -190,12 +45,7 @@ class ProductAdmin(ModelAdmin):
         "title",
         "root",
     )
-    list_filter = (
-        "category",
-        HasCommentsFilter,
-        HasImagesInVariantsFilter,
-        HasCommentsAndImagesFilter,
-    )
+    list_filter = ("category",)
     inlines = [ProductVariantsInline]
     autocomplete_fields = ["category"]
 
@@ -227,32 +77,6 @@ class ProductAdmin(ModelAdmin):
         )
 
 
-@admin.register(ProductVariant)
-class ProductVariantAdmin(ModelAdmin):
-    list_display = (
-        "product",
-        "color",
-        "price",
-        "source_id",
-    )
-    fields = list_display
-    autocomplete_fields = ("product",)
-    search_fields = ("product__title",)
-
-
-@admin.register(ProductVariantImage)
-class ProductVariantImageAdmin(ModelAdmin):
-    list_display = (
-        "variant",
-        "image_link",
-    )
-    fields = (
-        "variant",
-        "image_link",
-    )
-    autocomplete_fields = ("variant",)
-
-
 class CommentFilesInline(TabularInline):
     model = CommentFiles
     fields = ("file_link",)
@@ -272,7 +96,7 @@ class BaseCommentAdmin(ModelAdmin):
         "product",
         "content",
         "rating",
-        "status",
+        "promo",
     )
     fields = (
         "user",
@@ -284,7 +108,10 @@ class BaseCommentAdmin(ModelAdmin):
         "reply_to",
         "file",
         "source_id",
+        "reason",
+        "promo",
     )
+    readonly_fields = fields
     search_fields = (
         "id",
         "user__full_name",
@@ -296,6 +123,7 @@ class BaseCommentAdmin(ModelAdmin):
         "rating",
         "reply_to__content",
         "source_id",
+        "reason",
     )
     list_filter = ("status",)
     autocomplete_fields = [
@@ -319,11 +147,29 @@ class BaseCommentAdmin(ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(BaseCommentAdmin):
     inlines = [CommentFilesInline]
+    actions = (
+        "promo_comment",
+        "not_promo_comment",
+    )
+
+    def get_list_filter(self, request):
+        return super().get_list_filter(request) + (ReplyToFilter,)
+
+    @display(description=_("Promo selected comments"))
+    def promo_comment(self, request, queryset):
+        queryset.update(promo=True)
+        self.message_user(request, _("Selected comments promoted"))
+
+    @display(description=_("Not promo selected comments"))
+    def not_promo_comment(self, request, queryset):
+        queryset.update(promo=False)
+        self.message_user(request, _("Selected comments not promoted"))
 
     def get_queryset(self, request):
         # Filter out instances of RequestedComment
         queryset = super().get_queryset(request)
-        return queryset.filter(requestedcomment__isnull=True)
+        queryset = queryset.filter(requestedcomment__isnull=True)
+        return queryset.filter(status=CommentStatuses.ACCEPTED, reply_to__isnull=False)
 
 
 @admin.register(RequestedComment)
@@ -340,20 +186,30 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         reject_url = reverse("admin:reject_comment", args=[obj.pk])
         button_div = '<div style="display: flex; width: 100%;">{content}</div>'
 
-        def get_button(color, url, text) -> str:
+        def get_button(color, url, text, action=None) -> str:
             button_template = (
                 '<a class="inline-block border border-{color}-500 font-medium rounded-md text-center text-{'
                 "color}-500 whitespace-nowrap dark:border-transparent dark:bg-{color}-500/20 "
                 'dark:text-{color}-500" style="flex: 1; text-align: center; display: block; padding: 5px '
-                '10px; margin: 0 2px;" href="{url}">{text}</a>'
+                '10px; margin: 0 2px;" href="#" onclick="{action}">{text}</a>'
             )
 
-            return button_template.format(color=color, url=url, text=text)
+            return button_template.format(color=color, action=action, text=text)
 
         return format_html(
             button_div.format(
-                content=get_button(color="green", url=accept_url, text=_("Accept"))
-                + get_button(color="red", url=reject_url, text=_("Reject"))
+                content=get_button(
+                    color="green",
+                    url=accept_url,
+                    text=_("Accept"),
+                    action=f"window.location.href='{accept_url}'",
+                )
+                + get_button(
+                    color="red",
+                    url=reject_url,
+                    text=_("Reject"),
+                    action=f"showRejectModal({obj.pk}, '{reject_url}')",
+                )
             )
         )
 
@@ -377,27 +233,25 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
 
     def reject_comment(self, request, pk):
-        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED)
+        print(request.POST)
+        reason = request.POST.get("reason", "")
+        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED, reason)
 
-    def update_comment(self, request, pk: int, status: CommentStatuses):
+    def update_comment(self, request, pk: int, status: CommentStatuses, reason=""):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = status
+        comment.reason = reason
         comment.save(update_fields=["status"])
         requested_comment.delete()
 
-        msg = _("Comment not accepted")
-        level = 30
-        if status == CommentStatuses.ACCEPTED:
-            msg = _("Comment accepted")
-            level = 25
-        self.message_user(request, msg, level=level)
-
-        return HttpResponseRedirect(
-            request.META.get(
-                "HTTP_REFERER", reverse("admin:scraper_comment_changelist")
-            )
+        msg = (
+            _("Comment not accepted")
+            if status == CommentStatuses.NOT_ACCEPTED
+            else _("Comment accepted")
         )
+        self.message_user(request, msg)
+        return HttpResponseRedirect(reverse("admin:scraper_comment_changelist"))
 
     def has_add_permission(self, request):
         return False
