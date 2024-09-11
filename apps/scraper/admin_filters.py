@@ -81,13 +81,13 @@ class HasCommentsAndImagesFilter(admin.SimpleListFilter):
 
 
 class ReplyToFilter(admin.SimpleListFilter):
-    title = "Reply To"  # Display name for the filter
+    title = _("Reply to")  # Display name for the filter
     parameter_name = "reply_to"  # URL parameter for the filter
 
     def lookups(self, request, model_admin):
         return (
-            ("null", "Feedbacks"),
-            ("not_null", "Comments"),
+            ("null", _("Feedbacks")),
+            ("not_null", _("Comments")),
         )
 
     def queryset(self, request, queryset):

@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from scraper.admin_filters import ReplyToFilter
 from scraper.models import (
+    Category,
     Comment,
     CommentFiles,
     CommentStatuses,
@@ -26,6 +27,38 @@ class ProductVariantsInline(TabularInline):
     )
     extra = 0
     show_change_link = True
+
+
+@admin.register(Category)
+class CategoryAdmin(ModelAdmin):
+    list_display = (
+        "title",
+        "parent",
+        "source_id",
+        "shard",
+    )
+    search_fields = (
+        "title",
+        "source_id",
+        "id",
+        "shard",
+        "slug_name",
+    )
+
+    def has_view_or_change_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_module_permission(self, request):
+        return False
 
 
 @admin.register(Product)

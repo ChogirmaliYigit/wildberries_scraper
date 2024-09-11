@@ -1,0 +1,4 @@
+/* custom_admin.css */
+#recent-actions-module {
+    display: none !important;  /* Adjust the width as needed */
+}
