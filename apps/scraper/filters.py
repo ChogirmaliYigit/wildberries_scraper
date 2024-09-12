@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import django_filters
 from django.conf import settings
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 from scraper.models import Category, Comment, CommentStatuses, Product, ProductVariant
 
@@ -83,6 +83,10 @@ def filter_by_product_or_variant(queryset, value):
             ).distinct()
             filtered_comments = queryset.filter(product_id__in=product_ids)
 
+    # Safeguard to handle case when queryset is empty
+    if not filtered_comments.exists():
+        return queryset.none()
+
     # Use Subquery to find the first comment for each (user, product, content) combination
     subquery = (
         queryset.filter(
@@ -94,6 +98,7 @@ def filter_by_product_or_variant(queryset, value):
         .values("id")[:1]
     )
 
-    unique_comments = filtered_comments.filter(id=Subquery(subquery))
+    # Ensure that the subquery will return values only if they exist
+    unique_comments = filtered_comments.filter(Exists(subquery))
 
     return unique_comments
