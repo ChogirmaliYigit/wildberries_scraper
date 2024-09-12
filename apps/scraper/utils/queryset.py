@@ -1,4 +1,4 @@
-from django.db.models import DateTimeField, Exists, OuterRef, Q
+from django.db.models import Case, DateTimeField, Exists, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, Product
 
@@ -46,23 +46,23 @@ def get_filtered_comments(queryset=None):
     ).order_by("-ordering_date")
 
     # Fetch promoted comment
-    promoted_comment = (
-        queryset.filter(promo=True).order_by("?").first()
-    )  # Randomly pick one if more than one exists
+    promoted_comment = queryset.filter(promo=True).order_by("?").first()
 
-    # If we have a promoted comment
     if promoted_comment:
-        queryset = list(queryset)  # Convert queryset to a list for manipulation
+        # Apply custom ordering to the queryset
+        case_statements = [
+            When(
+                pk=promoted_comment.pk, then=2
+            ),  # Place the promoted comment at the 3rd position (index 2)
+        ]
+        for index, comment in enumerate(queryset.exclude(pk=promoted_comment.pk)):
+            case_statements.append(
+                When(pk=comment.pk, then=index if index < 2 else index + 1)
+            )
 
-        # Place the promoted comment at the third index (or end if length < 3)
-        if len(queryset) >= 3:
-            queryset.insert(2, promoted_comment)
-        else:
-            queryset.append(promoted_comment)
-
-        # Remove duplicate in case the promoted comment was already part of the queryset
-        queryset = list(
-            dict.fromkeys(queryset)
-        )  # Remove duplicates while preserving order
+        # Apply the custom order
+        queryset = queryset.annotate(custom_order=Case(*case_statements)).order_by(
+            "custom_order"
+        )
 
     return queryset
