@@ -25,6 +25,11 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 
 FROM python:3.11.5
 
+# Install gettext for final stage
+RUN apt-get update \
+    && apt-get install -y gettext \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create directories and set permissions
 RUN mkdir -p /home/app/web/staticfiles /home/app/web/media \
     && addgroup --system app && adduser --system --group app \
