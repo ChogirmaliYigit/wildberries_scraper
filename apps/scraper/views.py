@@ -47,6 +47,8 @@ class CategoriesListView(BaseListAPIView):
 
 
 class ProductsListView(views.APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
