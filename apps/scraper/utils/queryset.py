@@ -38,10 +38,10 @@ def get_filtered_comments(queryset=None):
         ordering_date=Coalesce(
             "source_date", "created_at", output_field=DateTimeField()
         )
-    )
+    ).order_by("-ordering_date")
 
     # Randomly select one promoted comment
-    selected_promo_comment = base_queryset.order_by(Random()).first()
+    selected_promo_comment = base_queryset.filter(promo=True).order_by(Random()).first()
 
     if selected_promo_comment:
         # Get all comments excluding the selected promoted one
