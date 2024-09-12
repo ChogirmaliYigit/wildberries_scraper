@@ -203,7 +203,7 @@ msgstr "Изображения вариантов продукта"
 
 #: apps/scraper/models.py:138
 msgid "Accepted"
-msgstr "Accepted"
+msgstr "Принял"
 
 #: apps/scraper/models.py:139
 msgid "Not accepted"
@@ -562,7 +562,7 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/django/forms/models.py:908
 #: venv/lib/python3.11/site-packages/unfold/contrib/inlines/admin.py:103
 msgid "and"
-msgstr ""
+msgstr "и"
 
 #: venv/lib/python3.11/site-packages/django/db/models/base.py:1573
 #, python-format
@@ -781,7 +781,7 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:190
 #: venv/lib/python3.11/site-packages/unfold/widgets.py:450
 msgid "Time"
-msgstr ""
+msgstr "Время"
 
 #: venv/lib/python3.11/site-packages/django/db/models/fields/__init__.py:2637
 msgid "URL"
@@ -967,7 +967,7 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/import_export/templates/admin/import_export/import_preview.html:26
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:55
 msgid "Delete"
-msgstr ""
+msgstr "Удалить"
 
 #: venv/lib/python3.11/site-packages/django/forms/models.py:901
 #, python-format
@@ -1023,12 +1023,12 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:80
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list_default.html:42
 msgid "Change"
-msgstr ""
+msgstr "Изменять"
 
 #: venv/lib/python3.11/site-packages/django/forms/widgets.py:800
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/boolean.html:8
 msgid "Unknown"
-msgstr ""
+msgstr "Неизвестный"
 
 #. Translators: Please do not add spaces around commas.
 #: venv/lib/python3.11/site-packages/django/template/defaultfilters.py:873
@@ -1687,21 +1687,21 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/admin.py:123
 #: venv/lib/python3.11/site-packages/unfold/templatetags/unfold_list.py:332
 msgid "Select record"
-msgstr ""
+msgstr "Выберите запись"
 
 #: venv/lib/python3.11/site-packages/unfold/admin.py:155
 #: venv/lib/python3.11/site-packages/unfold/admin.py:176
 msgid "Select value"
-msgstr ""
+msgstr "Выберите значение"
 
 #: venv/lib/python3.11/site-packages/unfold/admin.py:533
 msgid "Select action"
-msgstr ""
+msgstr "Выберите действие"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:58
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:116
 msgid "All"
-msgstr ""
+msgstr "Все"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:82
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:105
@@ -1709,29 +1709,29 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:149
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/admin.py:166
 msgid "By {}"
-msgstr ""
+msgstr "К {}"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:77
 msgid "Value"
-msgstr ""
+msgstr "Ценить"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:93
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:133
 msgid "From"
-msgstr ""
+msgstr "От"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:100
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:143
 msgid "To"
-msgstr ""
+msgstr "К"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:169
 msgid "Date from"
-msgstr ""
+msgstr "Дата с"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/forms.py:185
 msgid "Date to"
-msgstr ""
+msgstr "Дата по"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/templates/unfold/filters/filters_date_range.html:5
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/templates/unfold/filters/filters_datetime_range.html:5
@@ -1740,19 +1740,19 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/templates/unfold/filters/filters_numeric_slider.html:7
 #, python-format
 msgid "By %(filter_title)s"
-msgstr ""
+msgstr "К %(filter_title)s"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/filters/templates/unfold/filters/filters_numeric_slider.html:30
 msgid "Not enough data."
-msgstr ""
+msgstr "Недостаточно данных."
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/forms/templates/unfold/forms/array.html:30
 msgid "Add new item"
-msgstr ""
+msgstr "Добавить новый элемент"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/forms/templates/unfold/forms/helpers/toolbar.html:7
 msgid "Paragraph"
-msgstr ""
+msgstr "Параграф"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/forms/templates/unfold/forms/helpers/toolbar.html:11
 msgid "Underlined"
@@ -1827,7 +1827,7 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_group.html:25
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:26
 msgid "Object permissions"
-msgstr ""
+msgstr "Разрешения объекта"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage.html:10
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_group.html:13
@@ -1852,30 +1852,30 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/site_logo.html:7
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/site_logo.html:9
 msgid "Home"
-msgstr ""
+msgstr "Главный"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_group.html:39
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:40
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:10
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:44
 msgid "Object"
-msgstr ""
+msgstr "Объект"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_group.html:42
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:15
 msgid "Group"
-msgstr ""
+msgstr "Группа"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_group.html:49
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/admin/guardian/model/obj_perms_manage_user.html:50
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/pagination.html:35
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:10
 msgid "Save"
-msgstr ""
+msgstr "Сохранять"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:7
 msgid "Group permissions"
-msgstr ""
+msgstr "Разрешения группы"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:25
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:49
@@ -1884,20 +1884,20 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:42
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:58
 msgid "Action"
-msgstr ""
+msgstr "Действие"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:51
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:51
 msgid "Edit"
-msgstr ""
+msgstr "Редактировать"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/group_form.html:67
 msgid "Manage group"
-msgstr ""
+msgstr "Управление группой"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:7
 msgid "User permissions"
-msgstr ""
+msgstr "Разрешения пользователя"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/guardian/templates/unfold/guardian/user_form.html:67
 msgid "Manage user"
@@ -2007,34 +2007,38 @@ msgid ""
 "Deleting %(class_name)s %(instance)s would require deleting the following "
 "protected related objects: %(related_objects)s"
 msgstr ""
+"Для удаления %(class_name)s %(instance)s потребуется удалить следующее "
+"защищенные связанные объекты: %(related_objects)s"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history.html:8
 msgid ""
 "Choose a date from the list below to revert to a previous version of this "
 "object."
 msgstr ""
+"Выберите дату из списка ниже, чтобы вернуться к предыдущей версии этого "
+"объект."
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history.html:16
 msgid "This object doesn't have a change history."
-msgstr ""
+msgstr "Этот объект не имеет истории изменений."
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_form.html:22
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_form_object_tools.html:6
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:21
 msgid "History"
-msgstr ""
+msgstr "История"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_form.html:26
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/stacked.html:52
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:82
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list_default.html:38
 msgid "View"
-msgstr ""
+msgstr "Вид"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_form.html:29
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/submit_line.html:9
 msgid "Revert"
-msgstr ""
+msgstr "Возвращаться"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_form.html:48
 msgid ""
@@ -2050,7 +2054,7 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:34
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:50
 msgid "Date/time"
-msgstr ""
+msgstr "Дата/время"
 
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:28
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:64
@@ -2078,11 +2082,11 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/submit_line.html:20
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:34
 msgid "Close"
-msgstr ""
+msgstr "Закрывать"
 
 #: venv/lib/python3.11/site-packages/unfold/forms.py:39
 msgid "Select action to run"
-msgstr ""
+msgstr "Выберите действие для запуска"
 
 #: venv/lib/python3.11/site-packages/unfold/forms.py:99
 msgid ""
@@ -2090,46 +2094,51 @@ msgid ""
 "password, but you can change the password using <a href=\"{}\" class=\"text-"
 "primary-600 dark:text-primary-500\">this form</a>."
 msgstr ""
+"Необработанные пароли не сохраняются, поэтому нет возможности увидеть пароли этого пользователя"
+"пароль, но вы можете изменить пароль, используя <a href=\"{}\" class=\"text-"
+"primary-600 dark:text-primary-500\">эта форма</a>."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:23
 msgid "Run"
-msgstr ""
+msgstr "Бегать"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/app_index.html:5
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/base_site.html:3
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/index.html:7
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/layouts/base.html:11
 msgid "Django site admin"
-msgstr ""
+msgstr "Администрация"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/app_index.html:30
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/base_site.html:6
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/index.html:12
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/layouts/base.html:6
 msgid "Django administration"
-msgstr ""
+msgstr "Администрация"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/app_list.html:12
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list_default.html:9
 #, python-format
 msgid "Models in the %(name)s application"
-msgstr ""
+msgstr "Модели в приложении %(name)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/app_list.html:47
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list.html:98
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list_default.html:59
 msgid "You don’t have permission to view or edit anything."
-msgstr ""
+msgstr "У вас нет разрешения на просмотр или редактирование чего-либо."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/auth/user/add_form.html:7
 msgid ""
 "First, enter a username and password. Then, you’ll be able to edit more user "
 "options."
 msgstr ""
+"Сначала введите имя пользователя и пароль. Затем вы сможете редактировать других пользователей"
+"параметры."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/auth/user/add_form.html:9
 msgid "Enter a username and password."
-msgstr ""
+msgstr "Введите имя пользователя и пароль."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/auth/user/change_password.html:25
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/auth/user/change_password.html:55
@@ -2138,46 +2147,46 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/password_change_form.html:46
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/account_links.html:23
 msgid "Change password"
-msgstr ""
+msgstr "Изменить пароль"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/auth/user/change_password.html:44
 #, python-format
 msgid "Enter a new password for the user <strong>%(username)s</strong>."
-msgstr ""
+msgstr "Введите новый пароль для пользователя <strong>%(username)s</strong>."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_form.html:32
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/add_link.html:5
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/add_link.html:8
 #, python-format
 msgid "Add %(name)s"
-msgstr ""
+msgstr "Добавлять %(name)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_form_object_tools.html:12
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/stacked.html:64
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:90
 msgid "View on site"
-msgstr ""
+msgstr "Посмотреть на сайте"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_list.html:99
 msgid "Filters"
-msgstr ""
+msgstr "Фильтры"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_list_results.html:28
 msgid "Select all rows"
-msgstr ""
+msgstr "Выбрать все строки"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_list_results.html:42
 msgid "Toggle sorting"
-msgstr ""
+msgstr "Переключить сортировку"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_list_results.html:50
 msgid "Remove from sorting"
-msgstr ""
+msgstr "Удалить из сортировки"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/change_list_results.html:56
 #, python-format
 msgid "Sorting priority: %(priority_number)s"
-msgstr ""
+msgstr "Приоритет сортировки: %(priority_number)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:37
 #, python-format
@@ -2186,6 +2195,9 @@ msgid ""
 "related objects, but your account doesn't have permission to delete the "
 "following types of objects:"
 msgstr ""
+"Удаление %(object_name)s '%(escaped_object)s' приведет к удалению "
+"связанные объекты, но у вашей учетной записи нет разрешения на удаление "
+"следующие типы объектов:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:53
 #, python-format
@@ -2193,6 +2205,8 @@ msgid ""
 "Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
 "following protected related objects:"
 msgstr ""
+"Для удаления %(object_name)s '%(escaped_object)s' потребуется удалить "
+"следующие защищенные связанные объекты:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:69
 #, python-format
@@ -2200,25 +2214,27 @@ msgid ""
 "Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
 "All of the following related items will be deleted:"
 msgstr ""
+"Вы уверены, что хотите удалить %(object_name)s \"%(escaped_object)s\"?"
+"Все следующие связанные элементы будут удалены:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:76
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:71
 msgid "Objects"
-msgstr ""
+msgstr "Objects"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:100
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:93
 msgid "No, take me back"
-msgstr ""
+msgstr "Нет, верни меня обратно"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_confirmation.html:103
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:96
 msgid "Yes, I’m sure"
-msgstr ""
+msgstr "Да, я уверен"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:27
 msgid "Delete multiple objects"
-msgstr ""
+msgstr "Удалить несколько объектов"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:37
 #, python-format
@@ -2227,6 +2243,9 @@ msgid ""
 "objects, but your account doesn't have permission to delete the following "
 "types of objects:"
 msgstr ""
+"Удаление выбранных %(objects_name)s приведет к удалению связанных "
+"объекты, но у вашей учетной записи нет разрешения на удаление следующих "
+"типы объектов:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:50
 #, python-format
@@ -2234,6 +2253,8 @@ msgid ""
 "Deleting the selected %(objects_name)s would require deleting the following "
 "protected related objects:"
 msgstr ""
+"Для удаления выбранных %(objects_name)s потребуется удалить следующее "
+"защищенные связанные объекты:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/delete_selected_confirmation.html:64
 #, python-format
@@ -2241,32 +2262,34 @@ msgid ""
 "Are you sure you want to delete the selected %(objects_name)s? All of the "
 "following objects and their related items will be deleted:"
 msgstr ""
+"Вы уверены, что хотите удалить выбранные %(objects_name)s? Все "
+"следующие объекты и связанные с ними элементы будут удалены:"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/stacked.html:19
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:21
 msgid "No records found."
-msgstr ""
+msgstr "Записи не найдены."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:44
 msgid "Delete?"
-msgstr ""
+msgstr "Удалить?"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/edit_inline/tabular.html:149
 msgid "Remove"
-msgstr ""
+msgstr "Удалять"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/filter.html:5
 #, python-format
 msgid " By %(filter_title)s "
-msgstr ""
+msgstr " К %(filter_title)s "
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/includes/object_delete_summary.html:5
 msgid "Summary"
-msgstr ""
+msgstr "Краткое содержание"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/login.html:31
 msgid "Welcome back to"
-msgstr ""
+msgstr "Добро пожаловать обратно в"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/login.html:40
 #, python-format
@@ -2274,219 +2297,225 @@ msgid ""
 "You are authenticated as %(username)s, but are not authorized to access this "
 "page. Would you like to login to a different account?"
 msgstr ""
+"Вы прошли аутентификацию как %(username)s, но не имеете права доступа к этому "
+"страница. Хотите войти в другую учетную запись?"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/login.html:61
 msgid "Log in"
-msgstr ""
+msgstr "Авторизоваться"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/login.html:70
 msgid "Forgotten your password or username?"
-msgstr ""
+msgstr "Забыли свой пароль или имя пользователя?"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/login.html:82
 msgid "Return to site"
-msgstr ""
+msgstr "Вернуться на сайт"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/nav_sidebar.html:17
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:81
 msgid "entry"
 msgid_plural "entries"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "запис"
+msgstr[1] "записи"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:84
 msgid ""
 "This object doesn’t have a change history. It probably wasn’t added via this "
 "admin site."
 msgstr ""
+"У этого объекта нет истории изменений. Вероятно, он не был добавлен через это "
+"админ сайта."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/pagination.html:28
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/welcomemsg.html:14
 msgid "Show all"
-msgstr ""
+msgstr "Показать все"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/search_form.html:6
 msgid "Type to search"
-msgstr ""
+msgstr "Введите для поиска"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:23
 msgid "Save and continue editing"
-msgstr ""
+msgstr "Сохранить и продолжить редактирование"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:25
 msgid "Save and view"
-msgstr ""
+msgstr "Сохранить и просмотреть"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:40
 msgid "Save and add another"
-msgstr ""
+msgstr "Сохранить и добавить еще"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/submit_line.html:46
 msgid "Save as new"
-msgstr ""
+msgstr "Сохранить как новый"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/logged_out.html:11
 msgid "You have been successfully logged out from the administration"
-msgstr ""
+msgstr "Вы успешно вышли из администрирования"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/logged_out.html:16
 msgid "Thanks for spending some quality time with the web site today."
-msgstr ""
+msgstr "Спасибо, что провели сегодня некоторое время с веб-сайтом."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/logged_out.html:20
 msgid "Log in again"
-msgstr ""
+msgstr "Войдите снова"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/password_change_done.html:26
 msgid "Your password was changed."
-msgstr ""
+msgstr "Ваш пароль был изменен."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/registration/password_change_form.html:35
 msgid ""
 "Please enter your old password, for security’s sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
+"В целях безопасности введите свой старый пароль, а затем введите новый"
+"пароль дважды, чтобы мы могли убедиться, что вы ввели его правильно."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/change_list_filter.html:9
 msgid "Filter results"
-msgstr ""
+msgstr "Фильтровать результаты"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/change_list_filter.html:13
 msgid "Clear all filters"
-msgstr ""
+msgstr "Очистить все фильтры"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/change_list_filter.html:43
 msgid "Apply Filters"
-msgstr ""
+msgstr "Применить фильтры"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/account_links.html:17
 msgid "View site"
-msgstr ""
+msgstr "Посмотреть сайт"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/account_links.html:32
 msgid "Log out"
-msgstr ""
+msgstr "Выйти"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/actions_row.html:4
 msgid "More actions"
-msgstr ""
+msgstr "Дополнительные действия"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list.html:68
 msgid "All applications"
-msgstr ""
+msgstr "Все приложения"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/app_list_default.html:31
 msgid "Add"
-msgstr ""
+msgstr "Добавлять"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/boolean.html:10
 msgid "True"
-msgstr ""
+msgstr "Правда"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/boolean.html:12
 msgid "False"
-msgstr ""
+msgstr "Неправильный"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/display_header.html:6
 msgid "Record picture"
-msgstr ""
+msgstr "Запись изображения"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/history.html:9
 msgid "Recent actions"
-msgstr ""
+msgstr "Недавние действия"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/history.html:28
 msgid "Unknown content"
-msgstr ""
+msgstr "Неизвестный контент"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/messages/errornote.html:6
 msgid "Please correct the error below."
-msgstr ""
+msgstr "Пожалуйста, исправьте ошибку ниже."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/messages/errornote.html:8
 msgid "Please correct the errors below."
-msgstr ""
+msgstr "Пожалуйста, исправьте ошибки ниже."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/search.html:18
 msgid "Search apps and models..."
-msgstr ""
+msgstr "Поиск приложений и моделей..."
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/search.html:18
 msgid "Filter navigation items"
-msgstr ""
+msgstr "Фильтровать элементы навигации"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/tab_list.html:24
 msgid "General"
-msgstr ""
+msgstr "Общий"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/theme_switch.html:15
 msgid "Dark"
-msgstr ""
+msgstr "Темный"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/theme_switch.html:22
 msgid "Light"
-msgstr ""
+msgstr "Светлый"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/theme_switch.html:29
 msgid "System"
-msgstr ""
+msgstr "Система"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/welcomemsg.html:14
 #, python-format
 msgid "%(counter)s result"
 msgid_plural "%(counter)s results"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(counter)s результат"
+msgstr[1] "%(counter)s результатов"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/welcomemsg.html:14
 #, python-format
 msgid "%(full_result_count)s total"
-msgstr ""
+msgstr "%(full_result_count)s всего"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/helpers/welcomemsg.html:22
 msgid "Welcome,"
-msgstr ""
+msgstr "Добро пожаловать,"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/clearable_file_input.html:6
 msgid "Image preview"
-msgstr ""
+msgstr "Предварительный просмотр изображения"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/clearable_file_input.html:24
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/clearable_file_input_small.html:17
 msgid "Choose file to upload"
-msgstr ""
+msgstr "Выберите файл для загрузки"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/related_widget_wrapper.html:16
 #, python-format
 msgid "Change selected %(model)s"
-msgstr ""
+msgstr "Изменить выбранные %(model)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/related_widget_wrapper.html:26
 #, python-format
 msgid "Add another %(model)s"
-msgstr ""
+msgstr "Добавить еще %(model)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/related_widget_wrapper.html:35
 #, python-format
 msgid "View selected %(model)s"
-msgstr ""
+msgstr "Просмотреть выбранные %(model)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templates/unfold/widgets/related_widget_wrapper.html:45
 #, python-format
 msgid "Delete selected %(model)s"
-msgstr ""
+msgstr "Удалить выбранные %(model)s"
 
 #: venv/lib/python3.11/site-packages/unfold/templatetags/unfold_list.py:116
 msgid "Select all objects on this page for an action"
-msgstr ""
+msgstr "Выбрать все объекты на этой странице для действия"
 
 #: venv/lib/python3.11/site-packages/unfold/widgets.py:445
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 #: venv/lib/python3.11/site-packages/unfold/widgets.py:529
 msgid "Select currency"
-msgstr ""
+msgstr "Выберите валюту"
