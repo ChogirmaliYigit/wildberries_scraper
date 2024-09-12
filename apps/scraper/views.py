@@ -1,3 +1,4 @@
+from core.pagination import CustomPageNumberPagination
 from core.views import BaseListAPIView
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
@@ -70,16 +71,20 @@ class CommentsListView(views.APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=False)
         if not queryset.exists():
             return response.Response({})
         queryset = get_filtered_comments(queryset, True)
+        # Paginate the queryset
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            queryset, many=True, context={"request": request, "comment": True}
+            result_page, many=True, context={"request": request, "comment": True}
         )
-        return response.Response(serializer.data, status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -105,32 +110,40 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class UserCommentsListView(views.APIView):
     serializer_class = CommentsSerializer
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=False)
         if not queryset.exists():
             return response.Response({})
         queryset = get_filtered_comments(queryset, True)
+        # Paginate the queryset
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            queryset, many=True, context={"request": request, "replies": True}
+            result_page, many=True, context={"request": request, "replies": True}
         )
-        return response.Response(serializer.data, status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class FeedbacksListView(views.APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=True)
         if not queryset.exists():
             return response.Response({})
         queryset = get_filtered_comments(queryset, True)
+        # Paginate the queryset
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            queryset, many=True, context={"request": request, "replies": True}
+            result_page, many=True, context={"request": request, "replies": True}
         )
-        return response.Response(serializer.data, status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
         if not bool(request.user and request.user.is_authenticated):
@@ -145,16 +158,20 @@ class FeedbacksListView(views.APIView):
 
 class UserFeedbacksListView(views.APIView):
     serializer_class = CommentsSerializer
+    pagination_class = CustomPageNumberPagination
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=True)
         if not queryset.exists():
             return response.Response({})
         queryset = get_filtered_comments(queryset, True)
+        # Paginate the queryset
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            queryset, many=True, context={"request": request, "replies": True}
+            result_page, many=True, context={"request": request, "replies": True}
         )
-        return response.Response(serializer.data, status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class FavoritesListView(BaseListAPIView):
