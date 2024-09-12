@@ -87,7 +87,7 @@ class ReplyToFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ("null", _("Feedbacks")),
-            ("not_null", _("Comments")),
+            ("not_null", _("Comment")),
         )
 
     def queryset(self, request, queryset):
