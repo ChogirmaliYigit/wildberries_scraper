@@ -20,8 +20,8 @@ def get_filtered_products():
     filtered_products = (
         Product.objects.annotate(has_valid_comments=Exists(valid_comments_subquery))
         .filter(has_valid_comments=True)
-        .distinct("title")
-    )  # Ensure products have unique titles
+        .distinct()
+    )
 
     return filtered_products
 
