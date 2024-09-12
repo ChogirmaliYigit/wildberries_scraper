@@ -1,4 +1,12 @@
-from django.db.models import DateTimeField, Exists, OuterRef, Q
+from django.db.models import (
+    Case,
+    DateTimeField,
+    Exists,
+    IntegerField,
+    OuterRef,
+    Q,
+    When,
+)
 from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, Product
 
@@ -29,41 +37,42 @@ def get_filtered_comments(queryset=None):
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
     # Filter the main comments
-    queryset = queryset.filter(
-        status=CommentStatuses.ACCEPTED,
-        content__isnull=False,
-        content__gt="",
-    ).filter(
-        Q(files__isnull=False)  # Check for related CommentFiles
-        | Q(file__isnull=False, file__gt="")  # Check if the Comment has a valid file
-    )
+    base_queryset = queryset.filter(
+        status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
+    ).filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
 
-    # Annotate and order by date
-    queryset = queryset.annotate(
+    # Annotate with ordering_date
+    base_queryset = base_queryset.annotate(
         ordering_date=Coalesce(
             "source_date", "created_at", output_field=DateTimeField()
         )
-    ).order_by("-ordering_date")
+    )
 
-    # Fetch promoted comment
-    promoted_comment = queryset.filter(promo=True).order_by("?").first()
+    # Prioritize promoted comments
+    queryset_with_priority = base_queryset.annotate(
+        priority=Case(When(promo=True, then=1), default=0, output_field=IntegerField())
+    ).order_by("-priority", "-ordering_date")
+
+    # Fetch the promoted comment
+    promoted_comment = base_queryset.filter(promo=True).order_by("?").first()
 
     if promoted_comment:
-        queryset = list(queryset)  # Convert queryset to a list for manipulation
+        # Add the promoted comment manually to the result set while ordering
+        # This approach will place it at the third position in the final result
+        promoted_id = promoted_comment.id
+        queryset_with_priority = queryset_with_priority.filter(~Q(id=promoted_id))
 
-        # Place the promoted comment at the third index (or end if length < 3)
-        if len(queryset) >= 3:
-            queryset.insert(2, promoted_comment)
-        else:
-            queryset.append(promoted_comment)
+        # Annotate with priority for ordering
+        queryset_with_priority = queryset_with_priority.annotate(
+            position=Case(
+                When(
+                    id=promoted_id, then=2
+                ),  # Promoted comment should be at position 2 (third position if 0-indexed)
+                default=3,  # Default position for other comments
+                output_field=IntegerField(),
+            )
+        ).order_by("position", "-ordering_date")
 
-        # Remove duplicate in case the promoted comment was already part of the queryset
-        queryset = list(dict.fromkeys(queryset))
-
-        # Extract IDs from the list of comments
-        ids = [comment.id for comment in queryset]
+        return queryset_with_priority
     else:
-        # Directly extract IDs from the queryset if no promoted comment exists
-        ids = queryset.values_list("id", flat=True)
-
-    return Comment.objects.filter(id__in=ids)
+        return queryset_with_priority
