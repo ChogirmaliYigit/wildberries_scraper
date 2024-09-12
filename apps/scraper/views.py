@@ -91,8 +91,11 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticated,
     ]
 
+    def get_queryset(self):
+        return Comment.objects.filter(user=self.request.user)
+
     def get_object(self):
-        queryset = Comment.objects.filter(user=self.request.user)
+        queryset = self.get_queryset()
         if queryset:
             queryset = get_filtered_comments(queryset)
             obj = queryset.filter(pk=self.kwargs["pk"]).first()
