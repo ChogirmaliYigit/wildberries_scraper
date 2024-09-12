@@ -48,31 +48,46 @@ def get_filtered_comments(queryset=None):
         )
     )
 
-    # Prioritize promoted comments
-    queryset_with_priority = base_queryset.annotate(
-        priority=Case(When(promo=True, then=1), default=0, output_field=IntegerField())
-    ).order_by("-priority", "-ordering_date")
-
     # Fetch the promoted comment
     promoted_comment = base_queryset.filter(promo=True).order_by("?").first()
 
     if promoted_comment:
-        # Add the promoted comment manually to the result set while ordering
-        # This approach will place it at the third position in the final result
-        promoted_id = promoted_comment.id
-        queryset_with_priority = queryset_with_priority.filter(~Q(id=promoted_id))
+        # Exclude the promoted comment from the main queryset
+        main_queryset = base_queryset.exclude(pk=promoted_comment.id)
 
-        # Annotate with priority for ordering
-        queryset_with_priority = queryset_with_priority.annotate(
-            position=Case(
-                When(
-                    id=promoted_id, then=2
-                ),  # Promoted comment should be at position 2 (third position if 0-indexed)
-                default=3,  # Default position for other comments
+        # Annotate main queryset with priority to ensure promoted comment can be inserted
+        main_queryset = main_queryset.annotate(
+            priority=Case(
+                When(pk=promoted_comment.id, then=1),
+                default=0,
                 output_field=IntegerField(),
             )
-        ).order_by("position", "-ordering_date")
+        ).order_by("-priority", "-ordering_date")
 
-        return queryset_with_priority
+        # Convert to list to insert the promoted comment manually
+        main_comments_list = list(main_queryset)
+
+        # Insert the promoted comment at the third position if there are at least 2 comments
+        if len(main_comments_list) >= 2:
+            main_comments_list.insert(2, promoted_comment)
+        else:
+            main_comments_list.append(promoted_comment)
+
+        # Convert list back to a QuerySet-like structure
+        from django.db.models.query import QuerySet
+
+        queryset_with_promoted_comment = QuerySet(
+            model=base_queryset.model, query=base_queryset.query
+        )
+        queryset_with_promoted_comment = queryset_with_promoted_comment.none()
+        queryset_with_promoted_comment = queryset_with_promoted_comment | QuerySet(
+            model=base_queryset.model, query=base_queryset.query
+        )
+        queryset_with_promoted_comment = queryset_with_promoted_comment | QuerySet(
+            model=base_queryset.model, query=base_queryset.query
+        )
+
+        return queryset_with_promoted_comment
     else:
-        return queryset_with_priority
+        # Return the queryset with proper ordering if no promoted comment exists
+        return base_queryset.order_by("-ordering_date")
