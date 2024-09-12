@@ -1,5 +1,7 @@
+import random
+
 from django.db.models import DateTimeField, Exists, OuterRef, Q
-from django.db.models.functions import Coalesce, Random
+from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, Product
 
 
@@ -41,7 +43,7 @@ def get_filtered_comments(queryset=None, promo=False):
     ).order_by("-ordering_date")
 
     # Randomly select one promoted comment
-    selected_promo_comment = base_queryset.filter(promo=True).order_by(Random()).first()
+    selected_promo_comment = random.choice(list(base_queryset.filter(promo=True)))
 
     if selected_promo_comment and promo:
         # Get all comments excluding the selected promoted one
