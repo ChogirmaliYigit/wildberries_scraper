@@ -1,4 +1,4 @@
-from django.db.models import Case, DateTimeField, Exists, OuterRef, Q, When
+from django.db.models import DateTimeField, Exists, OuterRef, Q
 from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, Product
 
@@ -49,20 +49,21 @@ def get_filtered_comments(queryset=None):
     promoted_comment = queryset.filter(promo=True).order_by("?").first()
 
     if promoted_comment:
-        # Apply custom ordering to the queryset
-        case_statements = [
-            When(
-                pk=promoted_comment.pk, then=2
-            ),  # Place the promoted comment at the 3rd position (index 2)
-        ]
-        for index, comment in enumerate(queryset.exclude(pk=promoted_comment.pk)):
-            case_statements.append(
-                When(pk=comment.pk, then=index if index < 2 else index + 1)
-            )
+        queryset = list(queryset)  # Convert queryset to a list for manipulation
 
-        # Apply the custom order
-        queryset = queryset.annotate(custom_order=Case(*case_statements)).order_by(
-            "custom_order"
-        )
+        # Place the promoted comment at the third index (or end if length < 3)
+        if len(queryset) >= 3:
+            queryset.insert(2, promoted_comment)
+        else:
+            queryset.append(promoted_comment)
 
-    return queryset
+        # Remove duplicate in case the promoted comment was already part of the queryset
+        queryset = list(dict.fromkeys(queryset))
+
+        # Extract IDs from the list of comments
+        ids = [comment.id for comment in queryset]
+    else:
+        # Directly extract IDs from the queryset if no promoted comment exists
+        ids = queryset.values_list("id", flat=True)
+
+    return Comment.objects.filter(id__in=ids)
