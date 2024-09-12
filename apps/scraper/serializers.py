@@ -184,6 +184,7 @@ class CommentsSerializer(serializers.ModelSerializer):
                 "type": variant_image.file_type,
             }
         data["product_image"] = image
+        data["promo"] = instance.promo
         return data
 
     def create(self, validated_data):
