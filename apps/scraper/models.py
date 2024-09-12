@@ -186,8 +186,8 @@ class Comment(BaseModel):
         max_length=20, choices=FileTypeChoices.choices, default=FileTypeChoices.IMAGE
     )
     source_date = models.DateTimeField(null=True, blank=True)
-    reason = models.TextField(null=True, blank=True)
-    promo = models.BooleanField(default=False)
+    reason = models.TextField(null=True, blank=True, verbose_name=_("Reason"))
+    promo = models.BooleanField(default=False, verbose_name=_("Promo"))
 
     def __str__(self) -> str:
         return self.content

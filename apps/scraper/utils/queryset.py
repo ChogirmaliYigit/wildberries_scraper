@@ -43,7 +43,10 @@ def get_filtered_comments(queryset=None, promo=False):
     ).order_by("-ordering_date")
 
     # Randomly select one promoted comment
-    selected_promo_comment = random.choice(list(base_queryset.filter(promo=True)))
+    selected_promo_comment = None
+    promotes = list(base_queryset.filter(promo=True))
+    if promotes:
+        selected_promo_comment = random.choice(promotes)
 
     if selected_promo_comment and promo:
         # Get all comments excluding the selected promoted one
