@@ -53,4 +53,4 @@ def get_filtered_comments(queryset=None, promo=False):
         all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
         return all_comments
-    return queryset.order_by("user", "product", "content", "-ordering_date")
+    return queryset

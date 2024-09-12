@@ -4,7 +4,7 @@ from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny
-from scraper.filters import CommentsFilter, ProductFilter
+from scraper.filters import ProductFilter, filter_by_product_or_variant
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
@@ -72,26 +72,15 @@ class CommentsListView(views.APIView):
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
-    filterset_class = CommentsFilter
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=False)
         if not queryset.exists():
             return response.Response({})
-
-        # Apply the filter
-        filterset = self.filterset_class(request.GET, queryset=queryset)
-        if not filterset.is_valid():
-            return response.Response(
-                {"errors": filterset.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        filtered_queryset = filterset.qs
-
-        if not filtered_queryset.exists():
-            return response.Response({})
-
-        queryset = get_filtered_comments(filtered_queryset, True)
+        product_id = str(request.query_params.get("product_id", ""))
+        if product_id.isdigit():
+            queryset = filter_by_product_or_variant(queryset, product_id)
+        queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
@@ -125,26 +114,15 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 class UserCommentsListView(views.APIView):
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
-    filterset_class = CommentsFilter
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=False)
         if not queryset.exists():
             return response.Response({})
-
-        # Apply the filter
-        filterset = self.filterset_class(request.GET, queryset=queryset)
-        if not filterset.is_valid():
-            return response.Response(
-                {"errors": filterset.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        filtered_queryset = filterset.qs
-
-        if not filtered_queryset.exists():
-            return response.Response({})
-
-        queryset = get_filtered_comments(filtered_queryset, True)
+        product_id = str(request.query_params.get("product_id", ""))
+        if product_id.isdigit():
+            queryset = filter_by_product_or_variant(queryset, product_id)
+        queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
@@ -159,26 +137,15 @@ class FeedbacksListView(views.APIView):
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
-    filterset_class = CommentsFilter
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=True)
         if not queryset.exists():
             return response.Response({})
-
-        # Apply the filter
-        filterset = self.filterset_class(request.GET, queryset=queryset)
-        if not filterset.is_valid():
-            return response.Response(
-                {"errors": filterset.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        filtered_queryset = filterset.qs
-
-        if not filtered_queryset.exists():
-            return response.Response({})
-
-        queryset = get_filtered_comments(filtered_queryset, True)
+        product_id = str(request.query_params.get("product_id", ""))
+        if product_id.isdigit():
+            queryset = filter_by_product_or_variant(queryset, product_id)
+        queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
@@ -201,26 +168,15 @@ class FeedbacksListView(views.APIView):
 class UserFeedbacksListView(views.APIView):
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
-    filterset_class = CommentsFilter
 
     def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=True)
         if not queryset.exists():
             return response.Response({})
-
-        # Apply the filter
-        filterset = self.filterset_class(request.GET, queryset=queryset)
-        if not filterset.is_valid():
-            return response.Response(
-                {"errors": filterset.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        filtered_queryset = filterset.qs
-
-        if not filtered_queryset.exists():
-            return response.Response({})
-
-        queryset = get_filtered_comments(filtered_queryset, True)
+        product_id = str(request.query_params.get("product_id", ""))
+        if product_id.isdigit():
+            queryset = filter_by_product_or_variant(queryset, product_id)
+        queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
