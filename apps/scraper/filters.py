@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import django_filters
 from django.conf import settings
-from django.db.models import Case, Count, DateTimeField, When
+from django.db.models import Count
 from django.utils import timezone
 from scraper.models import Category, Comment, CommentStatuses, Product, ProductVariant
 
@@ -83,14 +83,6 @@ def filter_by_product_or_variant(queryset, value):
             ).distinct()
             filtered_comments = queryset.filter(product_id__in=product_ids)
 
-    return (
-        filtered_comments.distinct("user", "product", "content")
-        .annotate(
-            annotated_source_date=Case(
-                When(source_date__isnull=False, then="source_date"),
-                default="created_at",
-                output_field=DateTimeField(),
-            )
-        )
-        .order_by("user", "product", "content", "-annotated_source_date")
+    return filtered_comments.distinct("user", "product", "content").order_by(
+        "user", "product", "content"
     )
