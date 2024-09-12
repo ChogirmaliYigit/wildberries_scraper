@@ -83,4 +83,4 @@ def filter_by_product_or_variant(queryset, value):
             ).distinct()
             filtered_comments = queryset.filter(product_id__in=product_ids)
 
-    return filtered_comments.distinct("content")
+    return filtered_comments

@@ -36,11 +36,15 @@ def get_filtered_comments(queryset=None, promo=False):
     ).filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
 
     # Annotate with ordering_date
-    base_queryset = base_queryset.annotate(
-        ordering_date=Coalesce(
-            "source_date", "created_at", output_field=DateTimeField()
+    base_queryset = (
+        base_queryset.annotate(
+            ordering_date=Coalesce(
+                "source_date", "created_at", output_field=DateTimeField()
+            )
         )
-    ).order_by("-ordering_date")
+        .distinct("content", "ordering_date")
+        .order_by("-ordering_date", "content")
+    )
 
     # Randomly select one promoted comment
     selected_promo_comment = None
