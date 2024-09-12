@@ -71,6 +71,7 @@ class CommentsListView(BaseListCreateAPIView):
     search_fields = [
         "content",
     ]
+    ordering = []
 
     def get_queryset(self):
         queryset = Comment.objects.filter(reply_to__isnull=False)
@@ -90,6 +91,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [
         permissions.IsAuthenticated,
     ]
+    ordering = []
 
     def get_queryset(self):
         return Comment.objects.filter(user=self.request.user)
@@ -114,6 +116,7 @@ class UserCommentsListView(generics.ListAPIView):
     permission_classes = [
         permissions.IsAuthenticated,
     ]
+    ordering = []
 
     def get_queryset(self):
         queryset = Comment.objects.filter(
@@ -135,6 +138,7 @@ class FeedbacksListView(BaseListCreateAPIView):
     search_fields = [
         "content",
     ]
+    ordering = []
 
     def get_queryset(self):
         queryset = Comment.objects.filter(reply_to__isnull=True)
@@ -149,6 +153,7 @@ class UserFeedbacksListView(generics.ListAPIView):
     search_fields = [
         "content",
     ]
+    ordering = []
 
     def get_queryset(self):
         if self.request.user.is_authenticated:

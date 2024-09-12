@@ -239,6 +239,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             "reply_to",
             "replied_comments",
             "source_date",
+            "promo",
         )
 
 
