@@ -24,7 +24,7 @@ def get_filtered_products():
     return filtered_products
 
 
-def get_filtered_comments(queryset=None):
+def get_filtered_comments(queryset=None, promo=False):
     if queryset is None:
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
@@ -43,16 +43,12 @@ def get_filtered_comments(queryset=None):
     # Randomly select one promoted comment
     selected_promo_comment = base_queryset.filter(promo=True).order_by(Random()).first()
 
-    if selected_promo_comment:
+    if selected_promo_comment and promo:
         # Get all comments excluding the selected promoted one
         other_comments = Comment.objects.exclude(id=selected_promo_comment.id)
 
-        # Construct a list of comments with the selected promoted comment at index 2
-        # Note: Django QuerySets are lazy and don't support direct list manipulation
-        # We need to manually handle this in Python after fetching the results
         all_comments = list(other_comments)  # Convert QuerySet to list
         all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
-        # Convert back to a QuerySet
-        return Comment.objects.filter(id__in=[c.id for c in all_comments])
+        return all_comments
     return queryset

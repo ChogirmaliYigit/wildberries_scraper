@@ -1,8 +1,8 @@
-from core.views import BaseListAPIView, BaseListCreateAPIView
+from core.views import BaseListAPIView
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
-from scraper.filters import CommentsFilter, ProductFilter
+from scraper.filters import ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
@@ -65,25 +65,18 @@ class ProductDetailView(generics.RetrieveAPIView):
         return context
 
 
-class CommentsListView(BaseListCreateAPIView):
+class CommentsListView(views.APIView):
     serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-    ordering = []
 
-    def get_queryset(self):
+    def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=False)
-        if not queryset:
-            return Comment.objects.none()
-        return get_filtered_comments(queryset)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        context["comment"] = True
-        return context
+        if not queryset.exists():
+            return response.Response({})
+        queryset = get_filtered_comments(queryset, True)
+        serializer = self.serializer_class(
+            queryset, many=True, context={"request": request, "comment": True}
+        )
+        return response.Response(serializer.data, status.HTTP_200_OK)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -99,7 +92,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         if queryset:
-            queryset = get_filtered_comments(queryset)
+            queryset = get_filtered_comments(queryset, False)
             obj = queryset.filter(pk=self.kwargs["pk"]).first()
             if not obj:
                 raise exceptions.ValidationError({"message": "Комментарий не найден"})
@@ -107,63 +100,56 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         raise exceptions.ValidationError({"message": "Комментарий не найден"})
 
 
-class UserCommentsListView(generics.ListAPIView):
+class UserCommentsListView(views.APIView):
     serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-    permission_classes = [
-        permissions.IsAuthenticated,
-    ]
-    ordering = []
 
-    def get_queryset(self):
-        queryset = Comment.objects.filter(
-            user=self.request.user, reply_to__isnull=False
+    def get(self, request):
+        queryset = Comment.objects.filter(reply_to__isnull=False)
+        if not queryset.exists():
+            return response.Response({})
+        queryset = get_filtered_comments(queryset, True)
+        serializer = self.serializer_class(
+            queryset, many=True, context={"request": request, "replies": True}
         )
-        if not queryset:
-            return Comment.objects.none()
-        return get_filtered_comments(queryset)
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
+        return response.Response(serializer.data, status.HTTP_200_OK)
 
 
-class FeedbacksListView(BaseListCreateAPIView):
+class FeedbacksListView(views.APIView):
     serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-    ordering = []
 
-    def get_queryset(self):
+    def get(self, request):
         queryset = Comment.objects.filter(reply_to__isnull=True)
-        if not queryset:
-            return Comment.objects.none()
-        return get_filtered_comments(queryset)
+        if not queryset.exists():
+            return response.Response({})
+        queryset = get_filtered_comments(queryset, True)
+        serializer = self.serializer_class(
+            queryset, many=True, context={"request": request, "replies": True}
+        )
+        return response.Response(serializer.data, status.HTTP_200_OK)
+
+    def post(self, request):
+        if not bool(request.user and request.user.is_authenticated):
+            raise exceptions.ValidationError({"message": "Не аутентифицирован"})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request, "comment": False}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UserFeedbacksListView(generics.ListAPIView):
+class UserFeedbacksListView(views.APIView):
     serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    search_fields = [
-        "content",
-    ]
-    ordering = []
 
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            queryset = Comment.objects.filter(
-                user=self.request.user, reply_to__isnull=True
-            )
-            if not queryset:
-                return Comment.objects.none()
-            return get_filtered_comments(queryset)
-        return Comment.objects.none()
+    def get(self, request):
+        queryset = Comment.objects.filter(reply_to__isnull=True)
+        if not queryset.exists():
+            return response.Response({})
+        queryset = get_filtered_comments(queryset, True)
+        serializer = self.serializer_class(
+            queryset, many=True, context={"request": request, "replies": True}
+        )
+        return response.Response(serializer.data, status.HTTP_200_OK)
 
 
 class FavoritesListView(BaseListAPIView):
