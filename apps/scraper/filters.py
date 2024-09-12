@@ -4,7 +4,7 @@ import django_filters
 from django.conf import settings
 from django.db.models import Count
 from django.utils import timezone
-from scraper.models import Category, Comment, CommentStatuses, Product, ProductVariant
+from scraper.models import Category, Product, ProductVariant
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -43,33 +43,6 @@ class ProductFilter(django_filters.FilterSet):
         ]
 
 
-class CommentsFilter(django_filters.FilterSet):
-    product_id = django_filters.NumberFilter(method="filter_by_product_or_variant")
-    source_id = django_filters.NumberFilter(field_name="source_id")
-    rating = django_filters.NumberFilter(field_name="rating")
-    status = django_filters.ChoiceFilter(
-        field_name="status", choices=CommentStatuses.choices
-    )
-    user_id = django_filters.NumberFilter(field_name="user_id")
-    feedback_id = django_filters.NumberFilter(method="filter_by_feedback")
-
-    def filter_by_feedback(self, queryset, name, value):
-        if value:
-            return queryset.filter(reply_to_id=value)
-        return queryset
-
-    class Meta:
-        model = Comment
-        fields = [
-            "product_id",
-            "source_id",
-            "rating",
-            "status",
-            "user_id",
-            "feedback_id",
-        ]
-
-
 def filter_by_product_or_variant(queryset, value):
     # First, try to filter comments by product_id
     filtered_comments = queryset.filter(product_id=value)
@@ -84,3 +57,9 @@ def filter_by_product_or_variant(queryset, value):
             filtered_comments = queryset.filter(product_id__in=product_ids)
 
     return filtered_comments
+
+
+def filter_by_feedback(queryset, value):
+    if value:
+        return queryset.filter(reply_to_id=value)
+    return queryset

@@ -4,7 +4,11 @@ from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny
-from scraper.filters import ProductFilter, filter_by_product_or_variant
+from scraper.filters import (
+    ProductFilter,
+    filter_by_feedback,
+    filter_by_product_or_variant,
+)
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
@@ -80,6 +84,9 @@ class CommentsListView(views.APIView):
         product_id = str(request.query_params.get("product_id", ""))
         if product_id.isdigit():
             queryset = filter_by_product_or_variant(queryset, product_id)
+        feedback_id = str(request.query_params.get("feedback_id", ""))
+        if feedback_id.isdigit():
+            queryset = filter_by_feedback(queryset, feedback_id)
         queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
@@ -122,6 +129,9 @@ class UserCommentsListView(views.APIView):
         product_id = str(request.query_params.get("product_id", ""))
         if product_id.isdigit():
             queryset = filter_by_product_or_variant(queryset, product_id)
+        feedback_id = str(request.query_params.get("feedback_id", ""))
+        if feedback_id.isdigit():
+            queryset = filter_by_feedback(queryset, feedback_id)
         queryset = get_filtered_comments(queryset, True)
         # Paginate the queryset
         paginator = self.pagination_class()
