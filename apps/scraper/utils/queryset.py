@@ -45,10 +45,12 @@ def get_filtered_comments(queryset=None, promo=False):
 
     if selected_promo_comment and promo:
         # Get all comments excluding the selected promoted one
-        other_comments = Comment.objects.exclude(id=selected_promo_comment.id)
+        other_comments = Comment.objects.exclude(
+            id=selected_promo_comment.id
+        ).distinct()
 
         all_comments = list(other_comments)  # Convert QuerySet to list
         all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
         return all_comments
-    return queryset
+    return queryset.order_by("user", "product", "content", "-ordering_date")
