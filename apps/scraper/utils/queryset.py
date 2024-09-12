@@ -1,13 +1,5 @@
-from django.db.models import (
-    Case,
-    DateTimeField,
-    Exists,
-    IntegerField,
-    OuterRef,
-    Q,
-    When,
-)
-from django.db.models.functions import Coalesce
+from django.db.models import DateTimeField, Exists, OuterRef, Q
+from django.db.models.functions import Coalesce, Random
 from scraper.models import Comment, CommentStatuses, Product
 
 
@@ -48,46 +40,19 @@ def get_filtered_comments(queryset=None):
         )
     )
 
-    # Fetch the promoted comment
-    promoted_comment = base_queryset.filter(promo=True).order_by("?").first()
+    # Randomly select one promoted comment
+    selected_promo_comment = base_queryset.order_by(Random()).first()
 
-    if promoted_comment:
-        # Exclude the promoted comment from the main queryset
-        main_queryset = base_queryset.exclude(pk=promoted_comment.id)
+    if selected_promo_comment:
+        # Get all comments excluding the selected promoted one
+        other_comments = Comment.objects.exclude(id=selected_promo_comment.id)
 
-        # Annotate main queryset with priority to ensure promoted comment can be inserted
-        main_queryset = main_queryset.annotate(
-            priority=Case(
-                When(pk=promoted_comment.id, then=1),
-                default=0,
-                output_field=IntegerField(),
-            )
-        ).order_by("-priority", "-ordering_date")
+        # Construct a list of comments with the selected promoted comment at index 2
+        # Note: Django QuerySets are lazy and don't support direct list manipulation
+        # We need to manually handle this in Python after fetching the results
+        all_comments = list(other_comments)  # Convert QuerySet to list
+        all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
-        # Convert to list to insert the promoted comment manually
-        main_comments_list = list(main_queryset)
-
-        # Insert the promoted comment at the third position if there are at least 2 comments
-        if len(main_comments_list) >= 2:
-            main_comments_list.insert(2, promoted_comment)
-        else:
-            main_comments_list.append(promoted_comment)
-
-        # Convert list back to a QuerySet-like structure
-        from django.db.models.query import QuerySet
-
-        queryset_with_promoted_comment = QuerySet(
-            model=base_queryset.model, query=base_queryset.query
-        )
-        queryset_with_promoted_comment = queryset_with_promoted_comment.none()
-        queryset_with_promoted_comment = queryset_with_promoted_comment | QuerySet(
-            model=base_queryset.model, query=base_queryset.query
-        )
-        queryset_with_promoted_comment = queryset_with_promoted_comment | QuerySet(
-            model=base_queryset.model, query=base_queryset.query
-        )
-
-        return queryset_with_promoted_comment.distinct()
-    else:
-        # Return the queryset with proper ordering if no promoted comment exists
-        return base_queryset.order_by("-ordering_date").distinct()
+        # Convert back to a QuerySet
+        queryset = Comment.objects.filter(id__in=[c.id for c in all_comments])
+    return queryset

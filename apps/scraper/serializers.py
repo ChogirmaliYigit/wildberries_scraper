@@ -31,12 +31,16 @@ def get_files(comment):
     # Process the single `comment.file`
     if comment.file:
         file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
-        files.append(process_file(file_link, comment.file_type))
+        file = process_file(file_link, comment.file_type)
+        if file not in files:
+            files.append(file)
 
     # Process files from `comment.files.all()`
     for file in comment.files.all():
         if file.file_link:  # Ensure the file has a link
-            files.append(process_file(file.file_link, file.file_type))
+            processed_file = process_file(file.file_link, file.file_type)
+            if processed_file not in files:
+                files.append(processed_file)
 
     return files
 
