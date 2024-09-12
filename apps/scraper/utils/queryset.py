@@ -54,5 +54,5 @@ def get_filtered_comments(queryset=None):
         all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
         # Convert back to a QuerySet
-        queryset = Comment.objects.filter(id__in=[c.id for c in all_comments])
+        return Comment.objects.filter(id__in=[c.id for c in all_comments])
     return queryset
