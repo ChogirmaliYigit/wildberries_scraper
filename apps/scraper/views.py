@@ -2,6 +2,7 @@ from core.views import BaseListAPIView
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
+from rest_framework.permissions import AllowAny
 from scraper.filters import ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
@@ -66,6 +67,8 @@ class ProductDetailView(generics.RetrieveAPIView):
 
 
 class CommentsListView(views.APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
 
     def get(self, request):
@@ -115,6 +118,8 @@ class UserCommentsListView(views.APIView):
 
 
 class FeedbacksListView(views.APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
 
     def get(self, request):
