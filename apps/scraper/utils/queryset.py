@@ -87,7 +87,7 @@ def get_filtered_comments(queryset=None):
             model=base_queryset.model, query=base_queryset.query
         )
 
-        return queryset_with_promoted_comment
+        return queryset_with_promoted_comment.distinct()
     else:
         # Return the queryset with proper ordering if no promoted comment exists
-        return base_queryset.order_by("-ordering_date")
+        return base_queryset.order_by("-ordering_date").distinct()
