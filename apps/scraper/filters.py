@@ -8,32 +8,11 @@ from scraper.models import Category, Product, ProductVariant
 
 
 class ProductFilter(django_filters.FilterSet):
-    category_id = django_filters.NumberFilter(method="filter_by_category")
+    category_id = django_filters.NumberFilter(method="filter_by_category_id")
     source_id = django_filters.NumberFilter(field_name="source_id")
 
-    def filter_by_category(self, queryset, name, value):
-        category = Category.objects.filter(pk=value).first()
-        if category:
-            if category.shard == "popular":
-                return self.get_popular_products(queryset)
-            elif category.shard == "new":
-                return self.get_new_products(queryset)
-        category_ids = [value]
-        category_ids.extend(
-            list(Category.objects.filter(parent_id=value).values_list("id", flat=True))
-        )
-        return queryset.filter(category_id__in=category_ids)
-
-    def get_popular_products(self, queryset):
-        return (
-            queryset.annotate(likes_count=Count("product_likes", distinct=True))
-            .filter(likes_count__gt=2)
-            .order_by("-likes_count")
-        )
-
-    def get_new_products(self, queryset):
-        limit_date = timezone.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
-        return queryset.filter(created_at__gte=limit_date).order_by("-created_at")
+    def filter_by_category_id(self, queryset, name, value):
+        return filter_by_category(queryset, value)
 
     class Meta:
         model = Product
@@ -41,6 +20,33 @@ class ProductFilter(django_filters.FilterSet):
             "category_id",
             "source_id",
         ]
+
+
+def filter_by_category(queryset, value):
+    category = Category.objects.filter(pk=value).first()
+    if category:
+        if category.shard == "popular":
+            return get_popular_products(queryset)
+        elif category.shard == "new":
+            return get_new_products(queryset)
+    category_ids = [value]
+    category_ids.extend(
+        list(Category.objects.filter(parent_id=value).values_list("id", flat=True))
+    )
+    return queryset.filter(category_id__in=category_ids)
+
+
+def get_popular_products(queryset):
+    return (
+        queryset.annotate(likes_count=Count("product_likes", distinct=True))
+        .filter(likes_count__gt=2)
+        .order_by("-likes_count")
+    )
+
+
+def get_new_products(queryset):
+    limit_date = timezone.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
+    return queryset.filter(created_at__gte=limit_date).order_by("-created_at")
 
 
 def filter_by_product_or_variant(queryset, value):

@@ -5,7 +5,7 @@ from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, Product
 
 
-def get_filtered_products():
+def get_filtered_products(promo=False):
     # Subquery to check for valid comments related to a product
     valid_comments_subquery = Comment.objects.filter(
         product=OuterRef("pk"),
@@ -16,14 +16,38 @@ def get_filtered_products():
         | Q(file__isnull=False, file__gt="")  # Check if the Comment has a valid file
     )
 
+    # Subquery to check for promoted comments related to a product
+    promoted_comments_subquery = Comment.objects.filter(
+        product=OuterRef("pk"), promo=True
+    )
+
     # Main query to filter products
-    filtered_products = (
-        Product.objects.annotate(has_valid_comments=Exists(valid_comments_subquery))
+    products = (
+        Product.objects.annotate(
+            has_valid_comments=Exists(valid_comments_subquery),
+            is_promoted=Exists(promoted_comments_subquery),
+        )
         .filter(has_valid_comments=True)
         .distinct()
     )
 
-    return filtered_products
+    if not promo:
+        return products
+
+    # Separate promoted and non-promoted products
+    promoted_products = list(products.filter(is_promoted=True))
+    non_promoted_products = list(products.filter(is_promoted=False))
+
+    # Randomly select one promoted product if available
+    selected_promo_product = None
+    if promoted_products:
+        selected_promo_product = random.choice(promoted_products)
+
+    # Insert the selected promoted product at index 2 if it exists
+    if selected_promo_product:
+        non_promoted_products.insert(2, selected_promo_product)
+
+    return non_promoted_products
 
 
 def get_filtered_comments(queryset=None, promo=False):

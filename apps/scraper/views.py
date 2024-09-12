@@ -1,11 +1,12 @@
 from core.pagination import CustomPageNumberPagination
 from core.views import BaseListAPIView
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import Case, IntegerField, Q, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny
 from scraper.filters import (
     ProductFilter,
+    filter_by_category,
     filter_by_feedback,
     filter_by_product_or_variant,
 )
@@ -45,18 +46,35 @@ class CategoriesListView(BaseListAPIView):
     ]
 
 
-class ProductsListView(BaseListAPIView):
+class ProductsListView(views.APIView):
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
+    pagination_class = CustomPageNumberPagination
 
-    def get_queryset(self):
-        return get_filtered_products()
+    def get(self, request):
+        queryset = get_filtered_products(True)
+        # Apply search filters
+        search_query = request.query_params.get("search", "").strip()
+        if search_query:
+            filters = Q()
+            for field in self.search_fields:
+                filters |= Q(**{f"{field}__icontains": search_query})
+            queryset = queryset.filter(filters)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
+        category_id = str(request.query_params.get("category_id", ""))
+        if category_id.isdigit():
+            queryset = filter_by_category(queryset, category_id)
+        source_id = str(request.query_params.get("source_id", ""))
+        if source_id.isdigit():
+            queryset = queryset.filter(source_id=source_id)
+        # Paginate the queryset
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = self.serializer_class(
+            result_page, many=True, context={"request": request}
+        )
+        return paginator.get_paginated_response(serializer.data)
 
 
 class ProductDetailView(generics.RetrieveAPIView):

@@ -22,7 +22,7 @@ msgstr ""
 
 #: apps/scraper/admin.py:86 apps/scraper/models.py:279
 msgid "Likes"
-msgstr ""
+msgstr "Нравится"
 
 #: apps/scraper/admin.py:171 apps/scraper/models.py:169
 #: apps/scraper/models.py:258 apps/scraper/models.py:274 apps/users/admin.py:52
@@ -34,315 +34,315 @@ msgstr ""
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:38
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/object_history.html:54
 msgid "User"
-msgstr ""
+msgstr "Пользователь"
 
 #: apps/scraper/admin.py:194
 msgid "Promo selected comments"
-msgstr ""
+msgstr "Промо выбранные комментарии"
 
 #: apps/scraper/admin.py:197
 msgid "Selected comments promoted"
-msgstr ""
+msgstr "Выбранные комментарии повышены"
 
 #: apps/scraper/admin.py:199
 msgid "Not promo selected comments"
-msgstr ""
+msgstr "Не рекламные выбранные комментарии"
 
 #: apps/scraper/admin.py:202
 msgid "Selected comments not promoted"
-msgstr ""
+msgstr "Выбранные комментарии не продвигаются"
 
 #: apps/scraper/admin.py:219
 msgid "Actions"
-msgstr ""
+msgstr "Действия"
 
 #: apps/scraper/admin.py:240
 msgid "Accept"
-msgstr ""
+msgstr "Принимать"
 
 #: apps/scraper/admin.py:246
 msgid "Reject"
-msgstr ""
+msgstr "Отклонять"
 
 #: apps/scraper/admin.py:285
 msgid "Comment not accepted"
-msgstr ""
+msgstr "Комментарий не принят"
 
 #: apps/scraper/admin.py:287
 msgid "Comment accepted"
-msgstr ""
+msgstr "Комментарий принят"
 
 #: apps/scraper/admin_filters.py:8 apps/scraper/admin_filters.py:90
 #: apps/scraper/models.py:211
 msgid "Comments"
-msgstr ""
+msgstr "Лента отзывов и Список коментариев"
 
 #: apps/scraper/admin_filters.py:13
 msgid "Have comment"
-msgstr ""
+msgstr "Оставить комментарий"
 
 #: apps/scraper/admin_filters.py:14
 msgid "Have no comment"
-msgstr ""
+msgstr "Нет комментариев"
 
 #: apps/scraper/admin_filters.py:30
 msgid "Images in Variants"
-msgstr ""
+msgstr "Нет комментариев"
 
 #: apps/scraper/admin_filters.py:35
 msgid "Have image"
-msgstr ""
+msgstr "Иметь имидж"
 
 #: apps/scraper/admin_filters.py:36
 msgid "Have no image"
-msgstr ""
+msgstr "Нет изображения"
 
 #: apps/scraper/admin_filters.py:56
 msgid "Comments and Images in Variants"
-msgstr ""
+msgstr "Комментарии и изображения в вариантах"
 
 #: apps/scraper/admin_filters.py:61
 msgid "Have comment and image"
-msgstr ""
+msgstr "Есть комментарий и изображение"
 
 #: apps/scraper/admin_filters.py:62
 msgid "Have no comments and no images"
-msgstr ""
+msgstr "Нет комментариев и изображений"
 
 #: apps/scraper/admin_filters.py:84 apps/scraper/models.py:180
 msgid "Reply to"
-msgstr ""
+msgstr "Отвечать на"
 
 #: apps/scraper/admin_filters.py:89
 msgid "Feedbacks"
-msgstr ""
+msgstr "Отзывы"
 
 #: apps/scraper/apps.py:8
 msgid "Data"
-msgstr ""
+msgstr "Данные"
 
 #: apps/scraper/models.py:9 apps/scraper/models.py:49
 msgid "Title"
-msgstr ""
+msgstr "Заголовок"
 
 #: apps/scraper/models.py:16
 msgid "Parent category"
-msgstr ""
+msgstr "Родительская категория"
 
 #: apps/scraper/models.py:18 apps/scraper/models.py:111
 #: venv/lib/python3.11/site-packages/django/db/models/fields/files.py:420
 msgid "Image"
-msgstr ""
+msgstr "Изображение"
 
 #: apps/scraper/models.py:20 apps/scraper/models.py:79
 #: apps/scraper/models.py:153
 msgid "Source ID"
-msgstr ""
+msgstr "Идентификатор источника"
 
 #: apps/scraper/models.py:23
 msgid "Slug name"
-msgstr ""
+msgstr "Имя слизняка"
 
 #: apps/scraper/models.py:25
 msgid "Shard"
-msgstr ""
+msgstr "Осколок"
 
 #: apps/scraper/models.py:32 apps/scraper/models.py:56
 msgid "Category"
-msgstr ""
+msgstr "Категория"
 
 #: apps/scraper/models.py:33
 msgid "Categories"
-msgstr ""
+msgstr "Категории"
 
 #: apps/scraper/models.py:58
 msgid "Root"
-msgstr ""
+msgstr "Корень"
 
 #: apps/scraper/models.py:64 apps/scraper/models.py:87
 #: apps/scraper/models.py:150 apps/scraper/models.py:255
 #: apps/scraper/models.py:271
 msgid "Product"
-msgstr ""
+msgstr "Продукт"
 
 #: apps/scraper/models.py:65
 msgid "Products"
-msgstr ""
+msgstr "Продукты"
 
 #: apps/scraper/models.py:76
 msgid "Color"
-msgstr ""
+msgstr "Цвет"
 
 #: apps/scraper/models.py:77
 msgid "Price"
-msgstr ""
+msgstr "Цена"
 
 #: apps/scraper/models.py:99 apps/scraper/models.py:122
 msgid "Product variant"
-msgstr ""
+msgstr "Вариант продукта"
 
 #: apps/scraper/models.py:100
 msgid "Product variants"
-msgstr ""
+msgstr "Варианты продукта"
 
 #: apps/scraper/models.py:112
 msgid "Video"
-msgstr ""
+msgstr "Видео"
 
 #: apps/scraper/models.py:124
 msgid "Image link"
-msgstr ""
+msgstr "Ссылка на изображение"
 
 #: apps/scraper/models.py:133
 msgid "Product variant image"
-msgstr ""
+msgstr "Изображение варианта продукта"
 
 #: apps/scraper/models.py:134
 msgid "Product variant images"
-msgstr ""
+msgstr "Изображения вариантов продукта"
 
 #: apps/scraper/models.py:138
 msgid "Accepted"
-msgstr ""
+msgstr "Accepted"
 
 #: apps/scraper/models.py:139
 msgid "Not accepted"
-msgstr ""
+msgstr "Не принято"
 
 #: apps/scraper/models.py:140
 msgid "Not reviewed"
-msgstr ""
+msgstr "Не проверено"
 
 #: apps/scraper/models.py:155
 msgid "Content"
-msgstr ""
+msgstr "Содержание"
 
 #: apps/scraper/models.py:156
 msgid "Rating"
-msgstr ""
+msgstr "Рейтинг"
 
 #: apps/scraper/models.py:159
 #: venv/lib/python3.11/site-packages/django_apscheduler/admin.py:159
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 #: apps/scraper/models.py:172
 msgid "Wildberries user"
-msgstr ""
+msgstr "Пользователь Вайлдберриз"
 
 #: apps/scraper/models.py:183
 #: venv/lib/python3.11/site-packages/django/db/models/fields/files.py:244
 msgid "File"
-msgstr ""
+msgstr "Файл"
 
 #: apps/scraper/models.py:189
 msgid "Reason"
-msgstr ""
+msgstr "Причина"
 
 #: apps/scraper/models.py:190
 msgid "Promo"
-msgstr ""
+msgstr "Промо"
 
 #: apps/scraper/models.py:210 apps/scraper/models.py:225
 #: apps/scraper/models.py:242
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:24
 #: venv/lib/python3.11/site-packages/unfold/contrib/simple_history/templates/simple_history/object_history_list.html:60
 msgid "Comment"
-msgstr ""
+msgstr "Комментарий"
 
 #: apps/scraper/models.py:216
 msgid "Requested comment"
-msgstr ""
+msgstr "Запрошенный комментарий"
 
 #: apps/scraper/models.py:217
 msgid "Requested comments"
-msgstr ""
+msgstr "Модерация отзывов"
 
 #: apps/scraper/models.py:227
 msgid "File link"
-msgstr ""
+msgstr "Ссылка на файл"
 
 #: apps/scraper/models.py:233
 msgid "Comment file"
-msgstr ""
+msgstr "Файл комментариев"
 
 #: apps/scraper/models.py:234
 msgid "Comment files"
-msgstr ""
+msgstr "Файлы комментариев"
 
 #: apps/scraper/models.py:246
 msgid "Requested comment file"
-msgstr ""
+msgstr "Запрошенный файл комментариев"
 
 #: apps/scraper/models.py:247
 msgid "Requested comment files"
-msgstr ""
+msgstr "Запрошенные файлы комментариев"
 
 #: apps/scraper/models.py:262
 msgid "Favorite"
-msgstr ""
+msgstr "Любимый"
 
 #: apps/scraper/models.py:263
 msgid "Favorites"
-msgstr ""
+msgstr "Избранное"
 
 #: apps/scraper/models.py:278
 msgid "Like"
-msgstr ""
+msgstr "Нравиться"
 
 #: apps/users/admin.py:34
 msgid "Selected users are blocked"
-msgstr ""
+msgstr "Выбранные пользователи заблокированы"
 
 #: apps/users/admin.py:36
 msgid "Block selected users"
-msgstr ""
+msgstr "Блокировать выбранных пользователей"
 
 #: apps/users/admin.py:40
 msgid "Selected users are unblocked"
-msgstr ""
+msgstr "Выбранные пользователи разблокированы"
 
 #: apps/users/admin.py:42
 msgid "Unblock selected users"
-msgstr ""
+msgstr "Разблокировать выбранных пользователей"
 
 #: apps/users/admin.py:45
 #: venv/lib/python3.11/site-packages/django/forms/widgets.py:801
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: apps/users/admin.py:45
 #: venv/lib/python3.11/site-packages/django/forms/widgets.py:802
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: apps/users/admin.py:47 apps/users/models.py:36
 msgid "Is blocked"
-msgstr ""
+msgstr "Заблокировано?"
 
 #: apps/users/apps.py:8 apps/users/models.py:46
 msgid "Users"
-msgstr ""
+msgstr "Список пользователей"
 
 #: apps/users/models.py:17
 msgid "Full name"
-msgstr ""
+msgstr "Полное имя"
 
 #: apps/users/models.py:22
 msgid "Email"
-msgstr ""
+msgstr "Электронная почта"
 
 #: apps/users/models.py:31
 msgid "Profile photo"
-msgstr ""
+msgstr "Фото профиля"
 
 #: apps/users/models.py:70
 msgid "Register"
-msgstr ""
+msgstr "Зарегистрироваться"
 
 #: apps/users/models.py:71
 msgid "Forgot password"
-msgstr ""
+msgstr "Забыли пароль"
 
 #: apps/users/queryset/user.py:34
 msgid "Superuser must have is_staff=True."
@@ -355,319 +355,39 @@ msgstr ""
 #: templates/admin/actions.html:22
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:22
 msgid "Run the selected action"
-msgstr ""
+msgstr "Запустить выбранное действие"
 
 #: templates/admin/actions.html:23
 msgid "Next"
-msgstr ""
+msgstr "Следующий"
 
 #: templates/admin/actions.html:41
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:42
 msgid "Click here to select the objects across all pages"
-msgstr ""
+msgstr "Нажмите здесь, чтобы выбрать объекты на всех страницах"
 
 #: templates/admin/actions.html:42
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:43
 #, python-format
 msgid "Select all %(total_count)s %(module_name)s"
-msgstr ""
+msgstr "Выбрать все %(total_count)s %(module_name)s"
 
 #: templates/admin/actions.html:48
 #: venv/lib/python3.11/site-packages/unfold/templates/admin/actions.html:49
 msgid "Clear selection"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/_termui_impl.py:518
-#, python-brace-format
-msgid "{editor}: Editing failed"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/_termui_impl.py:522
-#, python-brace-format
-msgid "{editor}: Editing failed: {e}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1120
-msgid "Aborted!"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1309
-#: venv/lib/python3.11/site-packages/click/decorators.py:559
-msgid "Show this message and exit."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1340
-#: venv/lib/python3.11/site-packages/click/core.py:1370
-#, python-brace-format
-msgid "(Deprecated) {text}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1387
-msgid "Options"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1413
-#, python-brace-format
-msgid "Got unexpected extra argument ({args})"
-msgid_plural "Got unexpected extra arguments ({args})"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1429
-msgid "DeprecationWarning: The command {name!r} is deprecated."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1636
-msgid "Commands"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1668
-msgid "Missing command."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:1746
-msgid "No such command {name!r}."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2310
-msgid "Value must be an iterable."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2331
-#, python-brace-format
-msgid "Takes {nargs} values but 1 was given."
-msgid_plural "Takes {nargs} values but {len} were given."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2778
-#, python-brace-format
-msgid "env var: {var}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2808
-msgid "(dynamic)"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2821
-#, python-brace-format
-msgid "default: {default}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/core.py:2834
-msgid "required"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/decorators.py:465
-#, python-format
-msgid "%(prog)s, version %(version)s"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/decorators.py:528
-msgid "Show the version and exit."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:44
-#: venv/lib/python3.11/site-packages/click/exceptions.py:80
-#, python-brace-format
-msgid "Error: {message}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:72
-#, python-brace-format
-msgid "Try '{command} {option}' for help."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:121
-#, python-brace-format
-msgid "Invalid value: {message}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:123
-#, python-brace-format
-msgid "Invalid value for {param_hint}: {message}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:179
-msgid "Missing argument"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:181
-msgid "Missing option"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:183
-msgid "Missing parameter"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:185
-#, python-brace-format
-msgid "Missing {param_type}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:192
-#, python-brace-format
-msgid "Missing parameter: {param_name}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:212
-#, python-brace-format
-msgid "No such option: {name}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:224
-#, python-brace-format
-msgid "Did you mean {possibility}?"
-msgid_plural "(Possible options: {possibilities})"
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:262
-msgid "unknown error"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/exceptions.py:269
-msgid "Could not open file {filename!r}: {message}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/parser.py:231
-msgid "Argument {name!r} takes {nargs} values."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/parser.py:413
-msgid "Option {name!r} does not take a value."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/parser.py:474
-msgid "Option {name!r} requires an argument."
-msgid_plural "Option {name!r} requires {nargs} arguments."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/shell_completion.py:319
-msgid "Shell completion is not supported for Bash versions older than 4.4."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/shell_completion.py:326
-msgid "Couldn't detect Bash version, shell completion is not supported."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:158
-msgid "Repeat for confirmation"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:174
-msgid "Error: The value you entered was invalid."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:176
-#, python-brace-format
-msgid "Error: {e.message}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:187
-msgid "Error: The two entered values do not match."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:243
-msgid "Error: invalid input"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/termui.py:773
-msgid "Press any key to continue..."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:266
-#, python-brace-format
-msgid ""
-"Choose from:\n"
-"\t{choices}"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:298
-msgid "{value!r} is not {choice}."
-msgid_plural "{value!r} is not one of {choices}."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:392
-msgid "{value!r} does not match the format {format}."
-msgid_plural "{value!r} does not match the formats {formats}."
-msgstr[0] ""
-msgstr[1] ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:414
-msgid "{value!r} is not a valid {number_type}."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:470
-#, python-brace-format
-msgid "{value} is not in the range {range}."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:611
-msgid "{value!r} is not a valid boolean."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:635
-msgid "{value!r} is not a valid UUID."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:822
-msgid "file"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:824
-msgid "directory"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:826
-msgid "path"
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:877
-msgid "{name} {filename!r} does not exist."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:886
-msgid "{name} {filename!r} is a file."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:894
-#, python-brace-format
-msgid "{name} '{filename}' is a directory."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:903
-msgid "{name} {filename!r} is not readable."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:912
-msgid "{name} {filename!r} is not writable."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:921
-msgid "{name} {filename!r} is not executable."
-msgstr ""
-
-#: venv/lib/python3.11/site-packages/click/types.py:988
-#, python-brace-format
-msgid "{len_type} values are required, but {len_value} was given."
-msgid_plural "{len_type} values are required, but {len_value} were given."
-msgstr[0] ""
-msgstr[1] ""
+msgstr "Очистить выбор"
 
 #: venv/lib/python3.11/site-packages/django/contrib/messages/apps.py:16
 msgid "Messages"
-msgstr ""
+msgstr "Сообщения"
 
 #: venv/lib/python3.11/site-packages/django/contrib/sitemaps/apps.py:8
 msgid "Site Maps"
-msgstr ""
+msgstr "Карты сайта"
 
 #: venv/lib/python3.11/site-packages/django/contrib/staticfiles/apps.py:9
 msgid "Static Files"
-msgstr ""
+msgstr "Статические файлы"
 
 #: venv/lib/python3.11/site-packages/django/contrib/syndication/apps.py:7
 msgid "Syndication"
@@ -681,36 +401,36 @@ msgstr ""
 
 #: venv/lib/python3.11/site-packages/django/core/paginator.py:32
 msgid "That page number is not an integer"
-msgstr ""
+msgstr "Этот номер страницы не является целым числом"
 
 #: venv/lib/python3.11/site-packages/django/core/paginator.py:33
 msgid "That page number is less than 1"
-msgstr ""
+msgstr "Этот номер страницы меньше 1"
 
 #: venv/lib/python3.11/site-packages/django/core/paginator.py:34
 msgid "That page contains no results"
-msgstr ""
+msgstr "На этой странице нет результатов"
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:22
 msgid "Enter a valid value."
-msgstr ""
+msgstr "Введите допустимое значение."
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:70
 msgid "Enter a valid domain name."
-msgstr ""
+msgstr "Введите действительное доменное имя."
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:152
 #: venv/lib/python3.11/site-packages/django/forms/fields.py:768
 msgid "Enter a valid URL."
-msgstr ""
+msgstr "Введите действительный URL-адрес."
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:213
 msgid "Enter a valid integer."
-msgstr ""
+msgstr "Введите допустимое целое число."
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:224
 msgid "Enter a valid email address."
-msgstr ""
+msgstr "Введите действительный адрес электронной почты."
 
 #. Translators: "letters" means latin letters: a-z and A-Z.
 #: venv/lib/python3.11/site-packages/django/core/validators.py:307
@@ -747,7 +467,7 @@ msgstr ""
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:393
 msgid "Enter only digits separated by commas."
-msgstr ""
+msgstr "Введите только цифры, разделенные запятыми."
 
 #: venv/lib/python3.11/site-packages/django/core/validators.py:399
 #, python-format
