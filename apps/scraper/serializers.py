@@ -172,13 +172,13 @@ class CommentsSerializer(serializers.ModelSerializer):
             comment=instance.product.product_comments.first()
         ).first()
         if comment:
-            data = {
+            image_data = {
                 "link": comment.file_link,
                 "type": comment.file_type,
             }
         else:
-            data = None
-        data["product_image"] = data
+            image_data = None
+        data["product_image"] = image_data
         data["promo"] = instance.promo
         return data
 
