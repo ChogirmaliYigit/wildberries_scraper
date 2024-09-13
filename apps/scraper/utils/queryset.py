@@ -2,10 +2,10 @@ import random
 
 from django.db.models import DateTimeField, Exists, OuterRef, Q
 from django.db.models.functions import Coalesce
-from scraper.models import Comment, CommentStatuses, Product
+from scraper.models import Comment, CommentStatuses
 
 
-def get_filtered_products(promo=False):
+def get_filtered_products(queryset, promo=False):
     # Subquery to check for valid comments related to a product
     valid_comments_subquery = Comment.objects.filter(
         product=OuterRef("pk"),
@@ -23,7 +23,7 @@ def get_filtered_products(promo=False):
 
     # Main query to filter products
     products = (
-        Product.objects.annotate(
+        queryset.annotate(
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
         )

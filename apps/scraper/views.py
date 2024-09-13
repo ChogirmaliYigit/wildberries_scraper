@@ -55,7 +55,7 @@ class ProductsListView(views.APIView):
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
-        queryset = get_filtered_products(True)
+        queryset = Product.objects.all()
         # Apply search filters
         search_query = request.query_params.get("search", "").strip()
         if search_query:
@@ -72,7 +72,9 @@ class ProductsListView(views.APIView):
             queryset = queryset.filter(source_id=source_id)
         # Paginate the queryset
         paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, request)
+        result_page = paginator.paginate_queryset(
+            get_filtered_products(queryset, True), request
+        )
         serializer = self.serializer_class(
             result_page, many=True, context={"request": request}
         )
@@ -143,7 +145,7 @@ class UserCommentsListView(views.APIView):
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
-        queryset = Comment.objects.filter(reply_to__isnull=False)
+        queryset = Comment.objects.filter(reply_to__isnull=False, user=request.user)
         if not queryset.exists():
             return response.Response({})
         product_id = str(request.query_params.get("product_id", ""))
@@ -200,7 +202,7 @@ class UserFeedbacksListView(views.APIView):
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
-        queryset = Comment.objects.filter(reply_to__isnull=True)
+        queryset = Comment.objects.filter(reply_to__isnull=True, user=request.user)
         if not queryset.exists():
             return response.Response({})
         product_id = str(request.query_params.get("product_id", ""))

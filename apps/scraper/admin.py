@@ -161,7 +161,10 @@ class BaseCommentAdmin(ModelAdmin):
         "source_id",
         "reason",
     )
-    list_filter = ("status",)
+    list_filter = (
+        "status",
+        "promo",
+    )
     autocomplete_fields = [
         "user",
         "product",
