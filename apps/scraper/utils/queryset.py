@@ -2,7 +2,7 @@ import random
 
 from django.db.models import DateTimeField, Exists, OuterRef, Q
 from django.db.models.functions import Coalesce
-from scraper.models import Comment, CommentStatuses
+from scraper.models import Comment, CommentStatuses, RequestedComment
 
 
 def get_filtered_products(queryset, promo=False):
@@ -71,6 +71,10 @@ def get_filtered_comments(queryset=None, promo=False):
         .distinct("content", "ordering_date")
         .order_by("-ordering_date", "content")
     )
+
+    # Exclude comments where the id exists in the RequestedComment model
+    requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
+    base_queryset = base_queryset.exclude(id__in=requested_comment_ids)
 
     # Randomly select one promoted comment
     selected_promo_comment = None
