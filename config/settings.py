@@ -171,6 +171,10 @@ SWAGGER_SETTINGS = {
     "LOGIN_URL": None,
 }
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "users.utils.CustomTokenAuthentication",
