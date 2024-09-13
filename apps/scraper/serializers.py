@@ -7,7 +7,6 @@ from scraper.models import (
     CommentFiles,
     CommentStatuses,
     Favorite,
-    FileTypeChoices,
     Like,
     Product,
     ProductVariant,
@@ -24,7 +23,7 @@ def get_files(comment):
         return {
             "link": _link,
             "type": file_type,
-            "stream": file_type == FileTypeChoices.VIDEO,
+            "stream": _link.endswith(".m3u8"),
         }
 
     # Process the single `comment.file`
