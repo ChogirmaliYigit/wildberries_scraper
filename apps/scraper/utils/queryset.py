@@ -1,8 +1,8 @@
 import random
 
-from django.db.models import Count, DateTimeField, Exists, OuterRef, Q
+from django.db.models import DateTimeField, Exists, OuterRef, Q
 from django.db.models.functions import Coalesce
-from scraper.models import Comment, CommentStatuses, ProductVariant, RequestedComment
+from scraper.models import Comment, CommentStatuses, RequestedComment
 
 
 def get_filtered_products(queryset, promo=False):
@@ -54,19 +54,12 @@ def get_filtered_comments(queryset=None, promo=False):
     if queryset is None:
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
-    # Subquery to ensure the product's variant has at least one image
-    product_variant_with_image = (
-        ProductVariant.objects.filter(product=OuterRef("product_id"))
-        .annotate(image_count=Count("productvariantimage"))
-        .filter(image_count__gt=0)
-    )
+    queryset.filter(requestedcomment__isnull=True)
 
-    # Filter comments where product's variant has at least one image
-    base_queryset = (
-        queryset.filter(Exists(product_variant_with_image))
-        .filter(status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt="")
-        .filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
-    )
+    # Filter the main comments
+    base_queryset = queryset.filter(
+        status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
+    ).filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
@@ -91,11 +84,11 @@ def get_filtered_comments(queryset=None, promo=False):
 
     if selected_promo_comment and promo:
         # Get all comments excluding the selected promoted one
-        other_comments = base_queryset.exclude(id=selected_promo_comment.id)
+        other_comments = Comment.objects.exclude(id=selected_promo_comment.id)
 
         all_comments = list(other_comments)  # Convert QuerySet to list
         all_comments.insert(2, selected_promo_comment)  # Insert at index 2
 
         return all_comments
 
-    return base_queryset
+    return queryset
