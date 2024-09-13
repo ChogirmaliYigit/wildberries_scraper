@@ -19,6 +19,7 @@ from scraper.serializers import (
     ProductsSerializer,
 )
 from scraper.utils.queryset import get_filtered_comments, get_filtered_products
+from users.utils import CustomTokenAuthentication
 
 
 class CategoriesListView(BaseListAPIView):
@@ -166,7 +167,7 @@ class UserCommentsListView(views.APIView):
 
 
 class FeedbacksListView(views.APIView):
-    authentication_classes = ()
+    authentication_classes = (CustomTokenAuthentication,)
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
@@ -188,6 +189,8 @@ class FeedbacksListView(views.APIView):
         return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
+        if not request.user.is_authenticated:
+            raise exceptions.ValidationError({"message": "Не аутентифицирован"})
         serializer = self.serializer_class(
             data=request.data, context={"request": request, "comment": False}
         )
