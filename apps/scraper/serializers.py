@@ -178,6 +178,9 @@ class CommentsSerializer(serializers.ModelSerializer):
             if instance.product
             else None
         )
+        variant = instance.product.variants.values()
+        print(variant)
+        # print(ProductVariantImage.objects.filter(variant=variant))
         if variant_image:
             image = {
                 "link": variant_image.image_link,
