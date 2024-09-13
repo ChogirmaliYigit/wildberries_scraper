@@ -11,7 +11,6 @@ from scraper.models import (
     Like,
     Product,
     ProductVariant,
-    ProductVariantImage,
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
@@ -170,20 +169,13 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
-        image = None
-        variant_image = (
-            ProductVariantImage.objects.filter(
-                variant=instance.product.variants.first()
-            ).first()
-            if instance.product
-            else None
-        )
-        if variant_image:
-            image = {
-                "link": variant_image.image_link,
-                "type": variant_image.file_type,
-            }
-        data["product_image"] = image
+        comment = CommentFiles.objects.filter(
+            comment=instance.product.comments.first()
+        ).first()
+        data["product_image"] = {
+            "link": comment.file_link,
+            "type": comment.file_type,
+        }
         data["promo"] = instance.promo
         return data
 
