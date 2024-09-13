@@ -188,7 +188,7 @@ class FeedbacksListView(views.APIView):
         return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
-        if not bool(request.user and request.user.is_authenticated):
+        if not request.user or not request.user.is_authenticated:
             raise exceptions.ValidationError({"message": "Не аутентифицирован"})
         serializer = self.serializer_class(
             data=request.data, context={"request": request, "comment": False}
