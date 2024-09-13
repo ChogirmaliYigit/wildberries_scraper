@@ -54,6 +54,8 @@ def get_filtered_comments(queryset=None, promo=False):
     if queryset is None:
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
+    queryset.filter(requestedcomment__isnull=True)
+
     # Filter the main comments
     base_queryset = queryset.filter(
         status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
