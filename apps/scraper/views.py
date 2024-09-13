@@ -81,16 +81,17 @@ class ProductsListView(views.APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-class ProductDetailView(generics.RetrieveAPIView):
+class ProductDetailView(views.APIView):
     serializer_class = ProductsSerializer
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
-    def get_queryset(self):
-        return get_filtered_products()
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["request"] = self.request
-        return context
+    def get(self, request, pk):
+        product = Product.objects.filter(pk=pk).first()
+        if not product:
+            raise exceptions.ValidationError({"message": "Товар недоступен"})
+        serializer = self.serializer_class(product, context={"request": request})
+        return response.Response(serializer.data, status.HTTP_200_OK)
 
 
 class CommentsListView(views.APIView):
