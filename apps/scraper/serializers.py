@@ -169,7 +169,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
         comment = CommentFiles.objects.filter(
-            comment=instance.product.comments.first()
+            comment=instance.product.product_comments.first()
         ).first()
         data["product_image"] = {
             "link": comment.file_link,
