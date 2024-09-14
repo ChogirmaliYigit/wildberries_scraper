@@ -1,7 +1,7 @@
 import random
 
 from django.conf import settings
-from django.db.models import Case, DateTimeField, Exists, OuterRef, Q, When
+from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, RequestedComment
 
@@ -53,10 +53,20 @@ def get_filtered_products(queryset, promo=False):
 
 
 def base_comment_filter(queryset):
-    # Filter the main comments
-    base_queryset = queryset.filter(
-        status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
-    ).filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
+    # Filter the main comments with files (either in the 'file' field or related 'files' objects)
+    base_queryset = (
+        queryset.filter(
+            status=CommentStatuses.ACCEPTED,
+            content__isnull=False,
+            content__gt="",  # Ensures the content is not an empty string
+        )
+        .filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
+        .annotate(num_files=Count("files"))  # Annotate with number of related files
+        .filter(
+            Q(num_files__gt=0)
+            | Q(file__isnull=False, file__gt="")  # Filter out comments without files
+        )
+    )
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
@@ -72,6 +82,7 @@ def base_comment_filter(queryset):
         .distinct("content", "ordering_date")
         .order_by("-ordering_date", "content")
     )
+
     return base_queryset
 
 
