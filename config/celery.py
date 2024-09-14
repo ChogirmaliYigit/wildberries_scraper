@@ -56,3 +56,10 @@ def scrape_product_images(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.get_all_product_variant_images()
+
+
+@app.task(name="scrape_categories", bind=True)
+def scrape_categories(*args, **kwargs):
+    from scraper.utils import wildberries
+
+    wildberries.get_categories()
