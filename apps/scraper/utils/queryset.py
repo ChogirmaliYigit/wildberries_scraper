@@ -61,35 +61,38 @@ def get_filtered_products(queryset, promo=False):
     return non_promoted_products
 
 
-def base_comment_filter(queryset):
-    # Filter the main comments with files (either in the 'file' field or related 'files' objects)
-    base_queryset = (
-        queryset.filter(
-            status=CommentStatuses.ACCEPTED,
-            content__isnull=False,
-            content__gt="",  # Ensures the content is not an empty string
+def base_comment_filter(queryset, has_file=True):
+    if has_file:
+        # Filter the main comments with files (either in the 'file' field or related 'files' objects)
+        queryset = (
+            queryset.filter(
+                status=CommentStatuses.ACCEPTED,
+                content__isnull=False,
+                content__gt="",  # Ensures the content is not an empty string
+            )
+            .filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
+            .annotate(num_files=Count("files"))  # Annotate with number of related files
+            .filter(
+                Q(num_files__gt=0)
+                | Q(
+                    file__isnull=False, file__gt=""
+                )  # Filter out comments without files
+            )
         )
-        .filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
-        .annotate(num_files=Count("files"))  # Annotate with number of related files
-        .filter(
-            Q(num_files__gt=0)
-            | Q(file__isnull=False, file__gt="")  # Filter out comments without files
-        )
-    )
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
-    base_queryset = base_queryset.exclude(id__in=requested_comment_ids)
+    queryset = queryset.exclude(id__in=requested_comment_ids)
 
     # Annotate with ordering_date
-    base_queryset = base_queryset.annotate(
+    queryset = queryset.annotate(
         ordering_date=Coalesce(
             "source_date", "created_at", output_field=DateTimeField()
         )
     ).order_by("-ordering_date", "content")
 
     # Fetch all comments and apply distinct manually in Python
-    comment_list = list(base_queryset)
+    comment_list = list(queryset)
 
     # Use a set to track seen (content, ordering_date) pairs and filter duplicates
     seen = set()
@@ -103,11 +106,11 @@ def base_comment_filter(queryset):
     return distinct_comments
 
 
-def get_filtered_comments(queryset=None, promo=False):
+def get_filtered_comments(queryset=None, promo=False, has_file=True):
     if queryset is None:
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
-    base_queryset = base_comment_filter(queryset)
+    base_queryset = base_comment_filter(queryset, has_file)
 
     # Randomly select one promoted comment
     selected_promo_comment = None

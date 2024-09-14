@@ -156,8 +156,12 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         if queryset:
-            queryset = get_filtered_comments(queryset, False)
-            obj = queryset.filter(pk=self.kwargs["pk"]).first()
+            queryset = get_filtered_comments(queryset, False, False)
+            obj = None
+            for comment in queryset:
+                if comment.pk == self.kwargs["pk"]:
+                    obj = comment
+                    break
             if not obj:
                 raise exceptions.ValidationError({"message": "Комментарий не найден"})
             return obj
@@ -178,7 +182,7 @@ class UserCommentsListView(views.APIView):
         feedback_id = str(request.query_params.get("feedback_id", ""))
         if feedback_id.isdigit():
             queryset = filter_by_feedback(queryset, feedback_id)
-        queryset = get_filtered_comments(queryset, True)
+        queryset = get_filtered_comments(queryset, True, has_file=False)
         # Paginate the queryset
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
