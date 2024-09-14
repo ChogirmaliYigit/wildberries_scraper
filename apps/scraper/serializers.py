@@ -58,25 +58,32 @@ class ProductsSerializer(serializers.ModelSerializer):
             Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
         )
         first_comment = comments.first()
-        comment_file = None
+        # Initialize image variable
         image = None
-        if first_comment and first_comment.file:
-            image = {
-                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
-                "type": first_comment.file_type,
-            }
+        # Check if first_comment exists before trying to access its fields
+        if first_comment:
+            # Try getting the image from the comment's file
+            if first_comment.file:
+                image = {
+                    "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
+                    "type": first_comment.file_type,
+                }
+            # If no image from the first_comment, check comment files
+            if not image:
+                comment_file = CommentFiles.objects.filter(
+                    comment=first_comment.pk
+                ).first()
+                if comment_file and comment_file.file_link:
+                    image = {
+                        "link": comment_file.file_link,
+                        "type": comment_file.file_type,
+                    }
+        # If no image from comments, check product variant images
         if not image:
-            comment_file = CommentFiles.objects.filter(comment=first_comment.pk).first()
-        if isinstance(comment_file, CommentFiles) and comment_file.file_link:
-            image = {
-                "link": comment_file.file_link,
-                "type": comment_file.file_type,
-            }
-        else:
-            # Check for image from product variant images
             variant_image = ProductVariantImage.objects.filter(
                 variant__product=instance
             ).first()
+            # If a variant image exists, use it
             if variant_image:
                 image = {
                     "link": variant_image.image_link,
@@ -85,6 +92,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             else:
                 # Exclude the product if no image is found
                 return None
+        # Set image data in the response
         data["image"] = image
         source_id = instance.variants.first().source_id
         data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
