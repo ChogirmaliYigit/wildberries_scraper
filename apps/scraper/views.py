@@ -1,6 +1,7 @@
 from core.pagination import CustomPageNumberPagination
 from core.views import BaseListAPIView
 from django.db.models import Case, IntegerField, Q, Value, When
+from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny
@@ -188,6 +189,7 @@ class FeedbacksListView(views.APIView):
         )
         return paginator.get_paginated_response(serializer.data)
 
+    @csrf_exempt
     def post(self, request):
         if not request.user.is_authenticated:
             raise exceptions.ValidationError({"message": "Не аутентифицирован"})
