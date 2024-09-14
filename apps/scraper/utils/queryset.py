@@ -28,9 +28,8 @@ def get_filtered_products(queryset, promo=False):
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
         )
-        .filter(has_valid_comments=True)
-        .distinct()
-        .order_by("?")
+        .filter(has_valid_comments=True)  # Only products with valid comments
+        .order_by("?")  # Shuffle products randomly
     )
 
     if not promo:
@@ -47,7 +46,10 @@ def get_filtered_products(queryset, promo=False):
 
     # Insert the selected promoted product at index 2 if it exists
     if selected_promo_product:
-        non_promoted_products.insert(2, selected_promo_product)
+        if len(non_promoted_products) > 2:
+            non_promoted_products.insert(2, selected_promo_product)
+        else:
+            non_promoted_products.append(selected_promo_product)
 
     return non_promoted_products
 
