@@ -76,6 +76,44 @@ class WildberriesClient:
                 return True
         return False
 
+    def get_categories(self):
+        """Fetches and saves categories and their subcategories from Wildberries."""
+        categories = list(set(Category.objects.filter(parent__isnull=True)))
+        random.shuffle(categories)
+
+        wildberries_categories = self.send_request(
+            "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
+        )
+
+        for category in categories:
+            # Find the corresponding wildberries category by source_id
+            matching_wildberries_category = next(
+                (
+                    wb_cat
+                    for wb_cat in wildberries_categories
+                    if wb_cat["id"] == category.source_id
+                ),
+                None,
+            )
+
+            if matching_wildberries_category:
+                # Get the subcategories (childs) for the top-level category
+                subcategories = matching_wildberries_category.get("childs", [])
+
+                for subcategory in subcategories:
+                    # Save each subcategory to the database, linked to the top-level category
+                    Category.objects.get_or_create(
+                        source_id=subcategory["id"],
+                        defaults={
+                            "title": subcategory["name"],
+                            "slug_name": subcategory["url"],
+                            "shard": subcategory["shard"],
+                            "parent": category,
+                        },
+                    )
+            else:
+                pass
+
     def get_products(self):
         """Fetches and saves products and their variants."""
         currency = "rub"
