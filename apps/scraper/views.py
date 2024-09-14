@@ -126,7 +126,7 @@ class CommentsListView(views.APIView):
             queryset = get_filtered_comments(queryset, True)
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            [item for item in result_page if item],
+            [item for item in result_page if item is not None],
             many=True,
             context={"request": request, "comment": True},
         )
