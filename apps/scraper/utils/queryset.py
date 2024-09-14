@@ -3,7 +3,13 @@ import random
 from django.conf import settings
 from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, When
 from django.db.models.functions import Coalesce
-from scraper.models import Comment, CommentStatuses, RequestedComment
+from scraper.models import (
+    Comment,
+    CommentFiles,
+    CommentStatuses,
+    ProductVariantImage,
+    RequestedComment,
+)
 
 
 def get_filtered_products(queryset, promo=False):
@@ -105,7 +111,7 @@ def get_filtered_comments(queryset=None, promo=False):
 
     # Randomly select one promoted comment
     selected_promo_comment = None
-    promotes = list(base_queryset.filter(promo=True))
+    promotes = [comment for comment in base_queryset if comment.promo]
     if promotes:
         selected_promo_comment = random.choice(promotes)
 
@@ -171,3 +177,43 @@ def get_all_replies(comment, _replies=True):
             all_replies.extend(get_all_replies(reply))  # Recursively collect replies
 
     return all_replies
+
+
+def get_product_image(instance):
+    # Check for image from comment files
+    comments = base_comment_filter(
+        Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
+    )
+    first_comment = comments[0]
+    # Initialize image variable
+    image = None
+    # Check if first_comment exists before trying to access its fields
+    if first_comment:
+        # Try getting the image from the comment's file
+        if first_comment.file:
+            image = {
+                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
+                "type": first_comment.file_type,
+            }
+        # If no image from the first_comment, check comment files
+        if not image:
+            comment_file = CommentFiles.objects.filter(comment=first_comment.pk).first()
+            if comment_file and comment_file.file_link:
+                image = {
+                    "link": comment_file.file_link,
+                    "type": comment_file.file_type,
+                }
+    # If no image from comments, check product variant images
+    if not image:
+        variant_image = ProductVariantImage.objects.filter(
+            variant__product=instance
+        ).first()
+        # If a variant image exists, use it
+        if variant_image:
+            image = {
+                "link": variant_image.image_link,
+                "type": variant_image.file_type,
+            }
+        else:
+            # Exclude the product if no image is found
+            return None

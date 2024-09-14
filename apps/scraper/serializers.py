@@ -1,19 +1,16 @@
-from django.conf import settings
 from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
     Comment,
-    CommentFiles,
     CommentStatuses,
     Favorite,
     Like,
     Product,
     ProductVariant,
-    ProductVariantImage,
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
-from scraper.utils.queryset import base_comment_filter, get_all_replies, get_files
+from scraper.utils.queryset import get_all_replies, get_files, get_product_image
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -53,46 +50,9 @@ class ProductsSerializer(serializers.ModelSerializer):
                 user=request.user, product=instance
             ).exists()
         data["likes"] = Like.objects.filter(product=instance).count()
-        # Check for image from comment files
-        comments = base_comment_filter(
-            Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
-        )
-        first_comment = comments.first()
-        # Initialize image variable
-        image = None
-        # Check if first_comment exists before trying to access its fields
-        if first_comment:
-            # Try getting the image from the comment's file
-            if first_comment.file:
-                image = {
-                    "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
-                    "type": first_comment.file_type,
-                }
-            # If no image from the first_comment, check comment files
-            if not image:
-                comment_file = CommentFiles.objects.filter(
-                    comment=first_comment.pk
-                ).first()
-                if comment_file and comment_file.file_link:
-                    image = {
-                        "link": comment_file.file_link,
-                        "type": comment_file.file_type,
-                    }
-        # If no image from comments, check product variant images
+        image = get_product_image(instance)
         if not image:
-            variant_image = ProductVariantImage.objects.filter(
-                variant__product=instance
-            ).first()
-            # If a variant image exists, use it
-            if variant_image:
-                image = {
-                    "link": variant_image.image_link,
-                    "type": variant_image.file_type,
-                }
-            else:
-                # Exclude the product if no image is found
-                return None
-        # Set image data in the response
+            return None
         data["image"] = image
         source_id = instance.variants.first().source_id
         data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
@@ -152,17 +112,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
-        comment = CommentFiles.objects.filter(
-            comment=instance.product.product_comments.first()
-        ).first()
-        if comment:
-            image_data = {
-                "link": comment.file_link,
-                "type": comment.file_type,
-            }
-        else:
-            image_data = None
-        data["product_image"] = image_data
+        data["product_image"] = get_product_image(instance)
         data["promo"] = instance.promo
         return data
 
