@@ -190,7 +190,7 @@ class Comment(BaseModel):
     promo = models.BooleanField(default=False, verbose_name=_("Promo"))
 
     def __str__(self) -> str:
-        return self.content
+        return str(self.pk)
 
     def save(self, *args, **kwargs):
         from scraper.utils.notify import send_comment_notification

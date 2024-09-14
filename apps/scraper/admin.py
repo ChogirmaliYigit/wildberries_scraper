@@ -115,7 +115,7 @@ class CommentFilesInline(TabularInline):
     model = CommentFiles
     fields = ("file_link",)
     readonly_fields = fields
-    extra = 1
+    extra = 0
 
 
 class RequestedCommentFilesInline(TabularInline):
@@ -123,7 +123,7 @@ class RequestedCommentFilesInline(TabularInline):
     fields = ("file_link",)
     readonly_fields = fields
     fk_name = "requested_comment"
-    extra = 1
+    extra = 0
 
 
 class BaseCommentAdmin(ModelAdmin):
