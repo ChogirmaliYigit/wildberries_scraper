@@ -39,7 +39,7 @@ def filter_by_category(queryset, value):
 def get_popular_products(queryset):
     return (
         queryset.annotate(likes_count=Count("product_likes", distinct=True))
-        .filter(likes_count__gt=2)
+        .filter(likes_count__gte=2)
         .order_by("-likes_count")
     )
 
