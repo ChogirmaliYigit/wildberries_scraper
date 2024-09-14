@@ -105,7 +105,7 @@ def get_filtered_comments(queryset=None, promo=False):
 
     # Randomly select one promoted comment
     selected_promo_comment = None
-    promotes = list(base_queryset.filter(promo=True))
+    promotes = [comment for comment in base_queryset if comment.promo]
     if promotes:
         selected_promo_comment = random.choice(promotes)
 
