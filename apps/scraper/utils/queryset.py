@@ -30,6 +30,7 @@ def get_filtered_products(queryset, promo=False):
         )
         .filter(has_valid_comments=True)
         .distinct()
+        .order_by("?")
     )
 
     if not promo:
@@ -51,10 +52,7 @@ def get_filtered_products(queryset, promo=False):
     return non_promoted_products
 
 
-def get_filtered_comments(queryset=None, promo=False):
-    if queryset is None:
-        queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
-
+def base_comment_filter(queryset):
     # Filter the main comments
     base_queryset = queryset.filter(
         status=CommentStatuses.ACCEPTED, content__isnull=False, content__gt=""
@@ -74,6 +72,14 @@ def get_filtered_comments(queryset=None, promo=False):
         .distinct("content", "ordering_date")
         .order_by("-ordering_date", "content")
     )
+    return base_queryset
+
+
+def get_filtered_comments(queryset=None, promo=False):
+    if queryset is None:
+        queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
+
+    base_queryset = base_comment_filter(queryset)
 
     # Randomly select one promoted comment
     selected_promo_comment = None

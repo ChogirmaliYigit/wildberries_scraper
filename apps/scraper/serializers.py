@@ -12,7 +12,7 @@ from scraper.models import (
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
-from scraper.utils.queryset import get_all_replies, get_files
+from scraper.utils.queryset import base_comment_filter, get_all_replies, get_files
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -53,7 +53,10 @@ class ProductsSerializer(serializers.ModelSerializer):
             ).exists()
         data["likes"] = Like.objects.filter(product=instance).count()
         # Check for image from comment files
-        comment_file = CommentFiles.objects.filter(
+        comments = base_comment_filter(
+            Comment.objects.filter(status=CommentStatuses.ACCEPTED)
+        )
+        comment_file = comments.filter(
             comment=instance.product_comments.first()
         ).first()
         if comment_file and comment_file.file_link:
