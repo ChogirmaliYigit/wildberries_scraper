@@ -30,6 +30,7 @@ def get_filtered_products(queryset, promo=False):
         )
         .filter(has_valid_comments=True)  # Only products with valid comments
         .order_by("?")  # Shuffle products randomly
+        .distinct()
     )
 
     if not promo:
