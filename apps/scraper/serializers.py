@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
@@ -54,13 +55,20 @@ class ProductsSerializer(serializers.ModelSerializer):
         data["likes"] = Like.objects.filter(product=instance).count()
         # Check for image from comment files
         comments = base_comment_filter(
-            Comment.objects.filter(status=CommentStatuses.ACCEPTED)
+            Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
         )
-        comment_file = comments.filter(
-            comment=instance.product_comments.first()
-        ).first()
-        if comment_file and comment_file.file_link:
-            data["image"] = {
+        first_comment = comments.first()
+        comment_file = None
+        image = None
+        if first_comment and first_comment.file:
+            image = {
+                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
+                "type": first_comment.file_type,
+            }
+        if not image:
+            comment_file = CommentFiles.objects.filter(comment=first_comment.pk).first()
+        if isinstance(comment_file, CommentFiles) and comment_file.file_link:
+            image = {
                 "link": comment_file.file_link,
                 "type": comment_file.file_type,
             }
@@ -70,13 +78,14 @@ class ProductsSerializer(serializers.ModelSerializer):
                 variant__product=instance
             ).first()
             if variant_image:
-                data["image"] = {
+                image = {
                     "link": variant_image.image_link,
                     "type": variant_image.file_type,
                 }
             else:
                 # Exclude the product if no image is found
                 return None
+        data["image"] = image
         source_id = instance.variants.first().source_id
         data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
         data["source_id"] = source_id
