@@ -117,7 +117,7 @@ class WildberriesClient:
                 if existing_subcategory:
                     subcategory_name = f"{subcategory_name} {top_category.name}"
 
-                Category.objects.get_or_create(
+                Category.objects.update_or_create(
                     source_id=subcategory["id"],
                     defaults={
                         "title": subcategory_name,
