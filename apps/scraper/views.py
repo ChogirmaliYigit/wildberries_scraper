@@ -18,7 +18,11 @@ from scraper.serializers import (
     FavoritesSerializer,
     ProductsSerializer,
 )
-from scraper.utils.queryset import get_filtered_comments, get_filtered_products
+from scraper.utils.queryset import (
+    get_all_replies,
+    get_filtered_comments,
+    get_filtered_products,
+)
 from users.utils import CustomTokenAuthentication
 
 
@@ -102,6 +106,8 @@ class CommentsListView(views.APIView):
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
+        # Paginate the queryset
+        paginator = self.pagination_class()
         queryset = Comment.objects.filter(reply_to__isnull=False)
         if not queryset.exists():
             return response.Response({})
@@ -110,10 +116,11 @@ class CommentsListView(views.APIView):
             queryset = filter_by_product_or_variant(queryset, product_id)
         feedback_id = str(request.query_params.get("feedback_id", ""))
         if feedback_id.isdigit():
-            queryset = filter_by_feedback(queryset, feedback_id)
+            comment = Comment.objects.filter(id=feedback_id).first()
+            if not comment:
+                return paginator.get_paginated_response({})
+            queryset = get_all_replies(comment)
         queryset = get_filtered_comments(queryset, True)
-        # Paginate the queryset
-        paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
             result_page, many=True, context={"request": request, "comment": True}

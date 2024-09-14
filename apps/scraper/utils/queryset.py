@@ -1,6 +1,7 @@
 import random
 
-from django.db.models import DateTimeField, Exists, OuterRef, Q
+from django.conf import settings
+from django.db.models import Case, DateTimeField, Exists, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import Comment, CommentStatuses, RequestedComment
 
@@ -90,3 +91,54 @@ def get_filtered_comments(queryset=None, promo=False):
         return all_comments
 
     return base_queryset
+
+
+def get_files(comment):
+    files = []
+
+    # Helper function to process files
+    def process_file(_link, file_type):
+        return {
+            "link": _link,
+            "type": file_type,
+            "stream": _link.endswith(".m3u8"),
+        }
+
+    # Process the single `comment.file`
+    if comment.file:
+        file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
+        file = process_file(file_link, comment.file_type)
+        if file not in files:
+            files.append(file)
+
+    # Process files from `comment.files.all()`
+    for file in comment.files.all():
+        if file.file_link:  # Ensure the file has a link
+            processed_file = process_file(file.file_link, file.file_type)
+            if processed_file not in files:
+                files.append(processed_file)
+
+    return files
+
+
+# Collect all replies in a single list
+def get_all_replies(comment):
+    replies = (
+        comment.replies.prefetch_related("user", "reply_to", "product")
+        .distinct("user", "product", "content")
+        .annotate(
+            annotated_source_date=Case(
+                When(source_date__isnull=False, then="source_date"),
+                default="created_at",
+                output_field=DateTimeField(),
+            )
+        )
+        .order_by("user", "product", "content", "-annotated_source_date")
+    )
+
+    all_replies = []
+    for reply in replies:
+        all_replies.append(reply)
+        all_replies.extend(get_all_replies(reply))  # Recursively collect replies
+
+    return all_replies
