@@ -12,6 +12,10 @@ app.autodiscover_tasks()
 
 
 app.conf.beat_schedule = {
+    "scrape_wildberries_categories": {
+        "task": "scrape_categories",
+        "schedule": settings.SCRAPE_CATEGORIES_SECONDS,
+    },
     "scrape_wildberries_products": {
         "task": "scrape_products",
         "schedule": settings.SCRAPE_PRODUCTS_SECONDS,

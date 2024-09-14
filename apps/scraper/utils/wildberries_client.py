@@ -77,42 +77,55 @@ class WildberriesClient:
         return False
 
     def get_categories(self):
-        """Fetches and saves categories and their subcategories from Wildberries."""
-        categories = list(set(Category.objects.filter(parent__isnull=True)))
-        random.shuffle(categories)
+        """Fetches and saves categories and subcategories from Wildberries."""
 
+        # Step 1: Retrieve top-level categories from the database
+        top_categories = list(Category.objects.filter(parent__isnull=True))
+        random.shuffle(top_categories)
+
+        # Step 2: Fetch Wildberries categories data
         wildberries_categories = self.send_request(
             "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
         )
 
-        for category in categories:
-            # Find the corresponding wildberries category by source_id
-            matching_wildberries_category = next(
+        # Step 3: Iterate over top-level categories from the database
+        for top_category in top_categories:
+            # Find the corresponding Wildberries top-level category by source_id
+            matching_wb_category = next(
                 (
                     wb_cat
                     for wb_cat in wildberries_categories
-                    if wb_cat["id"] == category.source_id
+                    if wb_cat["id"] == top_category.source_id
                 ),
                 None,
             )
 
-            if matching_wildberries_category:
-                # Get the subcategories (childs) for the top-level category
-                subcategories = matching_wildberries_category.get("childs", [])
+            if not matching_wb_category:
+                continue
 
-                for subcategory in subcategories:
-                    # Save each subcategory to the database, linked to the top-level category
-                    Category.objects.get_or_create(
-                        source_id=subcategory["id"],
-                        defaults={
-                            "title": subcategory["name"],
-                            "slug_name": subcategory["url"],
-                            "shard": subcategory["shard"],
-                            "parent": category,
-                        },
-                    )
-            else:
-                pass
+            # Step 4: Get subcategories (childs) for the top-level category
+            subcategories = matching_wb_category.get("childs", [])
+
+            # Step 5: Save each subcategory to the database
+            for subcategory in subcategories:
+                subcategory_name = subcategory["name"]
+                existing_subcategory = Category.objects.filter(
+                    name=subcategory_name, parent=top_category
+                ).first()
+
+                # Handle duplicate subcategory names by appending the top-level category name
+                if existing_subcategory:
+                    subcategory_name = f"{subcategory_name} {top_category.name}"
+
+                Category.objects.get_or_create(
+                    source_id=subcategory["id"],
+                    defaults={
+                        "title": subcategory_name,
+                        "slug_name": subcategory["url"],
+                        "shard": subcategory["shard"],
+                        "parent": top_category,
+                    },
+                )
 
     def get_products(self):
         """Fetches and saves products and their variants."""
