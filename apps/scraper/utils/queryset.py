@@ -122,7 +122,7 @@ def get_files(comment):
 
 
 # Collect all replies in a single list
-def get_all_replies(comment):
+def get_all_replies(comment, _replies=True):
     replies = (
         comment.replies.prefetch_related("user", "reply_to", "product")
         .distinct("user", "product", "content")
@@ -139,6 +139,7 @@ def get_all_replies(comment):
     all_replies = []
     for reply in replies:
         all_replies.append(reply)
-        all_replies.extend(get_all_replies(reply))  # Recursively collect replies
+        if _replies:
+            all_replies.extend(get_all_replies(reply))  # Recursively collect replies
 
     return all_replies

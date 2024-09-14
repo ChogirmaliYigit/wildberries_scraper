@@ -121,16 +121,14 @@ class CommentsListView(views.APIView):
             ).first()
             if not comment:
                 return paginator.get_paginated_response({})
-            queryset = get_all_replies(comment)
-            replies = False
+            queryset = get_all_replies(comment, False)
         else:
             queryset = get_filtered_comments(queryset, True)
-            replies = True
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
             result_page,
             many=True,
-            context={"request": request, "comment": True, "replies": replies},
+            context={"request": request, "comment": True},
         )
         return paginator.get_paginated_response(serializer.data)
 
