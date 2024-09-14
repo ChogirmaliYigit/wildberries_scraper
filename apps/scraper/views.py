@@ -116,15 +116,21 @@ class CommentsListView(views.APIView):
             queryset = filter_by_product_or_variant(queryset, product_id)
         feedback_id = str(request.query_params.get("feedback_id", ""))
         if feedback_id.isdigit():
-            comment = Comment.objects.filter(id=feedback_id).first()
+            comment = Comment.objects.filter(
+                id=feedback_id, reply_to__isnull=True
+            ).first()
             if not comment:
                 return paginator.get_paginated_response({})
             queryset = get_all_replies(comment)
+            replies = False
         else:
             queryset = get_filtered_comments(queryset, True)
+            replies = True
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(
-            result_page, many=True, context={"request": request, "comment": True}
+            result_page,
+            many=True,
+            context={"request": request, "comment": True, "replies": replies},
         )
         return paginator.get_paginated_response(serializer.data)
 
