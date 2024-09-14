@@ -8,6 +8,7 @@ from scraper.models import (
     Like,
     Product,
     ProductVariant,
+    ProductVariantImage,
     RequestedComment,
 )
 from scraper.tasks import scrape_product_by_source_id
@@ -51,13 +52,28 @@ class ProductsSerializer(serializers.ModelSerializer):
                 user=request.user, product=instance
             ).exists()
         data["likes"] = Like.objects.filter(product=instance).count()
-        comment = CommentFiles.objects.filter(
+        # Check for image from comment files
+        comment_file = CommentFiles.objects.filter(
             comment=instance.product_comments.first()
         ).first()
-        data["image"] = {
-            "link": comment.file_link,
-            "type": comment.file_type,
-        }
+        if comment_file and comment_file.file_link:
+            data["image"] = {
+                "link": comment_file.file_link,
+                "type": comment_file.file_type,
+            }
+        else:
+            # Check for image from product variant images
+            variant_image = ProductVariantImage.objects.filter(
+                variant__product=instance
+            ).first()
+            if variant_image:
+                data["image"] = {
+                    "link": variant_image.image_link,
+                    "type": variant_image.file_type,
+                }
+            else:
+                # Exclude the product if no image is found
+                return None
         source_id = instance.variants.first().source_id
         data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
         data["source_id"] = source_id
