@@ -76,17 +76,25 @@ def base_comment_filter(queryset):
     base_queryset = base_queryset.exclude(id__in=requested_comment_ids)
 
     # Annotate with ordering_date
-    base_queryset = (
-        base_queryset.annotate(
-            ordering_date=Coalesce(
-                "source_date", "created_at", output_field=DateTimeField()
-            )
+    base_queryset = base_queryset.annotate(
+        ordering_date=Coalesce(
+            "source_date", "created_at", output_field=DateTimeField()
         )
-        .order_by("-ordering_date", "content")
-        .distinct("content", "ordering_date")
-    )
+    ).order_by("-ordering_date", "content")
 
-    return base_queryset
+    # Fetch all comments and apply distinct manually in Python
+    comment_list = list(base_queryset)
+
+    # Use a set to track seen (content, ordering_date) pairs and filter duplicates
+    seen = set()
+    distinct_comments = []
+    for comment in comment_list:
+        identifier = (comment.content, comment.ordering_date)
+        if identifier not in seen:
+            distinct_comments.append(comment)
+            seen.add(identifier)
+
+    return distinct_comments
 
 
 def get_filtered_comments(queryset=None, promo=False):
