@@ -217,3 +217,4 @@ def get_product_image(instance):
         else:
             # Exclude the product if no image is found
             return None
+    return image

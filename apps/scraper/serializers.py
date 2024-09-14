@@ -112,12 +112,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
-        product_image = (
-            get_product_image(instance.product) if instance.product else None
-        )
-        if not product_image:
-            return None
-        data["product_image"] = product_image
+        data["product_image"] = get_product_image(instance.product)
         data["promo"] = instance.promo
         return data
 
