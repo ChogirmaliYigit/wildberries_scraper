@@ -45,6 +45,7 @@ class CategoryAdmin(ModelAdmin):
         "shard",
         "slug_name",
     )
+    list_filter = ("parent",)
 
     def has_view_or_change_permission(self, request, obj=None):
         if request.user.is_superuser:
