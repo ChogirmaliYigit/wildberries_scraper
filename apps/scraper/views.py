@@ -96,7 +96,7 @@ class ProductDetailView(views.APIView):
 
 
 class CommentsListView(views.APIView):
-    authentication_classes = ()
+    authentication_classes = (CustomTokenAuthentication,)
     permission_classes = (AllowAny,)
     serializer_class = CommentsSerializer
     pagination_class = CustomPageNumberPagination
@@ -119,6 +119,16 @@ class CommentsListView(views.APIView):
             result_page, many=True, context={"request": request, "comment": True}
         )
         return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            raise exceptions.ValidationError({"message": "Не аутентифицирован"})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request, "comment": True}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
