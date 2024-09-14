@@ -82,8 +82,8 @@ def base_comment_filter(queryset):
                 "source_date", "created_at", output_field=DateTimeField()
             )
         )
-        .distinct("content", "ordering_date")
         .order_by("-ordering_date", "content")
+        .distinct("content", "ordering_date")
     )
 
     return base_queryset
