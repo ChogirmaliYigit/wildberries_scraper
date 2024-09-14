@@ -65,7 +65,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -226,5 +226,3 @@ REDIS_DB = env.int("REDIS_DB", 0)
 SCRAPE_CATEGORIES_SECONDS = env.float("SCRAPE_CATEGORIES_SECONDS")
 SCRAPE_PRODUCTS_SECONDS = env.float("SCRAPE_PRODUCTS_SECONDS")
 SCRAPE_COMMENTS_SECONDS = env.float("SCRAPE_COMMENTS_SECONDS")
-
-CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS", "").split(",")
