@@ -39,12 +39,14 @@ services:
         - ./staticfiles:/home/app/web/staticfiles
         - ./media:/home/app/web/media
         - ./locale:/home/app/web/locale
+        - ./cache:/home/app/web/.cache/webdriver  # Cache volume for WebDriver Manager
     security_opt:
       - seccomp:unconfined
     env_file:
       - .env
     environment:
       - TZ=Asia/Tashkent
+      - WDM_CACHE_DIR=/home/app/web/.cache/webdriver  # WebDriver Manager cache directory
     expose:
       - 8000
     ports:
@@ -92,3 +94,4 @@ services:
 
 volumes:
   postgres_data:
+  cache:  # Cache volume for WebDriver Manager

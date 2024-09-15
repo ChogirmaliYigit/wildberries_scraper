@@ -25,13 +25,45 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 
 FROM python:3.11.5
 
+# Install dependencies for Chrome and Selenium
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    unzip \
+    xvfb \
+    libxi6 \
+    libgconf-2-4 \
+    libnss3 \
+    libxss1 \
+    libappindicator1 \
+    libindicator7 \
+    fonts-liberation \
+    libasound2 \
+    xdg-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    dpkg -i google-chrome-stable_current_amd64.deb || true && \
+    apt-get -f install -y && \
+    rm google-chrome-stable_current_amd64.deb
+
+# Install ChromeDriver
+RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip && \
+    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
+    rm /tmp/chromedriver.zip
+
 # Install gettext for final stage
 RUN apt-get update \
     && apt-get install -y gettext \
     && rm -rf /var/lib/apt/lists/*
 
+# Set environment variable for WebDriver Manager cache
+ENV WDM_CACHE_DIR=/home/app/web/.cache/webdriver
+
 # Create directories and set permissions
 RUN mkdir -p /home/app/web/staticfiles /home/app/web/media \
+    && mkdir -p /home/app/web/.cache/webdriver \
     && addgroup --system app && adduser --system --group app \
     && chown -R app:app /home/app/web
 
