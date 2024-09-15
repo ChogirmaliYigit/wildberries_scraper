@@ -41,11 +41,18 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i google-chrome-stable_current_amd64.deb || true && \
-    apt-get -f install -y && \
-    rm google-chrome-stable_current_amd64.deb
+# Install Google Chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt install -y ./google-chrome-stable_current_amd64.deb \
+    && rm google-chrome-stable_current_amd64.deb
+
+# Install ChromeDriver
+RUN LATEST=`wget -q -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE` \
+    && wget -q https://chromedriver.storage.googleapis.com/$LATEST/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm chromedriver_linux64.zip
 
 # Install ChromeDriver
 RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip && \
