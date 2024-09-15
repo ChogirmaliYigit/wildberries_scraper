@@ -1,3 +1,4 @@
+import os
 import random
 import time
 from datetime import datetime, timedelta, timezone
@@ -19,11 +20,13 @@ from scraper.models import (
     ProductVariantImage,
 )
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-options = Options()
+os.environ["WDM_LOCAL"] = "1"
+os.environ["WDM_CACHE_DIR"] = "/home/app/web/chromedriver_cache"
+
+options = webdriver.ChromeOptions()
 options.add_argument("--headless")  # Run in headless mode
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")

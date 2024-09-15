@@ -61,7 +61,7 @@ RUN apt-get update \
 ENV WDM_CACHE_DIR=/home/app/web/.cache/webdriver
 
 # Create directories and set permissions
-RUN mkdir -p /home/app/web/staticfiles /home/app/web/media \
+RUN mkdir -p /home/app/web/staticfiles /home/app/web/media /home/app/web/chromedriver_cache \
     && mkdir -p /home/app/web/.cache/webdriver \
     && addgroup --system app && adduser --system --group app \
     && chown -R app:app /home/app/web

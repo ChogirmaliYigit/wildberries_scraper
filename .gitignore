@@ -163,3 +163,4 @@ staticfiles
 .vscode/
 media/
 .deb
+.wdm
