@@ -21,4 +21,5 @@ watchfiles==0.23.0
 django-celery-beat==2.7.0
 requests==2.32.3
 fake-useragent==1.5.1
-playwright==1.47.0
+selenium==4.23.1
+webdriver-manager==4.0.2
