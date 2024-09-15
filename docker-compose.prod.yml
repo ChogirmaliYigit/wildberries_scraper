@@ -45,6 +45,7 @@ services:
       - .env
     environment:
       - TZ=Asia/Tashkent
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     expose:
       - 8000
     ports:
