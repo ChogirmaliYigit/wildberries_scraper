@@ -31,7 +31,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Create directories and set permissions
-RUN mkdir -p /home/app/web/staticfiles /home/app/web/media \
+RUN mkdir -p /home/app/web/staticfiles /home/app/web/media /home/app/web/ms-playwright \
     && addgroup --system app && adduser --system --group app \
     && chown -R app:app /home/app/web
 
