@@ -13,7 +13,6 @@ from users.serializers import SignInResponseSerializer, UserSerializer
 
 
 def sign_in_response(user):
-    permissions = list(user.get_all_permissions())
     token, created = Token.objects.update_or_create(
         user=user,
         defaults={

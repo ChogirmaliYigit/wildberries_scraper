@@ -1,6 +1,4 @@
-import os
 import random
-import time
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -9,6 +7,7 @@ from dateutil.parser import ParserError, parse
 from django.db import transaction
 from django.db.models import Count, Q
 from fake_useragent import UserAgent
+from requests_html import HTMLSession
 from scraper.models import (
     Category,
     Comment,
@@ -19,26 +18,11 @@ from scraper.models import (
     ProductVariant,
     ProductVariantImage,
 )
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-
-os.environ["WDM_LOCAL"] = "1"
-os.environ["WDM_CACHE_DIR"] = "/home/app/web/chromedriver_cache"
-
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")  # Run in headless mode
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-gpu")  # Disable GPU acceleration
 
 
 class WildberriesClient:
     def __init__(self):
         self.ua = UserAgent()
-        self.driver: webdriver.Chrome = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), options=options
-        )
 
     def get_headers(self, url):
         return {
@@ -69,9 +53,8 @@ class WildberriesClient:
     ) -> BeautifulSoup | None | str:
         """Returns a BeautifulSoup object of the requested URL's HTML content."""
         try:
-            response = requests.get(url, headers=self.get_headers(url))
-            # Wait for 5 seconds before processing the response
-            time.sleep(5)
+            session = HTMLSession()
+            response = session.get(url, headers=self.get_headers(url))
 
             content_type = response.headers.get("Content-Type", "")
             if "image" in content_type and image:
@@ -80,15 +63,7 @@ class WildberriesClient:
                 return None
         except requests.exceptions.ConnectionError:
             return None
-        return BeautifulSoup(response.text, "html.parser")
-
-    def get_selenium_soup(self, url: str):
-        self.driver.get(url)
-
-        time.sleep(5)
-        html_content = self.driver.page_source
-        self.driver.close()
-        return BeautifulSoup(html_content, "html.parser")
+        return BeautifulSoup(response.content, "html.parser")
 
     def check_image(self, image_url: str) -> bool:
         """Checks if an image exists at the given URL."""
@@ -284,7 +259,7 @@ class WildberriesClient:
         return None
 
     def get_product_category(self, source_id) -> Category | None:
-        variant_detail_soup = self.get_selenium_soup(
+        variant_detail_soup = self.get_soup(
             f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
         )
         if not variant_detail_soup:

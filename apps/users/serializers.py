@@ -68,11 +68,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["profile_photo"] = (
-            f"{settings.BACKEND_DOMAIN}{data.get('profile_photo')}"
-            if data.get("profile_photo")
-            else ""
-        )
+        if isinstance(instance, User):
+            photo = f"{settings.BACKEND_DOMAIN.strip('/')}{settings.MEDIA_URL}{instance.profile_photo}"
+        elif isinstance(instance, dict):
+            photo = instance.get("profile_photo", "")
+        else:
+            photo = None
+        if photo:
+            data["profile_photo"] = photo
         return data
 
     def update(self, instance, validated_data):

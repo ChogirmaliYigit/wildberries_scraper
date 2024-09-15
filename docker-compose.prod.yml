@@ -94,4 +94,3 @@ services:
 
 volumes:
   postgres_data:
-  cache:  # Cache volume for WebDriver Manager
