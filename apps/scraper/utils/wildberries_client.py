@@ -1,4 +1,5 @@
 import random
+import time
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -7,6 +8,7 @@ from dateutil.parser import ParserError, parse
 from django.db import transaction
 from django.db.models import Count, Q
 from fake_useragent import UserAgent
+from playwright.sync_api import sync_playwright
 from scraper.models import (
     Category,
     Comment,
@@ -37,16 +39,13 @@ class WildberriesClient:
     def send_request(self, url):
         data = {}
         try:
-            response = requests.get(
-                url,
-                headers=self.get_headers(url),
-            )
+            response = requests.get(url, headers=self.get_headers(url), timeout=10)
             if response.status_code == 200:
                 try:
                     data = response.json()
-                except requests.exceptions.JSONDecodeError:
+                except requests.exceptions.JSONDecodeError as exc:
                     data = {}
-        except requests.exceptions.SSLError:
+        except requests.exceptions.RequestException:
             pass
         return data
 
@@ -56,6 +55,9 @@ class WildberriesClient:
         """Returns a BeautifulSoup object of the requested URL's HTML content."""
         try:
             response = requests.get(url, headers=self.get_headers(url))
+            # Wait for 5 seconds before processing the response
+            time.sleep(5)
+
             content_type = response.headers.get("Content-Type", "")
             if "image" in content_type and image:
                 return "image"
@@ -64,6 +66,27 @@ class WildberriesClient:
         except requests.exceptions.ConnectionError:
             return None
         return BeautifulSoup(response.text, "html.parser")
+
+    def get_soup_playwright(self, url: str):
+        with sync_playwright() as p:
+            # Launch browser in headless mode (no GUI)
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+
+            # Navigate to the URL
+            page.goto(url)
+
+            # Wait for the page to load and render (you can also use specific waits)
+            page.wait_for_load_state("networkidle")
+
+            # Get the fully-rendered HTML
+            html = page.content()
+
+            # Close browser
+            browser.close()
+
+            # Parse the HTML with BeautifulSoup
+            return BeautifulSoup(html, "html.parser")
 
     def check_image(self, image_url: str) -> bool:
         """Checks if an image exists at the given URL."""
@@ -238,8 +261,28 @@ class WildberriesClient:
                 image_objects, ignore_conflicts=True
             )
 
+    def get_category_by_slug_name(self, slug_name):
+        wildberries_categories = self.send_request(
+            "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
+        )
+
+        # Iterate through the categories to find a match
+        for category in wildberries_categories:
+            # Check if the slug_name is present in the 'url' field
+            if slug_name in category["url"]:
+                return category
+
+            # If the category has children, search in them as well
+            if "childs" in category:
+                for subcategory in category["childs"]:
+                    if slug_name in subcategory["url"]:
+                        return subcategory
+
+        # If no category is found
+        return None
+
     def get_product_category(self, source_id) -> Category | None:
-        variant_detail_soup = self.get_soup(
+        variant_detail_soup = self.get_soup_playwright(
             f"https://www.wildberries.ru/catalog/{source_id}/detail.aspx"
         )
         if not variant_detail_soup:
@@ -254,10 +297,23 @@ class WildberriesClient:
         breadcrumbs = breadcrumb_ul.find_all("li", {"class": "breadcrumbs__item"})
         if not breadcrumbs:
             return None
-        anchor_tag = breadcrumbs[-2].find_next("a", {"class": "breadcrumbs__link"})
+        anchor_tag = breadcrumbs[1].find_next("a", {"class": "breadcrumbs__link"})
         if not anchor_tag:
             return None
-        category = Category.objects.filter(slug_name=anchor_tag["href"]).last()
+        slug_name = anchor_tag["href"]
+        category = Category.objects.filter(slug_name=slug_name).last()
+        if not category:
+            category_data = self.get_category_by_slug_name(slug_name)
+            if not isinstance(category_data, dict):
+                return None
+            category = Category.objects.create(
+                slug_name=category_data.get("url"),
+                title=category_data.get("name"),
+                shard=category_data.get("shard"),
+                parent=Category.objects.filter(
+                    parent__source_id=category_data.get("parent")
+                ).first(),
+            )
         return category
 
     @transaction.atomic
@@ -270,7 +326,6 @@ class WildberriesClient:
             return None
 
         if not product_data.get("data"):
-            print(f"No data found for product with source_id {source_id}")
             return None
 
         product_info = product_data["data"]["products"][0]
@@ -278,8 +333,6 @@ class WildberriesClient:
         title = product_info["name"]
 
         category = self.get_product_category(source_id)
-        if not category:
-            return None
 
         product_object, _ = Product.objects.get_or_create(
             root=root,
@@ -295,15 +348,6 @@ class WildberriesClient:
                 defaults={"price": f"{price} {currency}"},
             )
             variant_objects.append(product_variant)
-
-            images = self.get_product_variant_images(source_id)
-            ProductVariantImage.objects.bulk_create(
-                [
-                    ProductVariantImage(variant=product_variant, image_link=img)
-                    for img in images
-                ],
-                ignore_conflicts=True,
-            )
 
         return product_object
 

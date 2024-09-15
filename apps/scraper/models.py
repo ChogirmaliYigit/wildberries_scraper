@@ -49,7 +49,7 @@ class Product(BaseModel):
     title: str = models.TextField(null=True, blank=True, verbose_name=_("Title"))
     category: Category = models.ForeignKey(
         Category,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="products",

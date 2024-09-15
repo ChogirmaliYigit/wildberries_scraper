@@ -187,7 +187,7 @@ def get_product_image(instance):
     comments = base_comment_filter(
         Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
     )
-    first_comment = comments[0]
+    first_comment = comments[0] if len(comments) > 0 else None
     # Initialize image variable
     image = None
     # Check if first_comment exists before trying to access its fields

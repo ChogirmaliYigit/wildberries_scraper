@@ -9,7 +9,7 @@ from scraper.models import (
     ProductVariant,
     RequestedComment,
 )
-from scraper.tasks import scrape_product_by_source_id
+from scraper.utils import wildberries
 from scraper.utils.queryset import get_all_replies, get_files, get_product_image
 
 
@@ -112,7 +112,9 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
-        data["product_image"] = get_product_image(instance.product)
+        data["product_image"] = (
+            get_product_image(instance.product) if instance.product else None
+        )
         data["promo"] = instance.promo
         return data
 
@@ -144,7 +146,12 @@ class CommentsSerializer(serializers.ModelSerializer):
         comment_instance = super().create(validated_data)
 
         if source_id and not product:
-            scrape_product_by_source_id.delay(source_id, comment_instance.pk)
+            comment_instance.product = wildberries.get_product_by_source_id(source_id)
+            comment_instance.save(update_fields=["product"])
+
+            rc = RequestedComment.objects.filter(id=comment_instance.pk + 1)
+            if rc.exists():
+                rc.delete()
 
         if request.query_params.get("direct", "false") != "true":
             try:
