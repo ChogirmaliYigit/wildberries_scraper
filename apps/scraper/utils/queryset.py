@@ -14,13 +14,8 @@ from scraper.models import (
 
 def get_filtered_products(queryset, promo=False):
     # Subquery to check for valid comments related to a product
-    valid_comments_subquery = Comment.objects.filter(
-        product=OuterRef("pk"),
-        content__isnull=False,  # Ensure content is not null
-        content__gt="",  # Ensure content is not empty
-    ).filter(
-        Q(files__isnull=False)  # Check for related CommentFiles
-        | Q(file__isnull=False, file__gt="")  # Check if the Comment has a valid file
+    valid_comments_subquery = base_comment_filter(
+        Comment.objects.filter(product=OuterRef("pk")), not_list=True
     )
 
     # Subquery to check for promoted comments related to a product
@@ -28,7 +23,7 @@ def get_filtered_products(queryset, promo=False):
         product=OuterRef("pk"), promo=True
     )
 
-    # Main query to filter products
+    # Annotate the products with valid comments and promoted status
     products = (
         queryset.annotate(
             has_valid_comments=Exists(valid_comments_subquery),
@@ -39,12 +34,23 @@ def get_filtered_products(queryset, promo=False):
         .distinct()
     )
 
+    # Add logic to filter products that have an image
+    products_with_images = []
+    for product in products:
+        image = get_product_image(product)  # Check if the product has an image
+        if image:  # Only include products with an image
+            products_with_images.append(product)
+
     if not promo:
-        return products
+        return products_with_images  # Return products with images
 
     # Separate promoted and non-promoted products
-    promoted_products = list(products.filter(is_promoted=True))
-    non_promoted_products = list(products.filter(is_promoted=False))
+    promoted_products = [
+        product for product in products_with_images if product.is_promoted
+    ]
+    non_promoted_products = [
+        product for product in products_with_images if not product.is_promoted
+    ]
 
     # Randomly select one promoted product if available
     selected_promo_product = None
@@ -61,7 +67,7 @@ def get_filtered_products(queryset, promo=False):
     return non_promoted_products
 
 
-def base_comment_filter(queryset, has_file=True):
+def base_comment_filter(queryset, has_file=True, not_list=False):
     if has_file:
         # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
@@ -90,6 +96,9 @@ def base_comment_filter(queryset, has_file=True):
             "source_date", "created_at", output_field=DateTimeField()
         )
     ).order_by("-ordering_date", "content")
+
+    if not_list:
+        return queryset
 
     # Fetch all comments and apply distinct manually in Python
     comment_list = list(queryset)
