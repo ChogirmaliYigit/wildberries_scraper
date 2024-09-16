@@ -117,7 +117,10 @@ class WildberriesClient:
                 if existing_subcategory:
                     subcategory_name = f"{subcategory_name} {top_category.title}"
                     existing_subcategory.title = subcategory_name
-                    existing_subcategory.save(update_fields=["title"])
+                    try:
+                        existing_subcategory.save(update_fields=["title"])
+                    except IntegrityError:
+                        pass
                     continue
 
                 try:
