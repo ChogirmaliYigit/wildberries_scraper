@@ -1,10 +1,11 @@
+import json
 import random
 from datetime import datetime, timedelta, timezone
 
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import ParserError, parse
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
@@ -84,9 +85,8 @@ class WildberriesClient:
         random.shuffle(top_categories)
 
         # Step 2: Fetch Wildberries categories data
-        wildberries_categories = self.send_request(
-            "https://static-basket-01.wb.ru/vol0/data/main-menu-ru-ru-v2.json"
-        )
+        with open("apps/scraper/fixtures/categories.json", encoding="utf-8") as file:
+            wildberries_categories = json.load(file)
 
         # Step 3: Iterate over top-level categories from the database
         for top_category in top_categories:
@@ -110,22 +110,26 @@ class WildberriesClient:
             for subcategory in subcategories:
                 subcategory_name = subcategory["name"]
                 existing_subcategory = Category.objects.filter(
-                    name=subcategory_name, parent=top_category
+                    title=subcategory_name, parent=top_category
                 ).first()
 
                 # Handle duplicate subcategory names by appending the top-level category name
                 if existing_subcategory:
-                    subcategory_name = f"{subcategory_name} {top_category.name}"
+                    subcategory_name = f"{subcategory_name} {top_category.title}"
+                    existing_subcategory.title = subcategory_name
+                    existing_subcategory.save(update_fields=["title"])
+                    continue
 
-                Category.objects.update_or_create(
-                    source_id=subcategory["id"],
-                    defaults={
-                        "title": subcategory_name,
-                        "slug_name": subcategory["url"],
-                        "shard": subcategory["shard"],
-                        "parent": top_category,
-                    },
-                )
+                try:
+                    Category.objects.create(
+                        source_id=subcategory["id"],
+                        title=subcategory_name,
+                        slug_name=subcategory.get("url", ""),
+                        shard=subcategory.get("shard", ""),
+                        parent=top_category,
+                    )
+                except IntegrityError:
+                    pass
 
     def get_products(self):
         """Fetches and saves products and their variants."""
