@@ -60,8 +60,11 @@ class ProductsListView(views.APIView):
     pagination_class = CustomPageNumberPagination
 
     def get(self, request):
-        queryset = Product.objects.all()
-        # Apply search filters
+        queryset = (
+            Product.objects.all()
+            .select_related("category")
+            .prefetch_related("variants", "product_comments__files")
+        )
         search_query = request.query_params.get("search", "").strip()
         if search_query:
             filters = Q()
@@ -72,13 +75,14 @@ class ProductsListView(views.APIView):
         category_id = str(request.query_params.get("category_id", ""))
         if category_id.isdigit():
             queryset = filter_by_category(queryset, category_id)
+
         source_id = str(request.query_params.get("source_id", ""))
         if source_id.isdigit():
             queryset = queryset.filter(source_id=source_id)
-        # Paginate the queryset
+
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(
-            get_filtered_products(queryset, True), request
+            get_filtered_products(queryset, promo=False, for_list=True), request
         )
         serializer = self.serializer_class(
             result_page, many=True, context={"request": request}

@@ -5,17 +5,19 @@ from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, Wh
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
-    CommentFiles,
     CommentStatuses,
+    FileTypeChoices,
     ProductVariantImage,
     RequestedComment,
 )
 
 
-def get_filtered_products(queryset, promo=False):
+def get_filtered_products(queryset, promo=False, for_list=False):
     # Subquery to check for valid comments related to a product
     valid_comments_subquery = base_comment_filter(
-        Comment.objects.filter(product=OuterRef("pk")), not_list=True
+        Comment.objects.filter(product=OuterRef("pk")),
+        not_list=True,
+        product_list=for_list,
     )
 
     # Subquery to check for promoted comments related to a product
@@ -67,7 +69,7 @@ def get_filtered_products(queryset, promo=False):
     return non_promoted_products
 
 
-def base_comment_filter(queryset, has_file=True, not_list=False):
+def base_comment_filter(queryset, has_file=True, not_list=False, product_list=False):
     if has_file:
         # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
@@ -84,6 +86,13 @@ def base_comment_filter(queryset, has_file=True, not_list=False):
                     file__isnull=False, file__gt=""
                 )  # Filter out comments without files
             )
+        )
+
+    # Apply the file_type filter if product_list is True
+    if product_list:
+        queryset = queryset.filter(
+            Q(files__file_type=FileTypeChoices.IMAGE)
+            | Q(file_type=FileTypeChoices.IMAGE)
         )
 
     # Exclude comments where the id exists in the RequestedComment model
@@ -192,41 +201,32 @@ def get_all_replies(comment, _replies=True):
 
 
 def get_product_image(instance):
-    # Check for image from comment files
-    comments = base_comment_filter(
-        Comment.objects.filter(status=CommentStatuses.ACCEPTED, product=instance)
-    )
-    first_comment = comments[0] if len(comments) > 0 else None
-    # Initialize image variable
-    image = None
-    # Check if first_comment exists before trying to access its fields
-    if first_comment:
-        # Try getting the image from the comment's file
-        if first_comment.file:
-            image = {
-                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{first_comment.file}",
-                "type": first_comment.file_type,
+    comments = Comment.objects.filter(
+        product=instance, status=CommentStatuses.ACCEPTED
+    ).prefetch_related("files")
+
+    for comment in comments:
+        if comment.file and comment.file_type == FileTypeChoices.IMAGE:
+            return {
+                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
+                "type": comment.file_type,
             }
-        # If no image from the first_comment, check comment files
-        if not image:
-            comment_file = CommentFiles.objects.filter(comment=first_comment.pk).first()
-            if comment_file and comment_file.file_link:
-                image = {
+
+        for comment_file in comment.files.all():
+            if comment_file.file_type == FileTypeChoices.IMAGE:
+                return {
                     "link": comment_file.file_link,
                     "type": comment_file.file_type,
                 }
-    # If no image from comments, check product variant images
-    if not image:
-        variant_image = ProductVariantImage.objects.filter(
-            variant__product=instance
-        ).first()
-        # If a variant image exists, use it
-        if variant_image:
-            image = {
-                "link": variant_image.image_link,
-                "type": variant_image.file_type,
-            }
-        else:
-            # Exclude the product if no image is found
-            return None
-    return image
+
+    variant_image = ProductVariantImage.objects.filter(
+        variant__product=instance
+    ).first()
+
+    if variant_image:
+        return {
+            "link": variant_image.image_link,
+            "type": variant_image.file_type,
+        }
+
+    return None

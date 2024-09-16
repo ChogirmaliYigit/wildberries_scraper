@@ -227,10 +227,6 @@ class CommentAdmin(BaseCommentAdmin):
 class RequestedCommentAdmin(BaseCommentAdmin):
     inlines = [RequestedCommentFilesInline]
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.filter(product__isnull=False)
-
     def get_list_display(self, request):
         list_display = super().get_list_display(request)
         return list_display + ("action_buttons",)
