@@ -149,10 +149,6 @@ class CommentsSerializer(serializers.ModelSerializer):
             comment_instance.product = wildberries.get_product_by_source_id(source_id)
             comment_instance.save(update_fields=["product"])
 
-            rc = RequestedComment.objects.filter(id=comment_instance.pk + 1)
-            if rc.exists():
-                rc.delete()
-
         if request.query_params.get("direct", "false") != "true":
             try:
                 RequestedComment.objects.create(**validated_data)
