@@ -152,6 +152,7 @@ class Comment(BaseModel):
     source_id: int = models.PositiveBigIntegerField(
         unique=True, null=True, blank=True, verbose_name=_("Source ID")
     )
+    product_source_id: int = models.PositiveBigIntegerField(null=True, blank=True)
     content: str = models.TextField(null=True, blank=True, verbose_name=_("Content"))
     rating: int = models.IntegerField(verbose_name=_("Rating"))
     status: str = models.CharField(
@@ -191,13 +192,6 @@ class Comment(BaseModel):
 
     def __str__(self) -> str:
         return str(self.pk)
-
-    def save(self, *args, **kwargs):
-        from scraper.utils.notify import send_comment_notification
-
-        if self.pk:
-            send_comment_notification(self)
-        return super().save(*args, **kwargs)
 
     class Meta:
         constraints = [

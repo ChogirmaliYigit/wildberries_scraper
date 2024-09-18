@@ -9,7 +9,6 @@ from scraper.models import (
     ProductVariant,
     RequestedComment,
 )
-from scraper.utils import wildberries
 from scraper.utils.queryset import get_all_replies, get_files, get_product_image
 
 
@@ -146,8 +145,8 @@ class CommentsSerializer(serializers.ModelSerializer):
         comment_instance = super().create(validated_data)
 
         if source_id and not product:
-            comment_instance.product = wildberries.get_product_by_source_id(source_id)
-            comment_instance.save(update_fields=["product"])
+            comment_instance.product_source_id = source_id
+            comment_instance.save(update_fields=["product_source_id"])
 
         if request.query_params.get("direct", "false") != "true":
             try:
@@ -226,20 +225,3 @@ class FavoritesSerializer(serializers.ModelSerializer):
             "product",
             "product_id",
         )
-
-
-class LikesSerializer(serializers.ModelSerializer):
-    product = ProductsSerializer(many=False, read_only=True)
-    product_id = serializers.IntegerField(write_only=True)
-
-    def create(self, validated_data):
-        request = self.context.get("request")
-        product = (
-            Product.objects.prefetch_related("category")
-            .filter(id=validated_data.get("product_id"))
-            .first()
-        )
-        if not product:
-            raise exceptions.ValidationError({"message": "Товар не найден"})
-        like = Like.objects.create(user=request.user, product=product)
-        return like

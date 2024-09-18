@@ -1,15 +1,9 @@
-from core.pagination import CustomPageNumberPagination
-from core.views import BaseListAPIView
-from django.db.models import Case, IntegerField, Q, Value, When
+from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny
-from scraper.filters import (
-    ProductFilter,
-    filter_by_category,
-    filter_by_feedback,
-    filter_by_product_or_variant,
-)
+from scraper.filters import CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
@@ -18,12 +12,7 @@ from scraper.serializers import (
     FavoritesSerializer,
     ProductsSerializer,
 )
-from scraper.utils.queryset import (
-    get_all_replies,
-    get_filtered_comments,
-    get_filtered_products,
-)
-from users.utils import CustomTokenAuthentication
+from scraper.utils.queryset import get_filtered_comments, get_filtered_products
 
 
 class CategoriesListView(BaseListAPIView):
@@ -51,43 +40,14 @@ class CategoriesListView(BaseListAPIView):
     ]
 
 
-class ProductsListView(views.APIView):
-    authentication_classes = ()
-    permission_classes = (AllowAny,)
+class ProductsListView(BaseListAPIView):
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
     search_fields = ["title", "variants__color", "variants__price"]
-    pagination_class = CustomPageNumberPagination
+    ordering = []
 
-    def get(self, request):
-        queryset = (
-            Product.objects.all()
-            .select_related("category")
-            .prefetch_related("variants", "product_comments__files")
-        )
-        search_query = request.query_params.get("search", "").strip()
-        if search_query:
-            filters = Q()
-            for field in self.search_fields:
-                filters |= Q(**{f"{field}__icontains": search_query})
-            queryset = queryset.filter(filters)
-
-        category_id = str(request.query_params.get("category_id", ""))
-        if category_id.isdigit():
-            queryset = filter_by_category(queryset, category_id)
-
-        source_id = str(request.query_params.get("source_id", ""))
-        if source_id.isdigit():
-            queryset = queryset.filter(source_id=source_id)
-
-        paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(
-            get_filtered_products(queryset, promo=False, for_list=True), request
-        )
-        serializer = self.serializer_class(
-            result_page, many=True, context={"request": request}
-        )
-        return paginator.get_paginated_response(serializer.data)
+    def get_queryset(self):
+        return get_filtered_products(Product.objects.all(), promo=False, for_list=True)
 
 
 class ProductDetailView(views.APIView):
@@ -103,48 +63,13 @@ class ProductDetailView(views.APIView):
         return response.Response(serializer.data, status.HTTP_200_OK)
 
 
-class CommentsListView(views.APIView):
-    authentication_classes = (CustomTokenAuthentication,)
-    permission_classes = (AllowAny,)
+class CommentsListView(BaseListCreateAPIView):
     serializer_class = CommentsSerializer
-    pagination_class = CustomPageNumberPagination
+    filterset_class = CommentsFilter
+    ordering = []
 
-    def get(self, request):
-        # Paginate the queryset
-        paginator = self.pagination_class()
-        queryset = Comment.objects.filter(reply_to__isnull=False)
-        if not queryset.exists():
-            return response.Response({})
-        product_id = str(request.query_params.get("product_id", ""))
-        if product_id.isdigit():
-            queryset = filter_by_product_or_variant(queryset, product_id)
-        feedback_id = str(request.query_params.get("feedback_id", ""))
-        if feedback_id.isdigit():
-            comment = Comment.objects.filter(
-                id=feedback_id, reply_to__isnull=True
-            ).first()
-            if not comment:
-                return paginator.get_paginated_response({})
-            queryset = get_all_replies(comment, False)
-        else:
-            queryset = get_filtered_comments(queryset, True)
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = self.serializer_class(
-            result_page,
-            many=True,
-            context={"request": request, "comment": True},
-        )
-        return paginator.get_paginated_response(serializer.data)
-
-    def post(self, request):
-        if not request.user.is_authenticated:
-            raise exceptions.ValidationError({"message": "Не аутентифицирован"})
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request, "comment": True}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return response.Response(serializer.data, status.HTTP_201_CREATED)
+    def get_queryset(self):
+        return get_filtered_comments(Comment.objects.all())
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -172,82 +97,33 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         raise exceptions.ValidationError({"message": "Комментарий не найден"})
 
 
-class UserCommentsListView(views.APIView):
+class UserCommentsListView(BaseListAPIView):
     serializer_class = CommentsSerializer
-    pagination_class = CustomPageNumberPagination
+    filterset_class = CommentsFilter
 
-    def get(self, request):
-        queryset = Comment.objects.filter(reply_to__isnull=False, user=request.user)
-        if not queryset.exists():
-            return response.Response({})
-        product_id = str(request.query_params.get("product_id", ""))
-        if product_id.isdigit():
-            queryset = filter_by_product_or_variant(queryset, product_id)
-        feedback_id = str(request.query_params.get("feedback_id", ""))
-        if feedback_id.isdigit():
-            queryset = filter_by_feedback(queryset, feedback_id)
-        queryset = get_filtered_comments(queryset, True, has_file=False)
-        # Paginate the queryset
-        paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = self.serializer_class(
-            result_page, many=True, context={"request": request, "replies": True}
+    def get_queryset(self):
+        queryset = Comment.objects.filter(
+            reply_to__isnull=False, user=self.request.user
         )
-        return paginator.get_paginated_response(serializer.data)
+        return get_filtered_comments(queryset, True, has_file=False)
 
 
-class FeedbacksListView(views.APIView):
-    authentication_classes = (CustomTokenAuthentication,)
-    permission_classes = (AllowAny,)
+class FeedbacksListView(BaseListCreateAPIView):
     serializer_class = CommentsSerializer
-    pagination_class = CustomPageNumberPagination
+    filterset_class = CommentsFilter
 
-    def get(self, request):
+    def get_queryset(self):
         queryset = Comment.objects.filter(reply_to__isnull=True)
-        if not queryset.exists():
-            return response.Response({})
-        product_id = str(request.query_params.get("product_id", ""))
-        if product_id.isdigit():
-            queryset = filter_by_product_or_variant(queryset, product_id)
-        queryset = get_filtered_comments(queryset, True)
-        # Paginate the queryset
-        paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = self.serializer_class(
-            result_page, many=True, context={"request": request, "replies": True}
-        )
-        return paginator.get_paginated_response(serializer.data)
-
-    def post(self, request):
-        if not request.user.is_authenticated:
-            raise exceptions.ValidationError({"message": "Не аутентифицирован"})
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request, "comment": False}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return response.Response(serializer.data, status.HTTP_201_CREATED)
+        return get_filtered_comments(queryset, True)
 
 
-class UserFeedbacksListView(views.APIView):
+class UserFeedbacksListView(BaseListAPIView):
     serializer_class = CommentsSerializer
-    pagination_class = CustomPageNumberPagination
+    filterset_class = CommentsFilter
 
-    def get(self, request):
-        queryset = Comment.objects.filter(reply_to__isnull=True, user=request.user)
-        if not queryset.exists():
-            return response.Response({})
-        product_id = str(request.query_params.get("product_id", ""))
-        if product_id.isdigit():
-            queryset = filter_by_product_or_variant(queryset, product_id)
-        queryset = get_filtered_comments(queryset, True)
-        # Paginate the queryset
-        paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = self.serializer_class(
-            result_page, many=True, context={"request": request, "replies": True}
-        )
-        return paginator.get_paginated_response(serializer.data)
+    def get_queryset(self):
+        queryset = Comment.objects.filter(reply_to__isnull=True, user=self.request.user)
+        return get_filtered_comments(queryset, True)
 
 
 class FavoritesListView(BaseListAPIView):

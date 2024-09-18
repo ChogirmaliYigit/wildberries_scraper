@@ -1,7 +1,7 @@
 import random
 
 from django.conf import settings
-from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, When
+from django.db.models import Case, Count, DateTimeField, Exists, F, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
@@ -16,13 +16,27 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     # Subquery to check for valid comments related to a product
     valid_comments_subquery = base_comment_filter(
         Comment.objects.filter(product=OuterRef("pk")),
-        not_list=True,
         product_list=for_list,
     )
 
     # Subquery to check for promoted comments related to a product
-    promoted_comments_subquery = Comment.objects.filter(
-        product=OuterRef("pk"), promo=True
+    promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
+
+    # Subquery to check if the product has an image through comments
+    image_through_comments_subquery = valid_comments_subquery.values("id")[
+        :1
+    ]  # Check existence, limit to 1
+
+    # Subquery to check if the product has an image through ProductVariantImage
+    image_through_variant_subquery = ProductVariantImage.objects.filter(
+        variant__product=OuterRef("pk")
+    ).values("id")[
+        :1
+    ]  # Check existence, limit to 1
+
+    # Combine both subqueries to determine if a product has an image
+    has_image_subquery = image_through_comments_subquery.union(
+        image_through_variant_subquery
     )
 
     # Annotate the products with valid comments and promoted status
@@ -30,46 +44,44 @@ def get_filtered_products(queryset, promo=False, for_list=False):
         queryset.annotate(
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
+            has_image=Exists(has_image_subquery),
         )
-        .filter(has_valid_comments=True)  # Only products with valid comments
+        .filter(
+            has_valid_comments=True, has_image=True
+        )  # Only products with valid comments and has image
         .order_by("?")  # Shuffle products randomly
         .distinct()
     )
 
-    # Add logic to filter products that have an image
-    products_with_images = []
-    for product in products:
-        image = get_product_image(product)  # Check if the product has an image
-        if image:  # Only include products with an image
-            products_with_images.append(product)
-
     if not promo:
-        return products_with_images  # Return products with images
+        return products
 
-    # Separate promoted and non-promoted products
-    promoted_products = [
-        product for product in products_with_images if product.is_promoted
-    ]
-    non_promoted_products = [
-        product for product in products_with_images if not product.is_promoted
-    ]
+    # Separate the promoted and non-promoted products
+    promoted_products = products.filter(is_promoted=True)
+    non_promoted_products = products.filter(is_promoted=False)
+
+    non_promoted_products_list = list(non_promoted_products)
 
     # Randomly select one promoted product if available
     selected_promo_product = None
-    if promoted_products:
-        selected_promo_product = random.choice(promoted_products)
+    if promoted_products.exists():
+        selected_promo_product = random.choice(list(promoted_products))
 
-    # Insert the selected promoted product at index 2 if it exists
+    # Insert the selected promoted product into the list if it exists
     if selected_promo_product:
-        if len(non_promoted_products) > 2:
-            non_promoted_products.insert(2, selected_promo_product)
+        if len(non_promoted_products_list) > 2:
+            non_promoted_products_list.insert(2, selected_promo_product)
         else:
-            non_promoted_products.append(selected_promo_product)
+            non_promoted_products_list.append(selected_promo_product)
 
-    return non_promoted_products
+        # Convert the list back to a queryset
+        # Note: Preserve the original order by creating a custom order
+        ordered_ids = non_promoted_products.values_list("id", flat=True)
+        return queryset.filter(id__in=ordered_ids)
+    return products
 
 
-def base_comment_filter(queryset, has_file=True, not_list=False, product_list=False):
+def base_comment_filter(queryset, has_file=True, product_list=False):
     if has_file:
         # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
@@ -78,14 +90,8 @@ def base_comment_filter(queryset, has_file=True, not_list=False, product_list=Fa
                 content__isnull=False,
                 content__gt="",  # Ensures the content is not an empty string
             )
-            .filter(Q(files__isnull=False) | Q(file__isnull=False, file__gt=""))
             .annotate(num_files=Count("files"))  # Annotate with number of related files
-            .filter(
-                Q(num_files__gt=0)
-                | Q(
-                    file__isnull=False, file__gt=""
-                )  # Filter out comments without files
-            )
+            .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
         )
 
     # Apply the file_type filter if product_list is True
@@ -106,22 +112,17 @@ def base_comment_filter(queryset, has_file=True, not_list=False, product_list=Fa
         )
     ).order_by("-ordering_date", "content")
 
-    if not_list:
-        return queryset
+    # Use distinct on specific fields if database supports it
+    # Django does not support DISTINCT ON directly; use group by instead
 
-    # Fetch all comments and apply distinct manually in Python
-    comment_list = list(queryset)
+    # This approach assumes `comment` is not `id`
+    distinct_comments = (
+        queryset.values("content", "ordering_date")
+        .annotate(id=F("id"))
+        .values_list("id", flat=True)
+    )
 
-    # Use a set to track seen (content, ordering_date) pairs and filter duplicates
-    seen = set()
-    distinct_comments = []
-    for comment in comment_list:
-        identifier = (comment.content, comment.ordering_date)
-        if identifier not in seen:
-            distinct_comments.append(comment)
-            seen.add(identifier)
-
-    return distinct_comments
+    return queryset.filter(id__in=distinct_comments)
 
 
 def get_filtered_comments(queryset=None, promo=False, has_file=True):
@@ -129,21 +130,6 @@ def get_filtered_comments(queryset=None, promo=False, has_file=True):
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
     base_queryset = base_comment_filter(queryset, has_file)
-
-    # Randomly select one promoted comment
-    selected_promo_comment = None
-    promotes = [comment for comment in base_queryset if comment.promo]
-    if promotes:
-        selected_promo_comment = random.choice(promotes)
-
-    if selected_promo_comment and promo:
-        # Get all comments excluding the selected promoted one
-        other_comments = Comment.objects.exclude(id=selected_promo_comment.id)
-
-        all_comments = list(other_comments)  # Convert QuerySet to list
-        all_comments.insert(2, selected_promo_comment)  # Insert at index 2
-
-        return all_comments
 
     return base_queryset
 
@@ -159,7 +145,7 @@ def get_files(comment):
             "stream": _link.endswith(".m3u8"),
         }
 
-    # Process the single `comment.file`
+    # Process the single `comment.file` if it exists
     if comment.file:
         file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
         file = process_file(file_link, comment.file_type)
@@ -176,49 +162,65 @@ def get_files(comment):
     return files
 
 
-# Collect all replies in a single list
 def get_all_replies(comment, _replies=True):
-    replies = (
-        comment.replies.prefetch_related("user", "reply_to", "product")
-        .distinct("user", "product", "content")
-        .annotate(
-            annotated_source_date=Case(
-                When(source_date__isnull=False, then="source_date"),
-                default="created_at",
-                output_field=DateTimeField(),
-            )
-        )
-        .order_by("user", "product", "content", "-annotated_source_date")
-    )
-
+    # Initialize a list to store all replies
     all_replies = []
-    for reply in replies:
-        all_replies.append(reply)
+
+    # Collect replies iteratively
+    replies_to_process = [comment]
+    while replies_to_process:
+        current_comment = replies_to_process.pop()
+
+        # Fetch replies for the current comment
+        replies = (
+            current_comment.replies.prefetch_related("user", "reply_to", "product")
+            .distinct("user", "product", "content")
+            .annotate(
+                annotated_source_date=Case(
+                    When(source_date__isnull=False, then="source_date"),
+                    default="created_at",
+                    output_field=DateTimeField(),
+                )
+            )
+            .order_by("user", "product", "content", "-annotated_source_date")
+        )
+
+        # Add replies to the list
+        all_replies.extend(replies)
+
         if _replies:
-            all_replies.extend(get_all_replies(reply))  # Recursively collect replies
+            # Add replies to the processing list for further exploration
+            replies_to_process.extend(replies)
 
     return all_replies
 
 
 def get_product_image(instance):
-    comments = Comment.objects.filter(
-        product=instance, status=CommentStatuses.ACCEPTED
+    # Check if the product has an image in the comments
+    queryset = Comment.objects.filter(
+        product=instance,
+        status=CommentStatuses.ACCEPTED,
     ).prefetch_related("files")
+    queryset = base_comment_filter(queryset, product_list=True)
+    image = queryset.first()
 
-    for comment in comments:
-        if comment.file and comment.file_type == FileTypeChoices.IMAGE:
+    if image:
+        if image.file and image.file_type == FileTypeChoices.IMAGE:
             return {
-                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}",
-                "type": comment.file_type,
+                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{image.file}",
+                "type": image.file_type,
+                "stream": False,
             }
-
-        for comment_file in comment.files.all():
-            if comment_file.file_type == FileTypeChoices.IMAGE:
+        # Find the image file from related files
+        for file in image.files.all():
+            if file.file_type == FileTypeChoices.IMAGE:
                 return {
-                    "link": comment_file.file_link,
-                    "type": comment_file.file_type,
+                    "link": file.file_link,
+                    "type": file.file_type,
+                    "stream": False,
                 }
 
+    # If no image found in comments, check product variant images
     variant_image = ProductVariantImage.objects.filter(
         variant__product=instance
     ).first()
@@ -227,6 +229,7 @@ def get_product_image(instance):
         return {
             "link": variant_image.image_link,
             "type": variant_image.file_type,
+            "stream": False,
         }
 
     return None
