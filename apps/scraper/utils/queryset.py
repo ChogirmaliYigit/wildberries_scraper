@@ -23,12 +23,14 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
 
     # Subquery to check if the product has an image through comments
-    product_ids = valid_comments_subquery.values_list("product_id", flat=True)
+    product_ids = list(valid_comments_subquery.values_list("product_id", flat=True))
 
     # Subquery to check if the product has an image through ProductVariantImage
     product_ids.extend(
-        ProductVariantImage.objects.filter(variant__product=OuterRef("pk")).values_list(
-            "variant__product_id", flat=True
+        list(
+            ProductVariantImage.objects.filter(
+                variant__product=OuterRef("pk")
+            ).values_list("variant__product_id", flat=True)
         )
     )
 
