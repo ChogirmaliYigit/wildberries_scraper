@@ -58,8 +58,9 @@ def get_filtered_products(queryset, promo=False, for_list=False):
 
         # Convert the list back to a queryset
         # Note: Preserve the original order by creating a custom order
-        ordered_ids = non_promoted_products.values_list("id", flat=True)
-        return queryset.filter(id__in=ordered_ids)
+        return queryset.filter(
+            id__in=[product.id for product in non_promoted_products_list]
+        )
     return products
 
 
