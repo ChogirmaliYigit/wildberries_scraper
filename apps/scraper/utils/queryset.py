@@ -23,20 +23,13 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
 
     # Subquery to check if the product has an image through comments
-    image_through_comments_subquery = valid_comments_subquery.values("id")[
-        :1
-    ]  # Check existence, limit to 1
+    product_ids = valid_comments_subquery.values_list("product_id", flat=True)
 
     # Subquery to check if the product has an image through ProductVariantImage
-    image_through_variant_subquery = ProductVariantImage.objects.filter(
-        variant__product=OuterRef("pk")
-    ).values("id")[
-        :1
-    ]  # Check existence, limit to 1
-
-    # Combine both subqueries to determine if a product has an image
-    has_image_subquery = image_through_comments_subquery.union(
-        image_through_variant_subquery
+    product_ids.extend(
+        ProductVariantImage.objects.filter(variant__product=OuterRef("pk")).values_list(
+            "variant__product_id", flat=True
+        )
     )
 
     # Annotate the products with valid comments and promoted status
@@ -44,10 +37,9 @@ def get_filtered_products(queryset, promo=False, for_list=False):
         queryset.annotate(
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
-            has_image=Exists(has_image_subquery),
         )
         .filter(
-            has_valid_comments=True, has_image=True
+            has_valid_comments=True, pk__in=product_ids
         )  # Only products with valid comments and has image
         .order_by("?")  # Shuffle products randomly
         .distinct()
