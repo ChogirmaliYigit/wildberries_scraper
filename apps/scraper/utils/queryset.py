@@ -79,7 +79,7 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
     # Apply the file_type filter if product_list is True
     if product_list:
-        queryset = queryset.filter(
+        return queryset.filter(
             Q(files__file_type=FileTypeChoices.IMAGE)
             | Q(file_type=FileTypeChoices.IMAGE)
         )
