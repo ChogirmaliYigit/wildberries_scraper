@@ -7,7 +7,9 @@ from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
     CommentStatuses,
+    Favorite,
     FileTypeChoices,
+    Like,
     ProductVariantImage,
     RequestedComment,
 )
@@ -198,6 +200,11 @@ def get_all_replies(comment, _replies=True):
 
 
 def get_product_image(instance):
+    cache_key = f"product_image_{instance.pk}"
+    cached_image = cache.get(cache_key)
+    if cached_image:
+        return cached_image
+
     image = (
         Comment.objects.filter(product=instance, status=CommentStatuses.ACCEPTED)
         .prefetch_related("files")
@@ -208,24 +215,28 @@ def get_product_image(instance):
 
     if image:
         if image.file and image.file_type == FileTypeChoices.IMAGE:
-            return {
+            result = {
                 "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{image.file}",
                 "type": image.file_type,
                 "stream": False,
             }
+            cache.set(cache_key, result, timeout=60)
+            return result
         file = image.files.filter(file_type=FileTypeChoices.IMAGE).first()
         if file and file.file_link:
-            return {
+            result = {
                 "link": file.file_link,
                 "type": file.file_type,
                 "stream": False,
             }
+            cache.set(cache_key, result, timeout=60)
+            return result
 
     # Fallback to product variants
     variant_image = ProductVariantImage.objects.filter(
         variant__product=instance
     ).first()
-    return (
+    result = (
         {
             "link": variant_image.image_link,
             "type": variant_image.file_type,
@@ -234,3 +245,28 @@ def get_product_image(instance):
         if variant_image
         else None
     )
+    if result:
+        cache.set(cache_key, result, timeout=60)
+    return result
+
+
+def get_user_likes_and_favorites(user):
+    cache_key_liked = f"user_likes_{user.pk}"
+    cache_key_favorite = f"user_favorites_{user.pk}"
+
+    liked_products = cache.get(cache_key_liked)
+    favorite_products = cache.get(cache_key_favorite)
+
+    if liked_products is None:
+        liked_products = set(
+            Like.objects.filter(user=user).values_list("product_id", flat=True)
+        )
+        cache.set(cache_key_liked, liked_products, timeout=600)
+
+    if favorite_products is None:
+        favorite_products = set(
+            Favorite.objects.filter(user=user).values_list("product_id", flat=True)
+        )
+        cache.set(cache_key_favorite, favorite_products, timeout=600)
+
+    return liked_products, favorite_products

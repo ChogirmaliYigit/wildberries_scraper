@@ -9,7 +9,12 @@ from scraper.models import (
     ProductVariant,
     RequestedComment,
 )
-from scraper.utils.queryset import get_all_replies, get_files, get_product_image
+from scraper.utils.queryset import (
+    get_all_replies,
+    get_files,
+    get_product_image,
+    get_user_likes_and_favorites,
+)
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -42,15 +47,8 @@ class ProductsSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data["category"] = instance.category.title if instance.category else ""
         if request and request.user.is_authenticated:
-            liked_products = set(
-                Like.objects.filter(user=request.user).values_list(
-                    "product_id", flat=True
-                )
-            )
-            favorite_products = set(
-                Favorite.objects.filter(user=request.user).values_list(
-                    "product_id", flat=True
-                )
+            liked_products, favorite_products = get_user_likes_and_favorites(
+                request.user
             )
             data["liked"] = instance.id in liked_products
             data["favorite"] = instance.id in favorite_products
