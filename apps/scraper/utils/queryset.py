@@ -72,6 +72,11 @@ def get_filtered_products(queryset, promo=False, for_list=False):
 
 
 def base_comment_filter(queryset, has_file=True, product_list=False):
+    cache_key = f"filtered_products_{has_file}_{product_list}"
+    cached_comments = cache.get(cache_key)
+    if cached_comments:
+        return cached_comments
+
     if has_file:
         # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
@@ -86,10 +91,12 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
     # Apply the file_type filter if product_list is True
     if product_list:
-        return queryset.filter(
+        queryset = queryset.filter(
             Q(files__file_type=FileTypeChoices.IMAGE)
             | Q(file_type=FileTypeChoices.IMAGE)
         )
+        cache.set(cache_key, queryset, timeout=500)
+        return queryset
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
@@ -105,7 +112,7 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
         .order_by("-ordering_date", "content")
         .distinct("ordering_date", "content")
     )
-
+    cache.set(cache_key, queryset, timeout=500)
     return queryset
 
 
@@ -119,6 +126,11 @@ def get_filtered_comments(queryset=None, promo=False, has_file=True):
 
 
 def get_files(comment):
+    cache_key = f"comment_files_{comment.pk}"
+    cached_comment_files = cache.get(cache_key)
+    if cached_comment_files:
+        return cached_comment_files
+
     files = []
 
     # Helper function to process files
@@ -143,10 +155,16 @@ def get_files(comment):
             if processed_file not in files:
                 files.append(processed_file)
 
+    cached_comment_files.set(cache_key, files, timeout=100)
     return files
 
 
 def get_all_replies(comment, _replies=True):
+    cache_key = f"comment_replies_{comment.pk}_{_replies}"
+    cached_comment_replies = cache.get(cache_key)
+    if cached_comment_replies:
+        return cached_comment_replies
+
     # Initialize a list to store all replies
     all_replies = []
 
@@ -176,6 +194,7 @@ def get_all_replies(comment, _replies=True):
             # Add replies to the processing list for further exploration
             replies_to_process.extend(replies)
 
+    cache.set(cache_key, all_replies, timeout=180)
     return all_replies
 
 
