@@ -1,6 +1,7 @@
 import random
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Case, Count, DateTimeField, Exists, F, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import (
@@ -13,6 +14,11 @@ from scraper.models import (
 
 
 def get_filtered_products(queryset, promo=False, for_list=False):
+    cache_key = f"filtered_products_{promo}_{for_list}"
+    cached_products = cache.get(cache_key)
+    if cached_products:
+        return cached_products
+
     # Subquery to check for valid comments related to a product
     valid_comments_subquery = base_comment_filter(
         Comment.objects.filter(product=OuterRef("pk")),
@@ -36,6 +42,7 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     )
 
     if not promo:
+        cache.set(cache_key, products, timeout=600)
         return products
 
     # Separate the promoted and non-promoted products
@@ -61,6 +68,7 @@ def get_filtered_products(queryset, promo=False, for_list=False):
         return queryset.filter(
             id__in=[product.id for product in non_promoted_products_list]
         )
+    cache.set(cache_key, products, timeout=600)
     return products
 
 

@@ -47,7 +47,13 @@ class ProductsListView(BaseListAPIView):
     ordering = []
 
     def get_queryset(self):
-        return get_filtered_products(Product.objects.all(), promo=True, for_list=True)
+        return get_filtered_products(
+            Product.objects.select_related("category").prefetch_related(
+                "variants", "variants__images"
+            ),
+            promo=True,
+            for_list=True,
+        )
 
 
 class ProductDetailView(views.APIView):

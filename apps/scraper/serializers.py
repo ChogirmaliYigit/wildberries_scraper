@@ -42,12 +42,18 @@ class ProductsSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         data["category"] = instance.category.title if instance.category else ""
         if request and request.user.is_authenticated:
-            data["liked"] = Like.objects.filter(
-                user=request.user, product=instance
-            ).exists()
-            data["favorite"] = Favorite.objects.filter(
-                user=request.user, product=instance
-            ).exists()
+            liked_products = set(
+                Like.objects.filter(user=request.user).values_list(
+                    "product_id", flat=True
+                )
+            )
+            favorite_products = set(
+                Favorite.objects.filter(user=request.user).values_list(
+                    "product_id", flat=True
+                )
+            )
+            data["liked"] = instance.id in liked_products
+            data["favorite"] = instance.id in favorite_products
         data["likes"] = Like.objects.filter(product=instance).count()
         image = get_product_image(instance)
         if not image:
