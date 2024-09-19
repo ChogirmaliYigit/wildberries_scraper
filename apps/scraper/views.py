@@ -91,7 +91,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         if queryset:
-            queryset = get_filtered_comments(queryset, False, False)
+            queryset = get_filtered_comments(queryset, False)
             obj = None
             for comment in queryset:
                 if comment.pk == self.kwargs["pk"]:
@@ -111,7 +111,7 @@ class UserCommentsListView(BaseListAPIView):
         queryset = Comment.objects.filter(
             reply_to__isnull=False, user=self.request.user
         )
-        return get_filtered_comments(queryset, True, has_file=False)
+        return get_filtered_comments(queryset, has_file=False)
 
 
 class FeedbacksListView(BaseListCreateAPIView):

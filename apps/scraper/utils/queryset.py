@@ -72,11 +72,6 @@ def get_filtered_products(queryset, promo=False, for_list=False):
 
 
 def base_comment_filter(queryset, has_file=True, product_list=False):
-    cache_key = f"filtered_products_{has_file}_{product_list}"
-    cached_comments = cache.get(cache_key)
-    if cached_comments:
-        return cached_comments
-
     if has_file:
         # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
@@ -95,7 +90,6 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
             Q(files__file_type=FileTypeChoices.IMAGE)
             | Q(file_type=FileTypeChoices.IMAGE)
         )
-        cache.set(cache_key, queryset, timeout=500)
         return queryset
 
     # Exclude comments where the id exists in the RequestedComment model
@@ -112,16 +106,21 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
         .order_by("-ordering_date", "content")
         .distinct("ordering_date", "content")
     )
-    cache.set(cache_key, queryset, timeout=500)
     return queryset
 
 
-def get_filtered_comments(queryset=None, promo=False, has_file=True):
+def get_filtered_comments(queryset=None, has_file=True):
+    cache_key = f"filtered_comments_{has_file}"
+    cached_comments = cache.get(cache_key)
+    if cached_comments:
+        return cached_comments
+
     if queryset is None:
         queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
     base_queryset = base_comment_filter(queryset, has_file)
 
+    cache.set(cache_key, base_queryset, timeout=500)
     return base_queryset
 
 
