@@ -2,7 +2,7 @@ import random
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Case, Count, DateTimeField, Exists, F, OuterRef, Q, When
+from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, When
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
@@ -37,7 +37,6 @@ def get_filtered_products(queryset, promo=False, for_list=False):
         .filter(
             has_valid_comments=True
         )  # Only products with valid comments and has image
-        .order_by("?")  # Shuffle products randomly
         .distinct()
     )
 
@@ -65,7 +64,7 @@ def get_filtered_products(queryset, promo=False, for_list=False):
 
         # Convert the list back to a queryset
         # Note: Preserve the original order by creating a custom order
-        return queryset.filter(
+        products = queryset.filter(
             id__in=[product.id for product in non_promoted_products_list]
         )
     cache.set(cache_key, products, timeout=600)
@@ -97,23 +96,17 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
     queryset = queryset.exclude(id__in=requested_comment_ids)
 
     # Annotate with ordering_date
-    queryset = queryset.annotate(
-        ordering_date=Coalesce(
-            "source_date", "created_at", output_field=DateTimeField()
+    queryset = (
+        queryset.annotate(
+            ordering_date=Coalesce(
+                "source_date", "created_at", output_field=DateTimeField()
+            )
         )
-    ).order_by("-ordering_date", "content")
-
-    # Use distinct on specific fields if database supports it
-    # Django does not support DISTINCT ON directly; use group by instead
-
-    # This approach assumes `comment` is not `id`
-    distinct_comments = (
-        queryset.values("content", "ordering_date")
-        .annotate(id=F("id"))
-        .values_list("id", flat=True)
+        .order_by("-ordering_date", "content")
+        .distinct("ordering_date", "content")
     )
 
-    return queryset.filter(id__in=distinct_comments)
+    return queryset
 
 
 def get_filtered_comments(queryset=None, promo=False, has_file=True):
@@ -187,13 +180,13 @@ def get_all_replies(comment, _replies=True):
 
 
 def get_product_image(instance):
-    # Check if the product has an image in the comments
-    queryset = Comment.objects.filter(
-        product=instance,
-        status=CommentStatuses.ACCEPTED,
-    ).prefetch_related("files")
-    queryset = base_comment_filter(queryset, product_list=True)
-    image = queryset.first()
+    image = (
+        Comment.objects.filter(product=instance, status=CommentStatuses.ACCEPTED)
+        .prefetch_related("files")
+        .annotate(num_files=Count("files"))
+        .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
+        .first()
+    )
 
     if image:
         if image.file and image.file_type == FileTypeChoices.IMAGE:
@@ -202,25 +195,24 @@ def get_product_image(instance):
                 "type": image.file_type,
                 "stream": False,
             }
-        # Find the image file from related files
-        for file in image.files.all():
-            if file.file_type == FileTypeChoices.IMAGE:
-                return {
-                    "link": file.file_link,
-                    "type": file.file_type,
-                    "stream": False,
-                }
+        file = image.files.filter(file_type=FileTypeChoices.IMAGE).first()
+        if file and file.file_link:
+            return {
+                "link": file.file_link,
+                "type": file.file_type,
+                "stream": False,
+            }
 
-    # If no image found in comments, check product variant images
+    # Fallback to product variants
     variant_image = ProductVariantImage.objects.filter(
         variant__product=instance
     ).first()
-
-    if variant_image:
-        return {
+    return (
+        {
             "link": variant_image.image_link,
             "type": variant_image.file_type,
             "stream": False,
         }
-
-    return None
+        if variant_image
+        else None
+    )
