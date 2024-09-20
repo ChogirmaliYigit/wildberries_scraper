@@ -56,7 +56,7 @@ class ProductsListView(BaseListAPIView):
             )
             cache.set(cache_key, queryset, timeout=600)
         filtered_products_key = "filtered_products"
-        filtered_products = cache.get()
+        filtered_products = cache.get(filtered_products_key)
         if not filtered_products:
             filtered_products = get_filtered_products(
                 queryset,
