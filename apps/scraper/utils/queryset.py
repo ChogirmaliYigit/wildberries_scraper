@@ -2,7 +2,16 @@ import random
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Case, Count, DateTimeField, Exists, OuterRef, Q, When
+from django.db.models import (
+    Case,
+    Count,
+    DateTimeField,
+    Exists,
+    OuterRef,
+    Q,
+    Subquery,
+    When,
+)
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
@@ -21,72 +30,65 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     if cached_products:
         return cached_products
 
-    # Subquery to check for valid comments related to a product
+    # Use only relevant fields in the subquery to improve performance
     valid_comments_subquery = base_comment_filter(
         Comment.objects.filter(product=OuterRef("pk")),
         product_list=for_list,
-    )
+    ).values(
+        "id"
+    )  # Limit to necessary fields
 
-    # Subquery to check for promoted comments related to a product
     promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
 
-    # Annotate the products with valid comments and promoted status
     products = (
         queryset.annotate(
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
         )
-        .filter(
-            has_valid_comments=True
-        )  # Only products with valid comments and has image
+        .filter(has_valid_comments=True)
         .distinct()
     )
 
+    # If not promo, return immediately
     if not promo:
         cache.set(cache_key, products, timeout=600)
         return products
 
-    # Separate the promoted and non-promoted products
+    # Separate promoted and non-promoted products
     promoted_products = products.filter(is_promoted=True)
     non_promoted_products = products.filter(is_promoted=False)
 
-    non_promoted_products_list = list(non_promoted_products)
-
-    # Randomly select one promoted product if available
-    selected_promo_product = None
     if promoted_products.exists():
         selected_promo_product = random.choice(list(promoted_products))
 
-    # Insert the selected promoted product into the list if it exists
-    if selected_promo_product:
+        # Insert promo product into the non-promoted list at index 2
+        non_promoted_products_list = list(non_promoted_products)
         if len(non_promoted_products_list) > 2:
             non_promoted_products_list.insert(2, selected_promo_product)
         else:
             non_promoted_products_list.append(selected_promo_product)
 
-        # Convert the list back to a queryset
-        # Note: Preserve the original order by creating a custom order
+        # Convert back to queryset
         products = queryset.filter(
             id__in=[product.id for product in non_promoted_products_list]
         )
+
     cache.set(cache_key, products, timeout=600)
     return products
 
 
 def base_comment_filter(queryset, has_file=True, product_list=False):
     if has_file:
-        # Filter the main comments with files (either in the 'file' field or related 'files' objects)
         queryset = (
             queryset.filter(
                 status=CommentStatuses.ACCEPTED,
                 content__isnull=False,
-                content__gt="",  # Ensures the content is not an empty string
+                content__gt="",
             )
-            .annotate(num_files=Count("files"))  # Annotate with number of related files
+            .annotate(num_files=Count("files"))
             .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
         )
 
-    # Apply the file_type filter if product_list is True
     if product_list:
         queryset = queryset.filter(
             Q(files__file_type=FileTypeChoices.IMAGE)
@@ -99,26 +101,31 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
     queryset = queryset.exclude(id__in=requested_comment_ids)
 
     # Annotate with ordering_date
+    annotated_queryset = queryset.annotate(
+        ordering_date=Coalesce(
+            "source_date", "created_at", output_field=DateTimeField()
+        )
+    ).values("id")
+
+    # Filter the original queryset using the subquery
     queryset = (
-        queryset.annotate(
+        queryset.filter(id__in=Subquery(annotated_queryset))
+        .annotate(
             ordering_date=Coalesce(
                 "source_date", "created_at", output_field=DateTimeField()
             )
         )
         .order_by("-ordering_date", "content")
-        .distinct("ordering_date", "content")
     )
+
     return queryset
 
 
-def get_filtered_comments(queryset=None, has_file=True):
+def get_filtered_comments(queryset, has_file=True):
     cache_key = f"filtered_comments_{has_file}"
     cached_comments = cache.get(cache_key)
     if cached_comments:
         return cached_comments
-
-    if queryset is None:
-        queryset = Comment.objects.filter(status=CommentStatuses.ACCEPTED)
 
     base_queryset = base_comment_filter(queryset, has_file)
 
@@ -156,7 +163,7 @@ def get_files(comment):
             if processed_file not in files:
                 files.append(processed_file)
 
-    cached_comment_files.set(cache_key, files, timeout=100)
+    cache.set(cache_key, files, timeout=100)
     return files
 
 

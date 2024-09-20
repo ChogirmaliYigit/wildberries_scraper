@@ -54,17 +54,13 @@ class CommentsFilter(django_filters.FilterSet):
                 filtered_comments = queryset.filter(product_id__in=product_ids)
 
         # Annotate and order the results
-        filtered_comments = (
-            filtered_comments.distinct("user", "product", "content")
-            .annotate(
-                annotated_source_date=Case(
-                    When(source_date__isnull=False, then="source_date"),
-                    default="created_at",
-                    output_field=DateTimeField(),
-                )
+        filtered_comments = filtered_comments.annotate(
+            annotated_source_date=Case(
+                When(source_date__isnull=False, then="source_date"),
+                default="created_at",
+                output_field=DateTimeField(),
             )
-            .order_by("user", "product", "content", "-annotated_source_date")
-        )
+        ).order_by("user", "product", "content", "-annotated_source_date")
 
         # Cache the result
         cache.set(cache_key, filtered_comments, timeout=300)

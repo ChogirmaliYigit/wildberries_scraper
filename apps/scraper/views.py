@@ -90,7 +90,9 @@ class CommentsListView(BaseListCreateAPIView):
         cached_comments = cache.get(cache_key)
         if cached_comments:
             return cached_comments
-        queryset = Comment.objects.all()
+        queryset = Comment.objects.select_related(
+            "product", "user", "reply_to"
+        ).prefetch_related("files", "replies")
         cache.set(cache_key, queryset, timeout=400)
         filtered_comments_key = "filtered_comments"
         filtered_comments = cache.get(filtered_comments_key)
