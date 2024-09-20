@@ -45,7 +45,6 @@ class ProductsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get("request")
         data = super().to_representation(instance)
-        data["category"] = instance.category.title if instance.category else ""
         if request and request.user.is_authenticated:
             liked_products, favorite_products = get_user_likes_and_favorites(
                 request.user
