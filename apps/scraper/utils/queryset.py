@@ -1,5 +1,3 @@
-import random
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import (
@@ -58,23 +56,23 @@ def get_filtered_products(promo=False, for_list=False):
         return products
 
     # Separate promoted and non-promoted products
-    promoted_products = products.filter(is_promoted=True)
-    non_promoted_products = products.filter(is_promoted=False)
-
-    if promoted_products.exists():
-        selected_promo_product = random.choice(list(promoted_products))
-
-        # Insert promo product into the non-promoted list at index 2
-        non_promoted_products_list = list(non_promoted_products)
-        if len(non_promoted_products_list) > 2:
-            non_promoted_products_list.insert(2, selected_promo_product)
-        else:
-            non_promoted_products_list.append(selected_promo_product)
-
-        # Convert back to queryset
-        products = products.filter(
-            id__in=[product.id for product in non_promoted_products_list]
-        )
+    # promoted_products = products.filter(is_promoted=True)
+    # non_promoted_products = products.filter(is_promoted=False)
+    #
+    # if promoted_products.exists():
+    #     selected_promo_product = random.choice(list(promoted_products))
+    #
+    #     # Insert promo product into the non-promoted list at index 2
+    #     non_promoted_products_list = list(non_promoted_products)
+    #     if len(non_promoted_products_list) > 2:
+    #         non_promoted_products_list.insert(2, selected_promo_product)
+    #     else:
+    #         non_promoted_products_list.append(selected_promo_product)
+    #
+    #     # Convert back to queryset
+    #     products = products.filter(
+    #         id__in=[product.id for product in non_promoted_products_list]
+    #     )
 
     cache.set(cache_key, products, timeout=600)
     return products
