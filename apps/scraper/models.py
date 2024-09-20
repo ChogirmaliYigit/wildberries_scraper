@@ -1,6 +1,7 @@
 from core.models import BaseModel
 from django.db import models
-from django.db.models import Q, UniqueConstraint
+from django.db.models import Index, Q, UniqueConstraint
+from django.db.models.functions import Upper
 from django.utils.translation import gettext_lazy as _
 from users.models import User
 
@@ -43,6 +44,12 @@ class Category(BaseModel):
                 name="unique_source_id_exclude_null_category",
             ),
         ]
+        indexes = [
+            Index(
+                Upper("title"),
+                name="category_title_upper_index",
+            ),
+        ]
 
 
 class Product(BaseModel):
@@ -69,6 +76,12 @@ class Product(BaseModel):
                 condition=~Q(title=None),
                 name="unique_title_exclude_null_product",
             )
+        ]
+        indexes = [
+            Index(
+                Upper("title"),
+                name="product_title_upper_index",
+            ),
         ]
 
 

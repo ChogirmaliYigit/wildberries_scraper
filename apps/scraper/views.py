@@ -48,18 +48,10 @@ class ProductsListView(BaseListAPIView):
     ordering = []
 
     def get_queryset(self):
-        cache_key = "products_list_queryset"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = Product.objects.select_related("category").prefetch_related(
-                "variants", "variants__images"
-            )
-            cache.set(cache_key, queryset, timeout=600)
         filtered_products_key = "filtered_products"
         filtered_products = cache.get(filtered_products_key)
         if not filtered_products:
             filtered_products = get_filtered_products(
-                queryset,
                 promo=True,
                 for_list=True,
             )

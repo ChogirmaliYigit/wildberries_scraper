@@ -19,12 +19,13 @@ from scraper.models import (
     Favorite,
     FileTypeChoices,
     Like,
+    Product,
     ProductVariantImage,
     RequestedComment,
 )
 
 
-def get_filtered_products(queryset, promo=False, for_list=False):
+def get_filtered_products(promo=False, for_list=False):
     cache_key = f"filtered_products_{promo}_{for_list}"
     cached_products = cache.get(cache_key)
     if cached_products:
@@ -41,7 +42,9 @@ def get_filtered_products(queryset, promo=False, for_list=False):
     promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
 
     products = (
-        queryset.annotate(
+        Product.objects.select_related("category")
+        .prefetch_related("variants", "variants__images")
+        .annotate(
             has_valid_comments=Exists(valid_comments_subquery),
             is_promoted=Exists(promoted_comments_subquery),
         )
@@ -69,7 +72,7 @@ def get_filtered_products(queryset, promo=False, for_list=False):
             non_promoted_products_list.append(selected_promo_product)
 
         # Convert back to queryset
-        products = queryset.filter(
+        products = products.filter(
             id__in=[product.id for product in non_promoted_products_list]
         )
 
