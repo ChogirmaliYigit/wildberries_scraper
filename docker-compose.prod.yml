@@ -66,6 +66,8 @@ services:
     container_name: wildberries_scraper_redis
     image: redis:7.2.4-alpine
     restart: always
+    networks:
+      - app_network
 
   celery_worker:
     container_name: wildberries_scraper_celery_worker
@@ -82,6 +84,8 @@ services:
       - redis
       - db
       - web
+    networks:
+      - app_network
 
   celery_beat:
     container_name: wildberries_scraper_celery_beat
@@ -98,6 +102,8 @@ services:
       - redis
       - db
       - web
+    networks:
+      - app_network
 
   nginx:
     build: ./nginx
