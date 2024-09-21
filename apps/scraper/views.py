@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.core.cache import cache
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
@@ -47,7 +48,12 @@ class ProductsListView(BaseListAPIView):
     ordering = []
 
     def get_queryset(self):
-        return get_filtered_products()
+        cache_key = "filtered_products"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_products()
+            cache.set(cache_key, queryset, timeout=600)
+        return queryset
 
 
 class ProductDetailView(views.APIView):
