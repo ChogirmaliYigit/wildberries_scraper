@@ -3,7 +3,7 @@ from django.core.cache import cache
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from scraper.filters import CommentsFilter, ProductFilter
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
@@ -99,6 +99,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class UserCommentsListView(BaseListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
 
@@ -119,6 +120,7 @@ class FeedbacksListView(BaseListCreateAPIView):
 
 
 class UserFeedbacksListView(BaseListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentsSerializer
     filterset_class = CommentsFilter
 

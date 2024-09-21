@@ -201,7 +201,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "3/second", "user": "5/second"},
+    "DEFAULT_THROTTLE_RATES": {"anon": "5/second", "user": "10/second"},
     "EXCEPTION_HANDLER": "core.utils.custom_exception_handler",
 }
 
