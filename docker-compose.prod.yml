@@ -66,11 +66,6 @@ services:
     container_name: wildberries_scraper_redis
     image: redis:7.2.4-alpine
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: "0.5"
 
   celery_worker:
     container_name: wildberries_scraper_celery_worker
