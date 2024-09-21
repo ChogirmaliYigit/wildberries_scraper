@@ -1,5 +1,4 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.core.cache import cache
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
@@ -48,15 +47,7 @@ class ProductsListView(BaseListAPIView):
     ordering = []
 
     def get_queryset(self):
-        filtered_products_key = "filtered_products"
-        filtered_products = cache.get(filtered_products_key)
-        if not filtered_products:
-            filtered_products = get_filtered_products(
-                promo=True,
-                for_list=True,
-            )
-            cache.set(filtered_products_key, filtered_products, timeout=150)
-        return filtered_products
+        return get_filtered_products()
 
 
 class ProductDetailView(views.APIView):
@@ -78,20 +69,10 @@ class CommentsListView(BaseListCreateAPIView):
     ordering = []
 
     def get_queryset(self):
-        cache_key = "comments_list_queryset"
-        cached_comments = cache.get(cache_key)
-        if cached_comments:
-            return cached_comments
         queryset = Comment.objects.select_related(
             "product", "user", "reply_to"
         ).prefetch_related("files", "replies")
-        cache.set(cache_key, queryset, timeout=400)
-        filtered_comments_key = "filtered_comments"
-        filtered_comments = cache.get(filtered_comments_key)
-        if not filtered_comments:
-            filtered_comments = get_filtered_comments(queryset)
-            cache.set(filtered_comments_key, filtered_comments, timeout=150)
-        return filtered_comments
+        return get_filtered_comments(queryset)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -102,30 +83,13 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     ordering = []
 
     def get_queryset(self):
-        cache_key = "comment_detail_queryset"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = Comment.objects.filter(user=self.request.user)
-            cache.set(cache_key, queryset, timeout=400)
-        return queryset
+        return Comment.objects.filter(user=self.request.user)
 
     def get_object(self):
-        queryset = self.get_queryset()
-        if queryset:
-            filtered_comments_key = "filtered_comments_false"
-            filtered_comments = cache.get(filtered_comments_key)
-            if not filtered_comments:
-                filtered_comments = get_filtered_comments(queryset, False)
-                cache.set(filtered_comments_key, filtered_comments, timeout=150)
-            obj = None
-            for comment in filtered_comments:
-                if comment.pk == self.kwargs["pk"]:
-                    obj = comment
-                    break
-            if not obj:
-                raise exceptions.ValidationError({"message": "Комментарий не найден"})
-            return obj
-        raise exceptions.ValidationError({"message": "Комментарий не найден"})
+        obj = self.get_queryset().filter(pk=self.kwargs["pk"]).first()
+        if not obj:
+            raise exceptions.ValidationError({"message": "Комментарий не найден"})
+        return obj
 
 
 class UserCommentsListView(BaseListAPIView):
@@ -133,19 +97,10 @@ class UserCommentsListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "user_comments_list_queryset"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = Comment.objects.filter(
-                reply_to__isnull=False, user=self.request.user
-            )
-            cache.set(cache_key, queryset, timeout=400)
-        filtered_comments_key = "filtered_user_comments"
-        filtered_comments = cache.get(filtered_comments_key)
-        if not filtered_comments:
-            filtered_comments = get_filtered_comments(queryset, False)
-            cache.set(filtered_comments_key, filtered_comments, timeout=150)
-        return filtered_comments
+        queryset = Comment.objects.filter(
+            reply_to__isnull=False, user=self.request.user
+        )
+        return get_filtered_comments(queryset, False)
 
 
 class FeedbacksListView(BaseListCreateAPIView):
@@ -153,17 +108,8 @@ class FeedbacksListView(BaseListCreateAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "feedbacks_list_queryset"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = Comment.objects.filter(reply_to__isnull=True)
-            cache.set(cache_key, queryset, timeout=400)
-        filtered_comments_key = "filtered_feedbacks"
-        filtered_comments = cache.get(filtered_comments_key)
-        if not filtered_comments:
-            filtered_comments = get_filtered_comments(queryset, True)
-            cache.set(filtered_comments_key, filtered_comments, timeout=150)
-        return filtered_comments
+        queryset = Comment.objects.filter(reply_to__isnull=True)
+        return get_filtered_comments(queryset, True)
 
 
 class UserFeedbacksListView(BaseListAPIView):
@@ -171,19 +117,8 @@ class UserFeedbacksListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "user_feedbacks_list_queryset"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = Comment.objects.filter(
-                reply_to__isnull=True, user=self.request.user
-            )
-            cache.set(cache_key, queryset, timeout=400)
-        filtered_comments_key = "filtered_user_feedbacks"
-        filtered_comments = cache.get(filtered_comments_key)
-        if not filtered_comments:
-            filtered_comments = get_filtered_comments(queryset, True)
-            cache.set(filtered_comments_key, filtered_comments, timeout=150)
-        return filtered_comments
+        queryset = Comment.objects.filter(reply_to__isnull=True, user=self.request.user)
+        return get_filtered_comments(queryset, True)
 
 
 class FavoritesListView(BaseListAPIView):

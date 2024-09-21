@@ -1,15 +1,7 @@
 from django.conf import settings
-from django.core.cache import cache
-from django.db.models import (
-    Case,
-    Count,
-    DateTimeField,
-    Exists,
-    OuterRef,
-    Q,
-    Subquery,
-    When,
-)
+from django.db import connection
+from django.db.models import Case, Count, DateTimeField, IntegerField, Q, When
+from django.db.models.expressions import Subquery
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
@@ -23,59 +15,95 @@ from scraper.models import (
 )
 
 
-def get_filtered_products(promo=False, for_list=False):
-    cache_key = f"filtered_products_{promo}_{for_list}"
-    cached_products = cache.get(cache_key)
-    if cached_products:
-        return cached_products
+def get_filtered_products():
+    sql_query = """
+    WITH valid_comments AS (
+        SELECT
+            c.product_id,
+            c.promo
+        FROM
+            scraper_comment c
+        WHERE
+            c.product_id IS NOT NULL
+    ),
+    products_with_images AS (
+        SELECT
+            p.id AS product_id,
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id AND vc.promo = TRUE) AS is_promoted,
+            vi.id AS image_id
+        FROM
+            scraper_product p
+        JOIN
+            scraper_productvariantimage vi ON p.id = vi.variant_id
+        WHERE
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
+            AND vi.id IS NOT NULL  -- Ensure that the product has an associated image
+    ),
+    filtered_comments AS (
+        SELECT
+            c.id AS comment_id,
+            c.product_id,
+            c.file,
+            c.file_type,
+            COUNT(f.id) AS num_files
+        FROM
+            scraper_comment c
+        LEFT JOIN
+            scraper_commentfiles f ON c.id = f.comment_id
+        WHERE
+            c.status = 'ACCEPTED' AND
+            (c.content IS NOT NULL AND c.content <> '') AND
+            c.product_id IS NOT NULL
+        GROUP BY
+            c.id
+    ),
+    products_with_image_links AS (
+        SELECT
+            pwi.product_id,
+            COALESCE(
+                (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
+                 FROM filtered_comments fc
+                 JOIN scraper_commentfiles f ON fc.comment_id = f.comment_id
+                 WHERE fc.product_id = pwi.product_id
+                 AND f.file_type = 'IMAGE'
+                 LIMIT 1),
+                (SELECT vi.image_link
+                 FROM scraper_productvariantimage vi
+                 WHERE vi.variant_id = pwi.product_id
+                 LIMIT 1)
+            ) AS image_link
+        FROM
+            products_with_images pwi
+    )
+    SELECT
+        pwc.product_id,
+        pwc.has_valid_comments,
+        pwc.is_promoted,
+        pil.image_link
+    FROM
+        products_with_images pwc
+    JOIN
+        products_with_image_links pil ON pwc.product_id = pil.product_id
+    WHERE
+        pwc.has_valid_comments = TRUE
+    ORDER BY
+        RANDOM();  -- Adjust ordering as necessary
+    """
 
-    # Use only relevant fields in the subquery to improve performance
-    valid_comments_subquery = base_comment_filter(
-        Comment.objects.filter(product=OuterRef("pk")),
-        product_list=for_list,
-    ).values(
-        "id"
-    )  # Limit to necessary fields
+    # Execute the raw SQL query to get the list of product IDs
+    with connection.cursor() as cursor:
+        cursor.execute(sql_query)
+        product_ids = [row[0] for row in cursor.fetchall()]
 
-    promoted_comments_subquery = valid_comments_subquery.filter(promo=True)
-
-    products = (
-        Product.objects.select_related("category")
-        .prefetch_related("variants", "variants__images")
-        .annotate(
-            has_valid_comments=Exists(valid_comments_subquery),
-            is_promoted=Exists(promoted_comments_subquery),
-        )
-        .filter(has_valid_comments=True)
-        .distinct()
+    # Create a custom ordering for the products based on the SQL result
+    ordering = Case(
+        *[When(id=product_id, then=pos) for pos, product_id in enumerate(product_ids)],
+        output_field=IntegerField(),
     )
 
-    # If not promo, return immediately
-    if not promo:
-        cache.set(cache_key, products, timeout=600)
-        return products
-
-    # Separate promoted and non-promoted products
-    # promoted_products = products.filter(is_promoted=True)
-    # non_promoted_products = products.filter(is_promoted=False)
-    #
-    # if promoted_products.exists():
-    #     selected_promo_product = random.choice(list(promoted_products))
-    #
-    #     # Insert promo product into the non-promoted list at index 2
-    #     non_promoted_products_list = list(non_promoted_products)
-    #     if len(non_promoted_products_list) > 2:
-    #         non_promoted_products_list.insert(2, selected_promo_product)
-    #     else:
-    #         non_promoted_products_list.append(selected_promo_product)
-    #
-    #     # Convert back to queryset
-    #     products = products.filter(
-    #         id__in=[product.id for product in non_promoted_products_list]
-    #     )
-
-    cache.set(cache_key, products, timeout=600)
-    return products
+    # Use the ordered product IDs to retrieve the actual Product instances
+    return Product.objects.filter(id__in=product_ids).order_by(ordering)
 
 
 def base_comment_filter(queryset, has_file=True, product_list=False):
@@ -123,23 +151,11 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(queryset, has_file=True):
-    cache_key = f"filtered_comments_{has_file}"
-    cached_comments = cache.get(cache_key)
-    if cached_comments:
-        return cached_comments
-
     base_queryset = base_comment_filter(queryset, has_file)
-
-    cache.set(cache_key, base_queryset, timeout=500)
     return base_queryset
 
 
 def get_files(comment):
-    cache_key = f"comment_files_{comment.pk}"
-    cached_comment_files = cache.get(cache_key)
-    if cached_comment_files:
-        return cached_comment_files
-
     files = []
 
     # Helper function to process files
@@ -164,16 +180,10 @@ def get_files(comment):
             if processed_file not in files:
                 files.append(processed_file)
 
-    cache.set(cache_key, files, timeout=100)
     return files
 
 
 def get_all_replies(comment, _replies=True):
-    cache_key = f"comment_replies_{comment.pk}_{_replies}"
-    cached_comment_replies = cache.get(cache_key)
-    if cached_comment_replies:
-        return cached_comment_replies
-
     # Initialize a list to store all replies
     all_replies = []
 
@@ -203,23 +213,18 @@ def get_all_replies(comment, _replies=True):
             # Add replies to the processing list for further exploration
             replies_to_process.extend(replies)
 
-    cache.set(cache_key, all_replies, timeout=180)
     return all_replies
 
 
-def get_product_image(instance):
-    cache_key = f"product_image_{instance.pk}"
-    cached_image = cache.get(cache_key)
-    if cached_image:
-        return cached_image
-
-    image = (
+def get_product_image(instance, product_list=False):
+    image = base_comment_filter(
         Comment.objects.filter(product=instance, status=CommentStatuses.ACCEPTED)
         .prefetch_related("files")
         .annotate(num_files=Count("files"))
-        .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
-        .first()
-    )
+        .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt="")),
+        has_file=True,
+        product_list=product_list,
+    ).first()
 
     if image:
         if image.file and image.file_type == FileTypeChoices.IMAGE:
@@ -228,7 +233,6 @@ def get_product_image(instance):
                 "type": image.file_type,
                 "stream": False,
             }
-            cache.set(cache_key, result, timeout=60)
             return result
         file = image.files.filter(file_type=FileTypeChoices.IMAGE).first()
         if file and file.file_link:
@@ -237,7 +241,6 @@ def get_product_image(instance):
                 "type": file.file_type,
                 "stream": False,
             }
-            cache.set(cache_key, result, timeout=60)
             return result
 
     # Fallback to product variants
@@ -253,28 +256,15 @@ def get_product_image(instance):
         if variant_image
         else None
     )
-    if result:
-        cache.set(cache_key, result, timeout=60)
     return result
 
 
 def get_user_likes_and_favorites(user):
-    cache_key_liked = f"user_likes_{user.pk}"
-    cache_key_favorite = f"user_favorites_{user.pk}"
-
-    liked_products = cache.get(cache_key_liked)
-    favorite_products = cache.get(cache_key_favorite)
-
-    if liked_products is None:
-        liked_products = set(
-            Like.objects.filter(user=user).values_list("product_id", flat=True)
-        )
-        cache.set(cache_key_liked, liked_products, timeout=600)
-
-    if favorite_products is None:
-        favorite_products = set(
-            Favorite.objects.filter(user=user).values_list("product_id", flat=True)
-        )
-        cache.set(cache_key_favorite, favorite_products, timeout=600)
+    liked_products = set(
+        Like.objects.filter(user=user).values_list("product_id", flat=True)
+    )
+    favorite_products = set(
+        Favorite.objects.filter(user=user).values_list("product_id", flat=True)
+    )
 
     return liked_products, favorite_products

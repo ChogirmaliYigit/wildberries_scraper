@@ -4,7 +4,6 @@ from scraper.models import (
     Comment,
     CommentStatuses,
     Favorite,
-    Like,
     Product,
     ProductVariant,
     RequestedComment,
@@ -45,20 +44,28 @@ class ProductsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get("request")
         data = super().to_representation(instance)
+
         if request and request.user.is_authenticated:
             liked_products, favorite_products = get_user_likes_and_favorites(
                 request.user
             )
             data["liked"] = instance.id in liked_products
             data["favorite"] = instance.id in favorite_products
-        data["likes"] = Like.objects.filter(product=instance).count()
-        image = get_product_image(instance)
-        if not image:
-            return None
-        data["image"] = image
-        source_id = instance.variants.first().source_id
-        data["link"] = f"https://wildberries.ru/catalog/{source_id}/detail.aspx"
-        data["source_id"] = source_id
+
+        data["likes"] = instance.product_likes.count()
+
+        # Safely retrieve product image
+        data["image"] = get_product_image(instance, product_list=True) or None
+
+        # Use safe attribute access
+        variant = instance.variants.first()
+        data["source_id"] = variant.source_id if variant else None
+        data["link"] = (
+            f"https://wildberries.ru/catalog/{data['source_id']}/detail.aspx"
+            if data["source_id"]
+            else None
+        )
+
         return data
 
     class Meta:

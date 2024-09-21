@@ -112,6 +112,9 @@ DATABASES = {
         "PASSWORD": env.str("DB_PASS"),
         "HOST": env.str("DB_HOST"),
         "PORT": env.str("DB_PORT"),
+        "ATOMIC_REQUESTS": True,
+        "CONN_MAX_AGE": 3600,
+        "CONN_HEALTH_CHECKS": True,
     },
 }
 
@@ -234,11 +237,3 @@ SCRAPE_PRODUCTS_SECONDS = env.float("SCRAPE_PRODUCTS_SECONDS")
 SCRAPE_COMMENTS_SECONDS = env.float("SCRAPE_COMMENTS_SECONDS")
 
 CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS", "").split(",")
-
-# Cache settings
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": env.str("REDIS_URL", "redis://127.0.0.1:6379/0"),
-    }
-}
