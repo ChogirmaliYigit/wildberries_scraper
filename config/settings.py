@@ -74,8 +74,7 @@ MIDDLEWARE = [
 ]
 
 DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": lambda request: request.META["REMOTE_ADDR"]
-    in INTERNAL_IPS,
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
     "INTERCEPT_REDIRECTS": False,  # To avoid toolbar disappearing on redirects
 }
 
