@@ -2,8 +2,10 @@ services:
   db:
     container_name: wildberries_scraper_db
     image: postgres:16
+    shm_size: "2gb"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     env_file:
       - .env
     ports:
