@@ -35,7 +35,7 @@ def get_filtered_products():
         FROM
             scraper_comment c
         LEFT JOIN
-            scraper_file f ON c.id = f.comment_id
+            scraper_commentfiles f ON c.id = f.comment_id
         WHERE
             c.status = 'ACCEPTED' AND
             (c.content IS NOT NULL AND c.content <> '') AND
@@ -58,7 +58,7 @@ def get_filtered_products():
             pwc.product_id,
             (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
              FROM filtered_comments fc
-             JOIN scraper_file f ON fc.product_id = pwc.product_id
+             JOIN scraper_commentfiles f ON fc.product_id = pwc.product_id
              WHERE f.file_type = 'IMAGE'
              LIMIT 1) AS image_link
         FROM
