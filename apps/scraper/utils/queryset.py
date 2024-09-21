@@ -26,23 +26,8 @@ def get_filtered_products():
         WHERE
             c.product_id IS NOT NULL
     ),
-    products_with_images AS (
-        SELECT
-            p.id AS product_id,
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id AND vc.promo = TRUE) AS is_promoted,
-            vi.id AS image_id
-        FROM
-            scraper_product p
-        JOIN
-            scraper_productvariantimage vi ON p.id = vi.variant_id
-        WHERE
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
-            AND vi.id IS NOT NULL  -- Ensure that the product has an associated image
-    ),
     filtered_comments AS (
         SELECT
-            c.id AS comment_id,
             c.product_id,
             c.file,
             c.file_type,
@@ -50,31 +35,34 @@ def get_filtered_products():
         FROM
             scraper_comment c
         LEFT JOIN
-            scraper_commentfiles f ON c.id = f.comment_id
+            scraper_file f ON c.id = f.comment_id
         WHERE
             c.status = 'ACCEPTED' AND
             (c.content IS NOT NULL AND c.content <> '') AND
             c.product_id IS NOT NULL
         GROUP BY
-            c.id
+            c.product_id, c.file, c.file_type
+    ),
+    products_with_comments AS (
+        SELECT
+            p.id AS product_id,
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id AND vc.promo = TRUE) AS is_promoted
+        FROM
+            scraper_product p
+        WHERE
+            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
     ),
     products_with_image_links AS (
         SELECT
-            pwi.product_id,
-            COALESCE(
-                (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
-                 FROM filtered_comments fc
-                 JOIN scraper_commentfiles f ON fc.comment_id = f.comment_id
-                 WHERE fc.product_id = pwi.product_id
-                 AND f.file_type = 'IMAGE'
-                 LIMIT 1),
-                (SELECT vi.image_link
-                 FROM scraper_productvariantimage vi
-                 WHERE vi.variant_id = pwi.product_id
-                 LIMIT 1)
-            ) AS image_link
+            pwc.product_id,
+            (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
+             FROM filtered_comments fc
+             JOIN scraper_file f ON fc.product_id = pwc.product_id
+             WHERE f.file_type = 'IMAGE'
+             LIMIT 1) AS image_link
         FROM
-            products_with_images pwi
+            products_with_comments pwc
     )
     SELECT
         pwc.product_id,
@@ -82,8 +70,8 @@ def get_filtered_products():
         pwc.is_promoted,
         pil.image_link
     FROM
-        products_with_images pwc
-    JOIN
+        products_with_comments pwc
+    LEFT JOIN
         products_with_image_links pil ON pwc.product_id = pil.product_id
     WHERE
         pwc.has_valid_comments = TRUE
