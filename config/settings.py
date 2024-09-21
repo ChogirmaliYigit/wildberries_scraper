@@ -73,14 +73,8 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-    "INTERCEPT_REDIRECTS": False,  # To avoid toolbar disappearing on redirects
-}
-
 INTERNAL_IPS = [
     "127.0.0.1",
-    "5.35.82.254",
 ]
 
 ROOT_URLCONF = "config.urls"
