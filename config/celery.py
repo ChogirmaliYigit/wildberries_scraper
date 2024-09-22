@@ -22,7 +22,7 @@ app.conf.beat_schedule = {
     },
     "scrape_wildberries_product_images": {
         "task": "scrape_product_images",
-        "schedule": 10,
+        "schedule": 60,
     },
 }
 app.conf.timezone = "Asia/Tashkent"
