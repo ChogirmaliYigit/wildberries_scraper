@@ -53,6 +53,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             data["favorite"] = instance.id in favorite_products
 
         data["likes"] = instance.product_likes.count()
+        data["category"] = instance.category.title if instance.category else ""
 
         # Safely retrieve product image
         data["image"] = get_product_image(instance, product_list=True) or None
