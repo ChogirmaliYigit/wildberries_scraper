@@ -113,8 +113,6 @@ DATABASES = {
         "HOST": env.str("DB_HOST"),
         "PORT": env.str("DB_PORT"),
         "ATOMIC_REQUESTS": True,
-        "CONN_MAX_AGE": 3600,
-        "CONN_HEALTH_CHECKS": True,
     },
 }
 
