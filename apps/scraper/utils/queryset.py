@@ -131,6 +131,7 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
             Q(files__file_type=FileTypeChoices.IMAGE)
             | Q(file_type=FileTypeChoices.IMAGE)
         )
+        return queryset
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
