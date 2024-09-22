@@ -73,7 +73,7 @@ class CommentsListView(BaseListCreateAPIView):
         queryset = Comment.objects.select_related(
             "product", "user", "reply_to"
         ).prefetch_related("files", "replies")
-        return get_filtered_comments(queryset)
+        return get_filtered_comments(queryset, has_file=False)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
