@@ -12,6 +12,10 @@ app.autodiscover_tasks()
 
 
 app.conf.beat_schedule = {
+    "scrape_wildberries_categories": {
+        "task": "scrape_categories",
+        "schedule": settings.SCRAPE_CATEGORIES_SECONDS,
+    },
     "scrape_wildberries_products": {
         "task": "scrape_products",
         "schedule": settings.SCRAPE_PRODUCTS_SECONDS,
@@ -52,3 +56,10 @@ def scrape_product_images(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.get_all_product_variant_images()
+
+
+@app.task(name="scrape_categories", bind=True)
+def scrape_categories(*args, **kwargs):
+    from scraper.utils import wildberries
+
+    wildberries.get_categories()

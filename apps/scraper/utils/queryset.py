@@ -159,7 +159,9 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(queryset, has_file=True):
-    base_queryset = base_comment_filter(queryset, has_file)
+    base_queryset = base_comment_filter(
+        queryset.filter(status=CommentStatuses.ACCEPTED), has_file
+    )
     return base_queryset
 
 

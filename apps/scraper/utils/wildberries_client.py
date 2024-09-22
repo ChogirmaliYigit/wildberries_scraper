@@ -81,8 +81,7 @@ class WildberriesClient:
         """Fetches and saves categories and subcategories from Wildberries."""
 
         # Step 1: Retrieve top-level categories from the database
-        top_categories = list(Category.objects.filter(parent__isnull=True))
-        random.shuffle(top_categories)
+        top_categories = Category.objects.all().order_by("?")
 
         # Step 2: Fetch Wildberries categories data
         with open("apps/scraper/fixtures/categories.json", encoding="utf-8") as file:
@@ -134,11 +133,34 @@ class WildberriesClient:
                 except IntegrityError:
                     pass
 
+    def get_categories_with_few_products(self, initial_limit=10, max_limit=100):
+        limit = initial_limit
+
+        # Loop until we find categories or reach the max limit
+        while limit <= max_limit:
+            # Annotate each category with a count of related products
+            categories = (
+                Category.objects.annotate(product_count=Count("products"))
+                .filter(product_count__lt=limit)
+                .order_by("?")  # Random order
+            )
+
+            # If we found matching categories, return them
+            if categories.exists():
+                return categories
+
+            # Increase the limit and try again
+            limit += 10
+
+        # Return empty if no matching categories were found even after reaching max limit
+        return Category.objects.none()
+
     def get_products(self):
         """Fetches and saves products and their variants."""
         currency = "rub"
-        categories = list(set(Category.objects.all()))
-        random.shuffle(categories)
+        categories = self.get_categories_with_few_products(
+            max_limit=Product.objects.count()
+        )
         existing_variant_source_ids = set(
             ProductVariant.objects.values_list("source_id", flat=True)
         )
@@ -146,8 +168,7 @@ class WildberriesClient:
         for category in categories:
             url = (
                 f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog"
-                f"?ab_testing=false&appType=1&cat={category.source_id}"
-                f"&curr={currency}&dest=491&sort=popular&spp=30&uclusters=0"
+                f"?cat={category.source_id}&curr={currency}&dest=491&sort=popular"
             )
             data = self.send_request(url)
 
@@ -223,14 +244,15 @@ class WildberriesClient:
 
     def get_all_product_variant_images(self):
         """Fetches and saves images for product variants which there is no image yet."""
-        variants = list(
+        variants = (
             ProductVariant.objects.annotate(
                 images_count=Count(
                     "images", distinct=True, filter=Q(images__isnull=False)
                 )
-            ).filter(images_count__gt=0)
+            )
+            .filter(images_count__gt=0)
+            .order_by("?")
         )
-        random.shuffle(variants)
 
         image_objects = []
         for variant in variants:
@@ -337,8 +359,7 @@ class WildberriesClient:
 
     def get_product_comments(self):
         """Fetches and saves product comments."""
-        products = list(Product.objects.values("root", "id"))
-        random.shuffle(products)
+        products = Product.objects.values("root", "id").order_by("?")
         roots = set()
 
         for product in products:
