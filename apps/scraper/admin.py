@@ -284,7 +284,6 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
 
     def reject_comment(self, request, pk):
-        print(request.POST)
         reason = request.POST.get("reason", "")
         return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED, reason)
 
