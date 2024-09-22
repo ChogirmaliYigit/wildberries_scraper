@@ -24,7 +24,11 @@ def get_filtered_products():
         FROM
             scraper_comment c
         WHERE
-            c.product_id IS NOT NULL
+            c.product_id IS NOT NULL AND
+            (c.file IS NOT NULL OR EXISTS (
+                SELECT 1 FROM scraper_commentfiles f
+                WHERE f.comment_id = c.id
+            ))
     ),
     filtered_comments AS (
         SELECT
@@ -52,6 +56,8 @@ def get_filtered_products():
             scraper_product p
         WHERE
             EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
+        ORDER BY
+            RANDOM()
     ),
     products_with_image_links AS (
         SELECT
@@ -63,20 +69,42 @@ def get_filtered_products():
              LIMIT 1) AS image_link
         FROM
             products_with_comments pwc
+    ),
+    promoted_products AS (
+        SELECT product_id
+        FROM products_with_comments
+        WHERE is_promoted = TRUE
+    ),
+    non_promoted_products AS (
+        SELECT product_id
+        FROM products_with_comments
+        WHERE is_promoted = FALSE
+    ),
+    final_products AS (
+        SELECT product_id, ROW_NUMBER() OVER () AS rn
+        FROM non_promoted_products
+
+        UNION ALL
+
+        SELECT product_id, ROW_NUMBER() OVER () AS rn
+        FROM promoted_products
     )
     SELECT
-        pwc.product_id,
+        fp.product_id,
         pwc.has_valid_comments,
         pwc.is_promoted,
         pil.image_link
     FROM
-        products_with_comments pwc
+        final_products fp
+    JOIN
+        products_with_comments pwc ON fp.product_id = pwc.product_id
     LEFT JOIN
-        products_with_image_links pil ON pwc.product_id = pil.product_id
-    WHERE
-        pwc.has_valid_comments = TRUE
+        products_with_image_links pil ON fp.product_id = pil.product_id
     ORDER BY
-        RANDOM();  -- Adjust ordering as necessary
+        CASE
+            WHEN fp.rn = 3 THEN 0  -- Custom logic for ordering
+            ELSE fp.rn
+        END
     """
 
     # Execute the raw SQL query to get the list of product IDs
