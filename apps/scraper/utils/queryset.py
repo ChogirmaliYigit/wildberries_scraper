@@ -23,36 +23,21 @@ def get_filtered_products():
             c.promo
         FROM
             scraper_comment c
-        WHERE
-            c.product_id IS NOT NULL AND
-            (
-                (c.file IS NOT NULL AND c.file_type = 'IMAGE')  -- Image in scraper_comment.file
-                OR EXISTS (
-                    SELECT 1 FROM scraper_commentfiles f
-                    WHERE f.comment_id = c.id AND f.file_type = 'IMAGE'  -- Image in scraper_commentfiles
-                )
-            )
-    ),
-    filtered_comments AS (
-        SELECT
-            c.product_id,
-            c.file,
-            c.file_type,
-            COUNT(f.id) AS num_files
-        FROM
-            scraper_comment c
         LEFT JOIN
             scraper_commentfiles f ON c.id = f.comment_id
         WHERE
-            c.status = 'ACCEPTED' AND
+            c.status = 'accepted' AND
             (c.content IS NOT NULL AND c.content <> '') AND
             c.product_id IS NOT NULL AND
             (
-                (c.file IS NOT NULL AND c.file_type = 'IMAGE')  -- Ensure image in scraper_comment
-                OR f.file_type = 'IMAGE'  -- Ensure image in scraper_commentfiles
+                (c.file IS NOT NULL AND c.file_type = 'image')  -- Image in scraper_comment.file
+                OR EXISTS (
+                    SELECT 1 FROM scraper_commentfiles f
+                    WHERE f.comment_id = c.id AND f.file_type = 'image'  -- Image in scraper_commentfiles
+                )
             )
         GROUP BY
-            c.product_id, c.file, c.file_type
+            c.product_id, c.file, c.file_type, c.promo
     ),
     products_with_comments AS (
         SELECT
@@ -70,9 +55,9 @@ def get_filtered_products():
         SELECT
             pwc.product_id,
             (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
-             FROM filtered_comments fc
+             FROM valid_comments fc
              JOIN scraper_commentfiles f ON fc.product_id = pwc.product_id
-             WHERE f.file_type = 'IMAGE'
+             WHERE f.file_type = 'image'
              LIMIT 1) AS image_link
         FROM
             products_with_comments pwc
@@ -129,7 +114,7 @@ def get_filtered_products():
     return Product.objects.filter(id__in=product_ids).order_by(ordering)
 
 
-def base_comment_filter(queryset, has_file=True):
+def base_comment_filter(queryset, has_file=True, product_list=False):
     if has_file:
         queryset = (
             queryset.filter(
@@ -139,6 +124,12 @@ def base_comment_filter(queryset, has_file=True):
             )
             .annotate(num_files=Count("files"))
             .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
+        )
+
+    if product_list:
+        queryset = queryset.filter(
+            Q(files__file_type=FileTypeChoices.IMAGE)
+            | Q(file_type=FileTypeChoices.IMAGE)
         )
 
     # Exclude comments where the id exists in the RequestedComment model
