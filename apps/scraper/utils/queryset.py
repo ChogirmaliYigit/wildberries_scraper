@@ -25,10 +25,13 @@ def get_filtered_products():
             scraper_comment c
         WHERE
             c.product_id IS NOT NULL AND
-            (c.file IS NOT NULL OR EXISTS (
-                SELECT 1 FROM scraper_commentfiles f
-                WHERE f.comment_id = c.id
-            ))
+            (
+                (c.file IS NOT NULL AND c.file_type = 'IMAGE')  -- Image in scraper_comment.file
+                OR EXISTS (
+                    SELECT 1 FROM scraper_commentfiles f
+                    WHERE f.comment_id = c.id AND f.file_type = 'IMAGE'  -- Image in scraper_commentfiles
+                )
+            )
     ),
     filtered_comments AS (
         SELECT
@@ -43,7 +46,11 @@ def get_filtered_products():
         WHERE
             c.status = 'ACCEPTED' AND
             (c.content IS NOT NULL AND c.content <> '') AND
-            c.product_id IS NOT NULL
+            c.product_id IS NOT NULL AND
+            (
+                (c.file IS NOT NULL AND c.file_type = 'IMAGE')  -- Ensure image in scraper_comment
+                OR f.file_type = 'IMAGE'  -- Ensure image in scraper_commentfiles
+            )
         GROUP BY
             c.product_id, c.file, c.file_type
     ),
@@ -122,7 +129,7 @@ def get_filtered_products():
     return Product.objects.filter(id__in=product_ids).order_by(ordering)
 
 
-def base_comment_filter(queryset, has_file=True, product_list=False):
+def base_comment_filter(queryset, has_file=True):
     if has_file:
         queryset = (
             queryset.filter(
@@ -133,13 +140,6 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
             .annotate(num_files=Count("files"))
             .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
         )
-
-    if product_list:
-        queryset = queryset.filter(
-            Q(files__file_type=FileTypeChoices.IMAGE)
-            | Q(file_type=FileTypeChoices.IMAGE)
-        )
-        return queryset
 
     # Exclude comments where the id exists in the RequestedComment model
     requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
