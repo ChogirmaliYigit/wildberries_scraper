@@ -70,9 +70,11 @@ class CommentsListView(BaseListCreateAPIView):
     ordering = []
 
     def get_queryset(self):
-        queryset = Comment.objects.select_related(
-            "product", "user", "reply_to"
-        ).prefetch_related("files", "replies")
+        queryset = (
+            Comment.objects.filter(reply_to__isnull=False)
+            .select_related("product", "user", "reply_to")
+            .prefetch_related("files", "replies")
+        )
         return get_filtered_comments(queryset, has_file=False)
 
 
