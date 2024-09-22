@@ -26,8 +26,6 @@ services:
         limits:
           memory: 2G
           cpus: "1.0"
-    networks:
-      - app_network
 
   web:
     container_name: wildberries_scraper_backend
@@ -59,15 +57,11 @@ services:
     depends_on:
       - db
       - redis
-    networks:
-      - app_network
 
   redis:
     container_name: wildberries_scraper_redis
     image: redis:7.2.4-alpine
     restart: always
-    networks:
-      - app_network
 
   celery_worker:
     container_name: wildberries_scraper_celery_worker
@@ -84,8 +78,6 @@ services:
       - redis
       - db
       - web
-    networks:
-      - app_network
 
   celery_beat:
     container_name: wildberries_scraper_celery_beat
@@ -102,8 +94,6 @@ services:
       - redis
       - db
       - web
-    networks:
-      - app_network
 
   nginx:
     build: ./nginx
@@ -117,8 +107,6 @@ services:
       - "443:443"
     depends_on:
       - web
-    networks:
-      - app_network
 
   certbot:
     image: certbot/certbot
@@ -126,11 +114,6 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - app_network
-
-networks:
-    app_network:
 
 volumes:
   postgres_data:
