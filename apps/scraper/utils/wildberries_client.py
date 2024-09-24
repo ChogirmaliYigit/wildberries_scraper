@@ -432,9 +432,9 @@ class WildberriesClient:
                 if not comment:
                     CommentFiles.objects.get_or_create(
                         comment=comment_object,
+                        file_type=FileTypeChoices.VIDEO,
                         defaults={
                             "file_link": link,
-                            "file_type": FileTypeChoices.VIDEO,
                         },
                     )
                     return True

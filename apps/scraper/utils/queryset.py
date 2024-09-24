@@ -32,7 +32,10 @@ def get_filtered_products():
                 WHEN c.file_type = 'image' THEN c.file  -- Check for image in scraper_comment.file
                 ELSE NULL
             END) AS comment_image_link,
-            MAX(f.file_link) AS file_link  -- Max link from scraper_commentfiles
+            MAX(CASE
+                WHEN f.file_link NOT LIKE '%index.m3u8%' THEN f.file_link  -- Exclude files ending with index.m3u8
+                ELSE NULL
+            END) AS file_link  -- Max link from scraper_commentfiles excluding index.m3u8
         FROM
             scraper_comment c
         LEFT JOIN
@@ -44,7 +47,9 @@ def get_filtered_products():
                 (c.file IS NOT NULL AND c.file_type = 'image') OR
                 EXISTS (
                     SELECT 1 FROM scraper_commentfiles f2
-                    WHERE f2.comment_id = c.id AND f2.file_type = 'image'
+                    WHERE f2.comment_id = c.id
+                    AND f2.file_type = 'image'
+                    AND f2.file_link NOT LIKE '%index.m3u8%'  -- Exclude files ending with index.m3u8
                 )
             )
         GROUP BY
