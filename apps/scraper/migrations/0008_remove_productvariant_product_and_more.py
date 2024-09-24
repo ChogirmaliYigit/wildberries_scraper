@@ -3,6 +3,15 @@
 from django.db import migrations, models
 
 
+def migrate_products(apps, schema_editor):
+    ProductVariant = apps.get_model("scraper", "ProductVariant")
+
+    for variant in ProductVariant.objects.filter(product__isnull=True):
+        variant.product.source_id = variant.source_id
+        variant.product.title = f"{variant.product.title} - {variant.color}"
+        variant.product.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(migrate_products),
         migrations.RemoveField(
             model_name="productvariant",
             name="product",
@@ -28,6 +38,11 @@ class Migration(migrations.Migration):
             field=models.PositiveBigIntegerField(
                 blank=True, null=True, unique=True, verbose_name="Source ID"
             ),
+        ),
+        migrations.AddField(
+            model_name="product",
+            name="image_link",
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AddConstraint(
             model_name="product",

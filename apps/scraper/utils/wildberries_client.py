@@ -280,7 +280,11 @@ class WildberriesClient:
 
         product_object, _ = Product.objects.get_or_create(**_data)
 
-        for v in product_info.get("sizes", []):
+        for i, v in enumerate(product_info.get("sizes", [])):
+            _data["defaults"]["title"] = (
+                _data["defaults"]["title"]
+                + f" - {product_info.get('colors')[i].get('name')}"
+            )
             Product.objects.get_or_create(**_data)
 
         return product_object
