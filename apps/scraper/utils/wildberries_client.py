@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import ParserError, parse
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Q
+from django.db.models import Count
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
 from scraper.models import (
@@ -16,8 +16,6 @@ from scraper.models import (
     CommentStatuses,
     FileTypeChoices,
     Product,
-    ProductVariant,
-    ProductVariantImage,
 )
 
 
@@ -161,9 +159,7 @@ class WildberriesClient:
         categories = self.get_categories_with_few_products(
             max_limit=Product.objects.count()
         )
-        existing_variant_source_ids = set(
-            ProductVariant.objects.values_list("source_id", flat=True)
-        )
+        existing_source_ids = set(Product.objects.values_list("source_id", flat=True))
 
         for category in categories:
             url = (
@@ -180,92 +176,30 @@ class WildberriesClient:
 
             for root, products in roots.items():
                 self.save_products_and_variants(
-                    category, root, products, currency, existing_variant_source_ids
+                    category, root, products, existing_source_ids
                 )
 
     @transaction.atomic
-    def save_products_and_variants(
-        self, category, root, products, currency, existing_variant_source_ids
-    ):
-        """Saves products and their variants in bulk."""
-        product_objects = []
-        variant_objects = []
-        image_objects = []
-
+    def save_products_and_variants(self, category, root, products, existing_source_ids):
+        """Saves products and their variants"""
         for product in products:
             source_id = product["id"]
-            if source_id in existing_variant_source_ids:
+            if source_id in existing_source_ids:
                 continue
 
-            product_object, _ = Product.objects.get_or_create(
-                title=product.get("name"),
-                defaults={"category": category, "root": int(root)},
-            )
-            product_objects.append(product_object)
+            data = {
+                "title": product.get("name"),
+                "source_id": source_id,
+                "defaults": {
+                    "category": category,
+                    "root": int(root),
+                },
+            }
 
-            for pv in product.get("sizes", []):
-                variant, _ = ProductVariant.objects.get_or_create(
-                    product=product_object,
-                    source_id=source_id,
-                    defaults={
-                        "price": f"{pv.get('price', {}).get('total', 0)} {currency}"
-                    },
-                )
-                variant_objects.append(variant)
+            Product.objects.get_or_create(**data)
 
-                images = self.get_product_variant_images(source_id)
-                for img_url in images:
-                    image_objects.append(
-                        ProductVariantImage(variant=variant, image_link=img_url)
-                    )
-
-        ProductVariantImage.objects.bulk_create(image_objects, ignore_conflicts=True)
-
-    def get_product_variant_images(self, source_id):
-        """Fetches the image URLs for a product variant."""
-        source_id = str(source_id)
-        images = []
-        split_options = [
-            (2, 5),
-            (2, 6),
-            (3, 5),
-            (3, 6),
-            (4, 5),
-            (4, 6),
-            (5, 5),
-            (5, 6),
-        ]
-        for option in split_options:
-            for basket_id in range(1, 20):
-                img_url = f"https://basket-0{basket_id}.wbbasket.ru/vol{source_id[:option[0]]}/part{source_id[:option[1]]}/{source_id}/images/c246x328/{basket_id}.webp"
-                if self.check_image(img_url):
-                    images.append(img_url)
-        return images
-
-    def get_all_product_variant_images(self):
-        """Fetches and saves images for product variants which there is no image yet."""
-        variants = (
-            ProductVariant.objects.annotate(
-                images_count=Count(
-                    "images", distinct=True, filter=Q(images__isnull=False)
-                )
-            )
-            .filter(images_count__gt=0)
-            .order_by("?")
-        )
-
-        image_objects = []
-        for variant in variants:
-            images = self.get_product_variant_images(variant.source_id)
-            for img_url in images:
-                image_objects.append(
-                    ProductVariantImage(variant=variant, image_link=img_url)
-                )
-
-        if image_objects:
-            ProductVariantImage.objects.bulk_create(
-                image_objects, ignore_conflicts=True
-            )
+            for v in product.get("sizes", []):
+                Product.objects.get_or_create(**data)
 
     def get_category_by_slug_name(self, slug_name):
         wildberries_categories = self.send_request(
@@ -335,25 +269,19 @@ class WildberriesClient:
             return None
 
         product_info = product_data["data"]["products"][0]
-        root = product_info["root"]
-        title = product_info["name"]
 
-        category = self.get_product_category(source_id)
+        _data = {
+            "root": product_info["root"],
+            "defaults": {
+                "title": product_info["name"],
+                "category": self.get_product_category(source_id),
+            },
+        }
 
-        product_object, _ = Product.objects.get_or_create(
-            root=root,
-            defaults={"title": title, "category": category},
-        )
+        product_object, _ = Product.objects.get_or_create(**_data)
 
-        variant_objects = []
-        for size in product_info.get("sizes", []):
-            price = size.get("price", {}).get("total", 0)
-            product_variant, _ = ProductVariant.objects.get_or_create(
-                product=product_object,
-                source_id=source_id,
-                defaults={"price": f"{price} {currency}"},
-            )
-            variant_objects.append(product_variant)
+        for v in product_info.get("sizes", []):
+            Product.objects.get_or_create(**_data)
 
         return product_object
 

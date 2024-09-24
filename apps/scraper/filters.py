@@ -2,9 +2,9 @@ from datetime import timedelta
 
 import django_filters
 from django.conf import settings
-from django.db.models import Case, Count, DateTimeField, When
+from django.db.models import Count
 from django.utils import timezone
-from scraper.models import Category, Comment, CommentStatuses, Product, ProductVariant
+from scraper.models import Category, Comment, CommentStatuses, Product
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -23,7 +23,7 @@ class ProductFilter(django_filters.FilterSet):
 
 
 class CommentsFilter(django_filters.FilterSet):
-    product_id = django_filters.NumberFilter(method="filter_by_product_or_variant")
+    product_id = django_filters.NumberFilter(field_name="product_id")
     source_id = django_filters.NumberFilter(field_name="source_id")
     rating = django_filters.NumberFilter(field_name="rating")
     status = django_filters.ChoiceFilter(
@@ -31,29 +31,6 @@ class CommentsFilter(django_filters.FilterSet):
     )
     user_id = django_filters.NumberFilter(field_name="user_id")
     feedback_id = django_filters.NumberFilter(method="filter_by_feedback")
-
-    def filter_by_product_or_variant(self, queryset, name, value):
-        # First, try to filter comments by product_id
-        filtered_comments = queryset.filter(product_id=value)
-
-        # If no comments found, filter by ProductVariants
-        if not filtered_comments.exists():
-            product_variants = ProductVariant.objects.filter(id=value)
-            if product_variants.exists():
-                product_ids = product_variants.values_list(
-                    "product_id", flat=True
-                ).distinct()
-                filtered_comments = queryset.filter(product_id__in=product_ids)
-
-        # Annotate and order the results
-        filtered_comments = filtered_comments.annotate(
-            annotated_source_date=Case(
-                When(source_date__isnull=False, then="source_date"),
-                default="created_at",
-                output_field=DateTimeField(),
-            )
-        ).order_by("user", "product", "content", "-annotated_source_date")
-        return filtered_comments
 
     def filter_by_feedback(self, queryset, name, value):
         if value:

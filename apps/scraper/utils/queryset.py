@@ -1,16 +1,22 @@
 from django.conf import settings
 from django.db import connection
-from django.db.models import Case, Count, DateTimeField, IntegerField, Q, When
-from django.db.models.expressions import Subquery
+from django.db.models import (
+    Case,
+    CharField,
+    Count,
+    DateTimeField,
+    IntegerField,
+    Q,
+    When,
+)
+from django.db.models.expressions import Subquery, Value
 from django.db.models.functions import Coalesce
 from scraper.models import (
-    Comment,
     CommentStatuses,
     Favorite,
     FileTypeChoices,
     Like,
     Product,
-    ProductVariantImage,
     RequestedComment,
 )
 
@@ -48,13 +54,14 @@ def get_filtered_products():
             scraper_product p
         WHERE
             EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
+            AND p.source_id IS NOT NULL  -- Ensure source_id is not null
         ORDER BY
             RANDOM()
     ),
     products_with_image_links AS (
         SELECT
             pwc.product_id,
-            (SELECT CONCAT('{BACKEND_DOMAIN}', '{MEDIA_URL}', f.file_link)
+            (SELECT f.file_link
              FROM valid_comments fc
              JOIN scraper_commentfiles f ON fc.product_id = pwc.product_id
              WHERE f.file_type = 'image'
@@ -99,19 +106,33 @@ def get_filtered_products():
         END
     """
 
-    # Execute the raw SQL query to get the list of product IDs
+    # Execute the raw SQL query to get the product details including image_link
     with connection.cursor() as cursor:
         cursor.execute(sql_query)
-        product_ids = [row[0] for row in cursor.fetchall()]
+        rows = cursor.fetchall()
 
-    # Create a custom ordering for the products based on the SQL result
-    ordering = Case(
-        *[When(id=product_id, then=pos) for pos, product_id in enumerate(product_ids)],
-        output_field=IntegerField(),
+    # Extract product IDs and image links
+    ordering_cases = []
+    product_ids = []
+    img_link_cases = []
+    for pos, row in enumerate(rows):
+        ordering_cases.append(When(id=row[0], then=pos))
+        product_ids.append(row[0])
+        img_link_cases.append(When(id=row[0], then=Value(row[3])))
+
+    # Retrieve Product instances and annotate them with image_link
+    products = (
+        Product.objects.filter(id__in=product_ids)
+        .exclude(source_id__isnull=True)
+        .annotate(
+            img_link=Case(*img_link_cases, output_field=CharField()),
+        )
+        .order_by(
+            Case(*ordering_cases, output_field=IntegerField()),
+        )
     )
 
-    # Use the ordered product IDs to retrieve the actual Product instances
-    return Product.objects.filter(id__in=product_ids).order_by(ordering)
+    return products
 
 
 def base_comment_filter(queryset, has_file=True, product_list=False):
@@ -126,16 +147,15 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
             .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt=""))
         )
 
+    # Exclude comments where the id exists in the RequestedComment model
+    requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
+    queryset = queryset.exclude(id__in=requested_comment_ids)
+
     if product_list:
         queryset = queryset.filter(
             Q(files__file_type=FileTypeChoices.IMAGE)
             | Q(file_type=FileTypeChoices.IMAGE)
         )
-        return queryset
-
-    # Exclude comments where the id exists in the RequestedComment model
-    requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
-    queryset = queryset.exclude(id__in=requested_comment_ids)
 
     # Annotate with ordering_date
     annotated_queryset = queryset.annotate(
@@ -224,49 +244,6 @@ def get_all_replies(comment, _replies=True):
             replies_to_process.extend(replies)
 
     return all_replies
-
-
-def get_product_image(instance, product_list=False):
-    image = base_comment_filter(
-        Comment.objects.filter(product=instance, status=CommentStatuses.ACCEPTED)
-        .prefetch_related("files")
-        .annotate(num_files=Count("files"))
-        .filter(Q(num_files__gt=0) | Q(file__isnull=False, file__gt="")),
-        has_file=True,
-        product_list=product_list,
-    ).first()
-
-    if image:
-        if image.file and image.file_type == FileTypeChoices.IMAGE:
-            result = {
-                "link": f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{image.file}",
-                "type": image.file_type,
-                "stream": False,
-            }
-            return result
-        file = image.files.filter(file_type=FileTypeChoices.IMAGE).first()
-        if file and file.file_link:
-            result = {
-                "link": file.file_link,
-                "type": file.file_type,
-                "stream": False,
-            }
-            return result
-
-    # Fallback to product variants
-    variant_image = ProductVariantImage.objects.filter(
-        variant__product=instance
-    ).first()
-    result = (
-        {
-            "link": variant_image.image_link,
-            "type": variant_image.file_type,
-            "stream": False,
-        }
-        if variant_image
-        else None
-    )
-    return result
 
 
 def get_user_likes_and_favorites(user):

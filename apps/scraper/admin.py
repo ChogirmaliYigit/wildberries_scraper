@@ -10,24 +10,11 @@ from scraper.models import (
     CommentFiles,
     CommentStatuses,
     Product,
-    ProductVariant,
     RequestedComment,
     RequestedCommentFile,
 )
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
-
-
-class ProductVariantsInline(TabularInline):
-    model = ProductVariant
-    fields = (
-        "color",
-        "price",
-        "source_id",
-    )
-    readonly_fields = fields
-    extra = 0
-    show_change_link = True
 
 
 @admin.register(Category)
@@ -91,7 +78,6 @@ class ProductAdmin(ModelAdmin):
         "root",
     )
     list_filter = ("category",)
-    inlines = [ProductVariantsInline]
     autocomplete_fields = ["category"]
 
     @display(description=_("Likes"))
@@ -237,7 +223,7 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         reject_url = reverse("admin:reject_comment", args=[obj.pk])
         button_div = '<div style="display: flex; width: 100%;">{content}</div>'
 
-        def get_button(color, url, text, action=None) -> str:
+        def get_button(color, text, action) -> str:
             button_template = (
                 '<a class="inline-block border border-{color}-500 font-medium rounded-md text-center text-{'
                 "color}-500 whitespace-nowrap dark:border-transparent dark:bg-{color}-500/20 "
@@ -251,13 +237,11 @@ class RequestedCommentAdmin(BaseCommentAdmin):
             button_div.format(
                 content=get_button(
                     color="green",
-                    url=accept_url,
                     text=_("Accept"),
                     action=f"window.location.href='{accept_url}'",
                 )
                 + get_button(
                     color="red",
-                    url=reject_url,
                     text=_("Reject"),
                     action=f"showRejectModal({obj.pk}, '{reject_url}')",
                 )

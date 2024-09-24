@@ -43,7 +43,7 @@ class CategoriesListView(BaseListAPIView):
 class ProductsListView(BaseListAPIView):
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
-    search_fields = ["title", "variants__color", "variants__price"]
+    search_fields = ["title"]
     ordering = []
 
     def get_queryset(self):
@@ -127,6 +127,7 @@ class UserFeedbacksListView(BaseListAPIView):
 
 
 class FavoritesListView(BaseListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = FavoritesSerializer
     search_fields = [
         "product__title",
@@ -138,9 +139,7 @@ class FavoritesListView(BaseListAPIView):
         return context
 
     def get_queryset(self):
-        queryset = Favorite.objects.all()
-        if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
+        queryset = Favorite.objects.filter(user=self.request.user)
         return queryset.prefetch_related("product", "user").order_by("-id")
 
 
@@ -161,6 +160,8 @@ def make_favorite(request, product_id, model):
 
 
 class FavoriteView(views.APIView):
+    permission_classes = (IsAuthenticated,)
+
     @utils.swagger_auto_schema(responses={200: "{'favorite': true'"})
     def post(self, request, product_id):
         return response.Response(
@@ -170,6 +171,8 @@ class FavoriteView(views.APIView):
 
 
 class LikeView(views.APIView):
+    permission_classes = (IsAuthenticated,)
+
     @utils.swagger_auto_schema(responses={200: "{'liked': true'"})
     def post(self, request, product_id):
         return response.Response(

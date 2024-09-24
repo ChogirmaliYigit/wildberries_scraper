@@ -24,10 +24,6 @@ app.conf.beat_schedule = {
         "task": "scrape_comments",
         "schedule": settings.SCRAPE_COMMENTS_SECONDS,
     },
-    "scrape_wildberries_product_images": {
-        "task": "scrape_product_images",
-        "schedule": 60,
-    },
 }
 app.conf.timezone = "Asia/Tashkent"
 
@@ -49,13 +45,6 @@ def scrape_comments(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.get_product_comments()
-
-
-@app.task(name="scrape_product_images", bind=True)
-def scrape_product_images(*args, **kwargs):
-    from scraper.utils import wildberries
-
-    wildberries.get_all_product_variant_images()
 
 
 @app.task(name="scrape_categories", bind=True)

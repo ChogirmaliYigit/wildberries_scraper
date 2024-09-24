@@ -16,7 +16,6 @@ class Category(BaseModel):
         related_name="sub_categories",
         verbose_name=_("Parent category"),
     )
-    image_link: str = models.TextField(null=True, blank=True, verbose_name=_("Image"))
     source_id: int = models.PositiveBigIntegerField(
         unique=True, null=True, blank=True, verbose_name=_("Source ID")
     )
@@ -63,6 +62,10 @@ class Product(BaseModel):
         verbose_name=_("Category"),
     )
     root: int = models.IntegerField(null=True, blank=True, verbose_name=_("Root"))
+    source_id: int = models.PositiveBigIntegerField(
+        unique=True, null=True, blank=True, verbose_name=_("Source ID")
+    )
+    image_link = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.title
@@ -75,7 +78,12 @@ class Product(BaseModel):
                 fields=["title"],
                 condition=~Q(title=None),
                 name="unique_title_exclude_null_product",
-            )
+            ),
+            UniqueConstraint(
+                fields=["source_id"],
+                condition=~Q(source_id=None),
+                name="unique_source_id_exclude_null_product",
+            ),
         ]
         indexes = [
             Index(
@@ -85,66 +93,9 @@ class Product(BaseModel):
         ]
 
 
-class ProductVariant(BaseModel):
-    color: str = models.TextField(null=True, blank=True, verbose_name=_("Color"))
-    price: str = models.TextField(null=True, blank=True, verbose_name=_("Price"))
-    source_id: int = models.PositiveBigIntegerField(
-        unique=True, null=True, blank=True, verbose_name=_("Source ID")
-    )
-    product: Product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="variants",
-        verbose_name=_("Product"),
-    )
-
-    def __str__(self) -> str:
-        name = self.product.title
-        if self.color:
-            name += f" ({self.color}) "
-        if self.price:
-            name = f"{name.strip()} - {self.price}"
-        return name
-
-    class Meta:
-        verbose_name = _("Product variant")
-        verbose_name_plural = _("Product variants")
-        constraints = [
-            UniqueConstraint(
-                fields=["source_id"],
-                condition=~Q(source_id=None),
-                name="unique_source_id_exclude_null_product_variant",
-            )
-        ]
-
-
 class FileTypeChoices(models.TextChoices):
     IMAGE: tuple[str] = "image", _("Image")
     VIDEO: tuple[str] = "video", _("Video")
-
-
-class ProductVariantImage(BaseModel):
-    variant: ProductVariant = models.ForeignKey(
-        ProductVariant,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="images",
-        verbose_name=_("Product variant"),
-    )
-    image_link: str = models.TextField(unique=True, verbose_name=_("Image link"))
-    file_type = models.CharField(
-        max_length=20, choices=FileTypeChoices.choices, default=FileTypeChoices.IMAGE
-    )
-
-    def __str__(self) -> str:
-        return f"{self.image_link} {self.file_type}"
-
-    class Meta:
-        verbose_name = _("Product variant image")
-        verbose_name_plural = _("Product variant images")
 
 
 class CommentStatuses(models.TextChoices):

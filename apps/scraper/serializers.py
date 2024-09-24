@@ -4,26 +4,17 @@ from scraper.models import (
     Comment,
     CommentStatuses,
     Favorite,
+    FileTypeChoices,
     Product,
-    ProductVariant,
     RequestedComment,
 )
-from scraper.utils.queryset import (
-    get_all_replies,
-    get_files,
-    get_product_image,
-    get_user_likes_and_favorites,
-)
+from scraper.utils.queryset import get_files, get_user_likes_and_favorites
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["parent"] = (
-            CategoriesSerializer(instance=instance.parent).data
-            if instance.parent
-            else {}
-        )
+        data["parent"] = {}
         return data
 
     class Meta:
@@ -56,14 +47,16 @@ class ProductsSerializer(serializers.ModelSerializer):
         data["category"] = instance.category.title if instance.category else ""
 
         # Safely retrieve product image
-        data["image"] = get_product_image(instance, product_list=True) or None
+        data["image"] = {
+            "link": instance.img_link,
+            "type": FileTypeChoices.IMAGE,
+            "stream": False,
+        }
 
         # Use safe attribute access
-        variant = instance.variants.first()
-        data["source_id"] = variant.source_id if variant else None
         data["link"] = (
-            f"https://wildberries.ru/catalog/{data['source_id']}/detail.aspx"
-            if data["source_id"]
+            f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"
+            if instance.source_id
             else None
         )
 
@@ -75,6 +68,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "category",
+            "source_id",
             "liked",
             "favorite",
             "likes",
@@ -82,28 +76,14 @@ class ProductsSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-    replied_comments = serializers.ListField(read_only=True)
-    source_id = serializers.IntegerField(required=False)
     rating = serializers.IntegerField(required=False, default=0)
     file = serializers.FileField(write_only=True, required=False)
     user = serializers.CharField(read_only=True)
-    files = serializers.ListSerializer(child=serializers.FileField(), read_only=True)
+    files = serializers.ListSerializer(child=serializers.DictField(), read_only=True)
 
     def to_representation(self, instance):
         request = self.context.get("request")
-        _replies = self.context.get("replies", True)
         data = super().to_representation(instance)
-
-        if _replies:
-            # Flatten replies
-            flattened_replies = get_all_replies(instance)
-            data["replied_comments"] = (
-                CommentsSerializer(
-                    flattened_replies, many=True, context={"replies": False}
-                ).data
-                if flattened_replies
-                else []
-            )
         data["files"] = get_files(instance)
         if instance.wb_user:
             user = instance.wb_user
@@ -122,9 +102,16 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
         data["product_image"] = (
-            get_product_image(instance.product) if instance.product else None
+            {
+                "link": instance.product.img_link,
+                "type": FileTypeChoices.IMAGE,
+                "stream": False,
+            }
+            if instance.product
+            else None
         )
         data["promo"] = instance.promo
+        data["replied_comments"] = []
         return data
 
     def create(self, validated_data):
@@ -137,12 +124,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             )
 
         source_id = validated_data.pop("source_id", None)
-        variant = (
-            ProductVariant.objects.filter(source_id=source_id)
-            .prefetch_related("product")
-            .first()
-        )
-        product = variant.product if variant else None
+        product = Product.objects.filter(source_id=source_id).first()
         if product:
             validated_data["product"] = product
         validated_data["user"] = request.user
@@ -192,18 +174,15 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         data["source_date"] = (
             instance.source_date if instance.source_date else instance.created_at
         )
-        flattened_replies = get_all_replies(instance)
-        data["replied_comments"] = (
-            CommentsSerializer(flattened_replies, many=True).data
-            if flattened_replies
-            else None
-        )
+        data["replied_comments"] = []
         return data
 
     def update(self, instance, validated_data):
-        if instance.status == CommentStatuses.NOT_ACCEPTED:
+        if not instance.reply_to or instance.status == CommentStatuses.NOT_ACCEPTED:
             instance.status = CommentStatuses.NOT_REVIEWED
-        return super().update(instance, validated_data)
+        comment = super().update(instance, validated_data)
+        RequestedComment.objects.update_or_create(**validated_data)
+        return comment
 
     class Meta:
         model = Comment

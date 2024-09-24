@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Exists, OuterRef
 from django.utils.translation import gettext_lazy as _
-from scraper.models import Comment, ProductVariantImage
+from scraper.models import Comment
 
 
 class HasCommentsFilter(admin.SimpleListFilter):
@@ -23,60 +23,6 @@ class HasCommentsFilter(admin.SimpleListFilter):
             return queryset.annotate(
                 has_comments=Exists(Comment.objects.filter(product=OuterRef("pk")))
             ).filter(has_comments=False)
-        return queryset
-
-
-class HasImagesInVariantsFilter(admin.SimpleListFilter):
-    title = _("Images in Variants")
-    parameter_name = "has_images_in_variants"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", _("Have image")),
-            ("no", _("Have no image")),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.annotate(
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                )
-            ).filter(has_images=True)
-        elif self.value() == "no":
-            return queryset.annotate(
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                )
-            ).filter(has_images=False)
-        return queryset
-
-
-class HasCommentsAndImagesFilter(admin.SimpleListFilter):
-    title = _("Comments and Images in Variants")
-    parameter_name = "has_comments_and_images"
-
-    def lookups(self, request, model_admin):
-        return [
-            ("yes", _("Have comment and image")),
-            ("no", _("Have no comments and no images")),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == "yes":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                ),
-            ).filter(has_comments=True, has_images=True)
-        elif self.value() == "no":
-            return queryset.annotate(
-                has_comments=Exists(Comment.objects.filter(product=OuterRef("pk"))),
-                has_images=Exists(
-                    ProductVariantImage.objects.filter(variant__product=OuterRef("pk"))
-                ),
-            ).filter(has_comments=False, has_images=False)
         return queryset
 
 
