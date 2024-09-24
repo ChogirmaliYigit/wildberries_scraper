@@ -153,6 +153,37 @@ class WildberriesClient:
         # Return empty if no matching categories were found even after reaching max limit
         return Category.objects.none()
 
+    def update_products(self):
+        currency = "rub"
+
+        for product in Product.objects.filter(source_id__isnull=True):
+            category = product.category
+            if not category:
+                continue
+
+            # Construct the URL for the API request
+            url = (
+                f"http://catalog.wb.ru/catalog/{category.shard}/v2/catalog"
+                f"?ab_testing=false&appType=1&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30"
+                f"&uclusters=0"
+            )
+            # Send request to get product data
+            data = self.send_request(url)
+
+            # Extract a product list from the API response
+            products_data = data.get("data", {}).get("products", [])
+
+            # Search for the product title in the products_data
+            for item in products_data:
+                product_title = item.get("name", "").lower()
+                target_title = product.title.lower()
+
+                # Check if the target title is found in the product title
+                if target_title in product_title:
+                    product.source_id = item.get("id")
+                    product.save()
+                    break  # Exit the loop once a match is found
+
     def get_products(self):
         """Fetches and saves products and their variants."""
         currency = "rub"
@@ -163,8 +194,9 @@ class WildberriesClient:
 
         for category in categories:
             url = (
-                f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog"
-                f"?cat={category.source_id}&curr={currency}&dest=491&sort=popular"
+                f"http://catalog.wb.ru/catalog/{category.shard}/v2/catalog"
+                f"?ab_testing=false&appType=1&cat={category.source_id}&curr={currency}&dest=491&sort=popular&spp=30"
+                f"&uclusters=0"
             )
             data = self.send_request(url)
 

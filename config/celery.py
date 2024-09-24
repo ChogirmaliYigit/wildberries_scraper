@@ -24,6 +24,10 @@ app.conf.beat_schedule = {
         "task": "scrape_comments",
         "schedule": settings.SCRAPE_COMMENTS_SECONDS,
     },
+    "update_wildberries_products": {
+        "task": "update_products",
+        "schedule": 60,
+    },
 }
 app.conf.timezone = "Asia/Tashkent"
 
@@ -52,3 +56,10 @@ def scrape_categories(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.get_categories()
+
+
+@app.task(name="update_products", bind=True)
+def update_products(*args, **kwargs):
+    from scraper.utils import wildberries
+
+    wildberries.update_products()
