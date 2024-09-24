@@ -121,9 +121,8 @@ def get_filtered_products():
             product_id = row[0]
             image_link = row[3]
 
-            product_ids.append(row[0])
-
             if image_link is not None:
+                product_ids.append(product_id)
                 if image_link.startswith("comments"):
                     image_link = f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{image_link}'
                 image_link_cases.append(When(id=product_id, then=Value(image_link)))
