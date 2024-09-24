@@ -71,6 +71,7 @@ class ProductAdmin(ModelAdmin):
     fields = (
         "title",
         "category",
+        "source_id",
     )
     search_fields = (
         "id",
