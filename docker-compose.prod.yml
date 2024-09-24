@@ -5,7 +5,6 @@ services:
     shm_size: "2gb"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     env_file:
       - .env
     ports:
