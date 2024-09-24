@@ -13,7 +13,7 @@ from scraper.models import (
     RequestedComment,
     RequestedCommentFile,
 )
-from unfold.admin import ModelAdmin, TabularInline
+from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
 
@@ -109,14 +109,14 @@ class ProductAdmin(ModelAdmin):
         )
 
 
-class CommentFilesInline(TabularInline):
+class CommentFilesInline(StackedInline):
     model = CommentFiles
     fields = ("file_link",)
     readonly_fields = fields
     extra = 0
 
 
-class RequestedCommentFilesInline(TabularInline):
+class RequestedCommentFilesInline(StackedInline):
     model = RequestedCommentFile
     fields = ("file_link",)
     readonly_fields = fields

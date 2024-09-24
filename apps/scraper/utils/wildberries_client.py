@@ -25,25 +25,25 @@ class WildberriesClient:
 
     def get_headers(self, url):
         return {
-            "User-Agent": self.ua.random,
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br",
+            "User-Agent": "python-requests/2.32.3",
+            "Accept-Language": "en,uz;q=0.9,ru;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
             "Accept": "application/json; charset=utf-8",
-            "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
-            "Referer": url,
+            "Host": "catalog.wb.ru",
         }
 
     def send_request(self, url):
         data = {}
         try:
-            response = requests.get(url, headers=self.get_headers(url), timeout=10)
+            session = HTMLSession()
+            response = session.get(url, headers=self.get_headers(url), timeout=10)
             if response.status_code == 200:
                 try:
                     data = response.json()
                 except requests.exceptions.JSONDecodeError as exc:
                     data = {}
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as exc:
             pass
         return data
 
@@ -131,7 +131,7 @@ class WildberriesClient:
                 except IntegrityError:
                     pass
 
-    def get_categories_with_few_products(self, initial_limit=10, max_limit=100):
+    def get_categories_with_few_products(self, initial_limit=10, max_limit=100):  # noqa
         limit = initial_limit
 
         # Loop until we find categories or reach the max limit
@@ -184,12 +184,13 @@ class WildberriesClient:
                     product.save()
                     break  # Exit the loop once a match is found
 
-    def get_products(self):
+    def get_products(self, categories=None):
         """Fetches and saves products and their variants."""
         currency = "rub"
-        categories = self.get_categories_with_few_products(
-            max_limit=Product.objects.count()
-        )
+        if not categories:
+            categories = self.get_categories_with_few_products(
+                max_limit=Product.objects.count()
+            )
         existing_source_ids = set(Product.objects.values_list("source_id", flat=True))
 
         for category in categories:
@@ -200,7 +201,18 @@ class WildberriesClient:
             )
             data = self.send_request(url)
 
+            if not data:
+                data = self.send_request(
+                    f"https://catalog.wb.ru/catalog/{category.shard}/v2/catalog?ab_pers_testid=newlogscore"
+                    f"&ab_rec_testid=newlogscore&ab_testid=newlogscore&appType=1&cat={category.source_id}&curr={currency}&dest=491&sort"
+                    "=popular&spp=30&uclusters=0"
+                )
+
             products_data = data.get("data", {}).get("products", [])
+            if not products_data:
+                sub_categories = category.sub_categories.all()
+                if sub_categories:
+                    self.get_products(sub_categories)
             random.shuffle(products_data)
             roots = {}
             for product in products_data:
@@ -228,10 +240,10 @@ class WildberriesClient:
                 },
             }
 
-            Product.objects.get_or_create(**data)
-
-            for v in product.get("sizes", []):
+            try:
                 Product.objects.get_or_create(**data)
+            except Exception:
+                pass
 
     def get_category_by_slug_name(self, slug_name):
         wildberries_categories = self.send_request(
@@ -307,17 +319,14 @@ class WildberriesClient:
             "defaults": {
                 "title": product_info["name"],
                 "category": self.get_product_category(source_id),
+                "source_id": source_id,
             },
         }
 
-        product_object, _ = Product.objects.get_or_create(**_data)
-
-        for i, v in enumerate(product_info.get("sizes", [])):
-            _data["defaults"]["title"] = (
-                _data["defaults"]["title"]
-                + f" - {product_info.get('colors')[i].get('name')}"
-            )
-            Product.objects.get_or_create(**_data)
+        try:
+            product_object, _ = Product.objects.get_or_create(**_data)
+        except Exception:
+            product_object = None
 
         return product_object
 

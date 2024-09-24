@@ -236,3 +236,11 @@ SCRAPE_PRODUCTS_SECONDS = env.float("SCRAPE_PRODUCTS_SECONDS")
 SCRAPE_COMMENTS_SECONDS = env.float("SCRAPE_COMMENTS_SECONDS")
 
 CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS", "").split(",")
+
+# Cache settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env.str("REDIS_URL", "redis://redis:6379/0"),
+    }
+}

@@ -76,10 +76,10 @@ class ProductsSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
+    replied_comments = serializers.ListField(read_only=True)
     rating = serializers.IntegerField(required=False, default=0)
     file = serializers.FileField(write_only=True, required=False)
     user = serializers.CharField(read_only=True)
-    files = serializers.ListSerializer(child=serializers.DictField(), read_only=True)
 
     def to_representation(self, instance):
         request = self.context.get("request")
@@ -101,15 +101,11 @@ class CommentsSerializer(serializers.ModelSerializer):
             is_own = False
         data["is_own"] = is_own
         data["product_name"] = instance.product.title if instance.product else None
-        data["product_image"] = (
-            {
-                "link": instance.product.img_link,
-                "type": FileTypeChoices.IMAGE,
-                "stream": False,
-            }
-            if instance.product
-            else None
-        )
+        data["product_image"] = {
+            "link": instance.product_image_link,
+            "type": FileTypeChoices.IMAGE,
+            "stream": False,
+        }
         data["promo"] = instance.promo
         data["replied_comments"] = []
         return data
@@ -157,7 +153,6 @@ class CommentsSerializer(serializers.ModelSerializer):
             "source_id",
             "content",
             "rating",
-            "files",
             "file",
             "file_type",
             "reply_to",

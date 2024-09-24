@@ -1,4 +1,5 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
+from django.core.cache import cache
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
@@ -43,11 +44,15 @@ class CategoriesListView(BaseListAPIView):
 class ProductsListView(BaseListAPIView):
     serializer_class = ProductsSerializer
     filterset_class = ProductFilter
-    search_fields = ["title"]
+    search_fields = ["title", "category__title"]
     ordering = []
 
     def get_queryset(self):
-        queryset = get_filtered_products()
+        cache_key = "filtered_products"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_products()
+            cache.set(cache_key, queryset, timeout=300)
         return queryset
 
 
@@ -70,11 +75,7 @@ class CommentsListView(BaseListCreateAPIView):
     ordering = []
 
     def get_queryset(self):
-        queryset = (
-            Comment.objects.filter(reply_to__isnull=False)
-            .select_related("product", "user", "reply_to")
-            .prefetch_related("files", "replies")
-        )
+        queryset = Comment.objects.filter(reply_to__isnull=False)
         return get_filtered_comments(queryset, has_file=False)
 
 
@@ -114,6 +115,14 @@ class FeedbacksListView(BaseListCreateAPIView):
     def get_queryset(self):
         queryset = Comment.objects.filter(reply_to__isnull=True)
         return get_filtered_comments(queryset, True)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response({}, status.HTTP_201_CREATED)
 
 
 class UserFeedbacksListView(BaseListAPIView):

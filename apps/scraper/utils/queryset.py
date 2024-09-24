@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 from django.db.models import (
     Case,
@@ -9,7 +10,7 @@ from django.db.models import (
     Q,
     When,
 )
-from django.db.models.expressions import Subquery, Value
+from django.db.models.expressions import OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
 from scraper.models import (
     CommentStatuses,
@@ -26,24 +27,28 @@ def get_filtered_products():
     WITH valid_comments AS (
         SELECT
             c.product_id,
-            c.promo
+            c.promo,
+            MAX(CASE
+                WHEN c.file_type = 'image' THEN c.file  -- Check for image in scraper_comment.file
+                ELSE NULL
+            END) AS comment_image_link,
+            MAX(f.file_link) AS file_link  -- Max link from scraper_commentfiles
         FROM
             scraper_comment c
         LEFT JOIN
             scraper_commentfiles f ON c.id = f.comment_id
         WHERE
             c.status = 'accepted' AND
-            (c.content IS NOT NULL AND c.content <> '') AND
-            c.product_id IS NOT NULL AND
-            (
-                (c.file IS NOT NULL AND c.file_type = 'image')  -- Image in scraper_comment.file
-                OR EXISTS (
-                    SELECT 1 FROM scraper_commentfiles f
-                    WHERE f.comment_id = c.id AND f.file_type = 'image'  -- Image in scraper_commentfiles
+            c.content IS NOT NULL AND c.content <> '' AND
+            c.product_id IS NOT NULL AND (
+                (c.file IS NOT NULL AND c.file_type = 'image') OR
+                EXISTS (
+                    SELECT 1 FROM scraper_commentfiles f2
+                    WHERE f2.comment_id = c.id AND f2.file_type = 'image'
                 )
             )
         GROUP BY
-            c.product_id, c.file, c.file_type, c.promo
+            c.product_id, c.promo
     ),
     products_with_comments AS (
         SELECT
@@ -52,84 +57,83 @@ def get_filtered_products():
             EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id AND vc.promo = TRUE) AS is_promoted
         FROM
             scraper_product p
-        WHERE
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
-            AND p.source_id IS NOT NULL  -- Ensure source_id is not null
-        ORDER BY
-            RANDOM()
+        WHERE EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
     ),
     products_with_image_links AS (
         SELECT
             pwc.product_id,
-            (SELECT f.file_link
-             FROM valid_comments fc
-             JOIN scraper_commentfiles f ON fc.product_id = pwc.product_id
-             WHERE f.file_type = 'image'
-             LIMIT 1) AS image_link
+            COALESCE(
+                NULLIF((SELECT vc.comment_image_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), ''),  -- Priority to scraper_comment.file
+                NULLIF((SELECT vc.file_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), '')  -- Fallback to scraper_commentfiles
+            ) AS image_link
         FROM
             products_with_comments pwc
     ),
-    promoted_products AS (
-        SELECT product_id
-        FROM products_with_comments
-        WHERE is_promoted = TRUE
-    ),
-    non_promoted_products AS (
-        SELECT product_id
-        FROM products_with_comments
-        WHERE is_promoted = FALSE
+    ranked_products AS (
+        SELECT
+            np.product_id,
+            np.has_valid_comments,
+            np.is_promoted,
+            pil.image_link,
+            ROW_NUMBER() OVER (
+                ORDER BY RANDOM()
+            ) AS rank
+        FROM
+            products_with_comments np
+        LEFT JOIN
+            products_with_image_links pil ON np.product_id = pil.product_id
     ),
     final_products AS (
-        SELECT product_id, ROW_NUMBER() OVER () AS rn
-        FROM non_promoted_products
-
-        UNION ALL
-
-        SELECT product_id, ROW_NUMBER() OVER () AS rn
-        FROM promoted_products
+        SELECT
+            rp.product_id,
+            rp.has_valid_comments,
+            rp.is_promoted,
+            rp.image_link,
+            CASE
+                WHEN rp.is_promoted = TRUE THEN 3  -- Promoted product to 3rd position
+                ELSE rp.rank + 1  -- Shift other products
+            END AS final_rank
+        FROM
+            ranked_products rp
     )
     SELECT
-        fp.product_id,
-        pwc.has_valid_comments,
-        pwc.is_promoted,
-        pil.image_link
+        product_id, has_valid_comments, is_promoted, image_link
     FROM
-        final_products fp
-    JOIN
-        products_with_comments pwc ON fp.product_id = pwc.product_id
-    LEFT JOIN
-        products_with_image_links pil ON fp.product_id = pil.product_id
+        final_products
     ORDER BY
-        CASE
-            WHEN fp.rn = 3 THEN 0  -- Custom logic for ordering
-            ELSE fp.rn
-        END
+        final_rank;
     """
 
     # Execute the raw SQL query to get the product details including image_link
     with connection.cursor() as cursor:
         cursor.execute(sql_query)
-        rows = cursor.fetchall()
 
-    # Extract product IDs and image links
-    ordering_cases = []
-    product_ids = []
-    img_link_cases = []
-    for pos, row in enumerate(rows):
-        ordering_cases.append(When(id=row[0], then=pos))
-        product_ids.append(row[0])
-        img_link_cases.append(When(id=row[0], then=Value(row[3])))
+        # Create a mapping of product IDs to their image links
+        image_link_cases = []
+        product_ids = []
+        ordering_cases = []
+        for index, row in enumerate(cursor.fetchall()):
+            product_id = row[0]
+            image_link = row[3]
 
-    # Retrieve Product instances and annotate them with image_link
+            product_ids.append(row[0])
+
+            if image_link is not None:
+                if image_link.startswith("comments"):
+                    image_link = f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{image_link}'
+                image_link_cases.append(When(id=product_id, then=Value(image_link)))
+
+            ordering_cases.append(When(id=product_id, then=index))
+
+    # Use the ordered product IDs to retrieve the actual Product instances
     products = (
         Product.objects.filter(id__in=product_ids)
-        .exclude(source_id__isnull=True)
         .annotate(
-            img_link=Case(*img_link_cases, output_field=CharField()),
+            img_link=Case(*image_link_cases, output_field=CharField()),
         )
-        .order_by(
-            Case(*ordering_cases, output_field=IntegerField()),
-        )
+        .order_by(Case(*ordering_cases, output_field=IntegerField()))
+        .select_related("category")
+        .prefetch_related("product_likes")
     )
 
     return products
@@ -175,13 +179,29 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
         .order_by("-ordering_date", "content")
     )
 
+    filtered_products = get_filtered_products()
+
+    queryset = queryset.annotate(
+        product_image_link=Subquery(
+            filtered_products.filter(id=OuterRef("product_id")).values("img_link")[:1],
+            output_field=CharField(),
+        )
+    )
+
     return queryset
 
 
 def get_filtered_comments(queryset, has_file=True):
-    base_queryset = base_comment_filter(
-        queryset.filter(status=CommentStatuses.ACCEPTED), has_file
-    )
+    cache_key = f"filtered_comments_{has_file}"
+    base_queryset = cache.get(cache_key)
+    if not base_queryset:
+        base_queryset = base_comment_filter(
+            queryset.filter(status=CommentStatuses.ACCEPTED)
+            .select_related("product", "user", "reply_to")
+            .prefetch_related("files", "replies"),
+            has_file,
+        )
+        cache.set(cache_key, base_queryset, timeout=300)
     return base_queryset
 
 
