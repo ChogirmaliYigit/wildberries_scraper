@@ -1,6 +1,14 @@
 from core.views import BaseListAPIView, BaseListCreateAPIView
 from django.core.cache import cache
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import (
+    Case,
+    CharField,
+    IntegerField,
+    OuterRef,
+    Subquery,
+    Value,
+    When,
+)
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -175,11 +183,27 @@ class FavoritesListView(BaseListAPIView):
         return context
 
     def get_queryset(self):
+        # Get filtered products with img_link annotation
         filtered_products = get_filtered_products()
-        queryset = Favorite.objects.filter(
-            user=self.request.user, product__in=filtered_products
+
+        # Annotate the img_link from the filtered_products into the Favorite queryset
+        products_with_img_link = filtered_products.filter(
+            id=OuterRef("product_id")
+        ).values("img_link")[:1]
+
+        queryset = (
+            Favorite.objects.filter(
+                user=self.request.user, product__in=filtered_products
+            )
+            .select_related("product")
+            .prefetch_related("user")
+            .annotate(
+                img_link=Subquery(products_with_img_link, output_field=CharField())
+            )
+            .order_by("-id")
         )
-        return queryset.prefetch_related("product", "user").order_by("-id")
+
+        return queryset
 
 
 def make_favorite(request, product_id, model):

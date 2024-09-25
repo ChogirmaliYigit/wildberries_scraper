@@ -34,6 +34,9 @@ class ProductsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get("request")
+        img_link = self.context.get("img_link")
+        if not img_link:
+            img_link = instance.img_link
         data = super().to_representation(instance)
 
         if request and request.user.is_authenticated:
@@ -48,7 +51,7 @@ class ProductsSerializer(serializers.ModelSerializer):
 
         # Safely retrieve product image
         data["image"] = {
-            "link": instance.img_link,
+            "link": img_link,
             "type": FileTypeChoices.IMAGE,
             "stream": False,
         }
@@ -205,8 +208,15 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
 
 class FavoritesSerializer(serializers.ModelSerializer):
-    product = ProductsSerializer(many=False, read_only=True)
+    product = serializers.SerializerMethodField()
     product_id = serializers.IntegerField(write_only=True)
+
+    def get_product(self, obj):
+        # Pass the img_link to the ProductSerializer
+        product_data = ProductsSerializer(
+            obj.product, context={**self.context, "img_link": obj.img_link}
+        ).data
+        return product_data
 
     class Meta:
         model = Favorite
