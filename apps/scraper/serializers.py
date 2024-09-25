@@ -1,3 +1,5 @@
+from django.core.files.storage import FileSystemStorage
+from django.db import transaction
 from rest_framework import exceptions, serializers
 from scraper.models import (
     Category,
@@ -137,6 +139,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
+        file = validated_data.pop("file", None)
         comment = self.context.get("comment", False)
 
         if comment and not validated_data.get("reply_to"):
@@ -155,17 +158,26 @@ class CommentsSerializer(serializers.ModelSerializer):
             status = CommentStatuses.NOT_REVIEWED
         validated_data["status"] = status
 
-        comment_instance = super().create(validated_data)
+        # Transaction-sensitive part
+        with transaction.atomic():
+            comment_instance = super().create(validated_data)
 
-        if source_id and not product:
-            comment_instance.product_source_id = source_id
-            comment_instance.save(update_fields=["product_source_id"])
+            if source_id and not product:
+                comment_instance.product_source_id = source_id
+                comment_instance.save(update_fields=["product_source_id"])
 
-        if request.query_params.get("direct", "false") != "true":
-            try:
-                RequestedComment.objects.create(**validated_data)
-            except Exception:
-                pass
+            if request.query_params.get("direct", "false") != "true":
+                try:
+                    RequestedComment.objects.create(**validated_data)
+                except Exception:
+                    pass
+
+        # File upload handling (outside atomic block)
+        if file:
+            storage = FileSystemStorage()
+            filename = storage.save(file.name, file)
+            comment_instance.file = filename
+            comment_instance.save(update_fields=["file"])
 
         return comment_instance
 
