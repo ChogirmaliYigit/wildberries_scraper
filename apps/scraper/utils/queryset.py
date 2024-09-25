@@ -258,18 +258,9 @@ def get_all_replies(comment, _replies=True):
         current_comment = replies_to_process.pop()
 
         # Fetch replies for the current comment
-        replies = (
-            current_comment.replies.prefetch_related("user", "reply_to", "product")
-            .distinct("user", "product", "content")
-            .annotate(
-                annotated_source_date=Case(
-                    When(source_date__isnull=False, then="source_date"),
-                    default="created_at",
-                    output_field=DateTimeField(),
-                )
-            )
-            .order_by("user", "product", "content", "-annotated_source_date")
-        )
+        replies = current_comment.replies.filter(
+            requestcomment__isnull=True
+        ).prefetch_related("user", "reply_to", "product")
 
         # Add replies to the list
         all_replies.extend(replies)
