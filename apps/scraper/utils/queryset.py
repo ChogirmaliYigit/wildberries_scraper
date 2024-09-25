@@ -24,17 +24,18 @@ from scraper.models import (
 def get_filtered_products():
     sql_query = """
     WITH valid_comments AS (
+        -- Same logic to filter valid comments and join scraper_commentfiles
         SELECT
             c.product_id,
             c.promo,
             MAX(CASE
-                WHEN c.file_type = 'image' THEN c.file  -- Check for image in scraper_comment.file
+                WHEN c.file_type = 'image' THEN c.file
                 ELSE NULL
             END) AS comment_image_link,
             MAX(CASE
-                WHEN f.file_link NOT LIKE '%index.m3u8%' THEN f.file_link  -- Exclude files ending with index.m3u8
+                WHEN f.file_link NOT LIKE '%index.m3u8%' THEN f.file_link
                 ELSE NULL
-            END) AS file_link  -- Max link from scraper_commentfiles excluding index.m3u8
+            END) AS file_link
         FROM
             scraper_comment c
         LEFT JOIN
@@ -48,13 +49,14 @@ def get_filtered_products():
                     SELECT 1 FROM scraper_commentfiles f2
                     WHERE f2.comment_id = c.id
                     AND f2.file_type = 'image'
-                    AND f2.file_link NOT LIKE '%index.m3u8%'  -- Exclude files ending with index.m3u8
+                    AND f2.file_link NOT LIKE '%index.m3u8%'
                 )
             )
         GROUP BY
             c.product_id, c.promo
     ),
     products_with_comments AS (
+        -- Flag products with comments and promotions
         SELECT
             p.id AS product_id,
             EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
@@ -64,16 +66,18 @@ def get_filtered_products():
         WHERE EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
     ),
     products_with_image_links AS (
+        -- Select image links for products
         SELECT
             pwc.product_id,
             COALESCE(
-                NULLIF((SELECT vc.comment_image_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), ''),  -- Priority to scraper_comment.file
-                NULLIF((SELECT vc.file_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), '')  -- Fallback to scraper_commentfiles
+                NULLIF((SELECT vc.comment_image_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), ''),
+                NULLIF((SELECT vc.file_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), '')
             ) AS image_link
         FROM
             products_with_comments pwc
     ),
     ranked_products AS (
+        -- Rank products with random order
         SELECT
             np.product_id,
             np.has_valid_comments,
@@ -87,6 +91,17 @@ def get_filtered_products():
         LEFT JOIN
             products_with_image_links pil ON np.product_id = pil.product_id
     ),
+    promoted_products AS (
+        -- Select one random promoted product
+        SELECT
+            product_id
+        FROM
+            ranked_products
+        WHERE
+            is_promoted = TRUE
+        ORDER BY RANDOM()
+        LIMIT 1
+    ),
     final_products AS (
         SELECT
             rp.product_id,
@@ -94,8 +109,9 @@ def get_filtered_products():
             rp.is_promoted,
             rp.image_link,
             CASE
-                WHEN rp.is_promoted = TRUE THEN 3  -- Promoted product to 3rd position
-                ELSE rp.rank + 1  -- Shift other products
+                WHEN rp.product_id = (SELECT product_id FROM promoted_products) THEN 3  -- Place one promoted product in 3rd position
+                WHEN rp.rank >= 3 THEN rp.rank + 1  -- Shift other products down to make room for the 3rd position
+                ELSE rp.rank  -- Leave products ranked before 3 untouched
             END AS final_rank
         FROM
             ranked_products rp
