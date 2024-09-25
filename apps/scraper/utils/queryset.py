@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.cache import cache
 from django.db import connection
 from django.db.models import (
     Case,
@@ -196,16 +195,12 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(queryset, has_file=True):
-    cache_key = f"filtered_comments_{has_file}"
-    base_queryset = cache.get(cache_key)
-    if not base_queryset:
-        base_queryset = base_comment_filter(
-            queryset.filter(status=CommentStatuses.ACCEPTED)
-            .select_related("product", "user", "reply_to")
-            .prefetch_related("files", "replies"),
-            has_file,
-        )
-        cache.set(cache_key, base_queryset, timeout=300)
+    base_queryset = base_comment_filter(
+        queryset.filter(status=CommentStatuses.ACCEPTED)
+        .select_related("product", "user", "reply_to")
+        .prefetch_related("files", "replies"),
+        has_file,
+    )
     return base_queryset
 
 

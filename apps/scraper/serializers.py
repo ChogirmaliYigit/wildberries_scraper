@@ -83,7 +83,9 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get("request")
+        user_feedback = self.context.get("user_feedback", False)
         data = super().to_representation(instance)
+
         data["files"] = get_files(instance)
         if instance.wb_user:
             user = instance.wb_user
@@ -100,12 +102,16 @@ class CommentsSerializer(serializers.ModelSerializer):
         else:
             is_own = False
         data["is_own"] = is_own
-        data["product_name"] = instance.product.title if instance.product else None
-        data["product_image"] = {
-            "link": instance.product_image_link,
-            "type": FileTypeChoices.IMAGE,
-            "stream": False,
-        }
+        if user_feedback:
+            data["product_name"] = instance.product.title if instance.product else None
+            data["product_image"] = {
+                "link": instance.product_image_link,
+                "type": FileTypeChoices.IMAGE,
+                "stream": False,
+            }
+        else:
+            data["product_name"] = ""
+            data["product_image"] = {}
         data["promo"] = instance.promo
         data["replied_comments"] = []
         return data

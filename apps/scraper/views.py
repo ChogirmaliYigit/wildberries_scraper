@@ -75,8 +75,14 @@ class CommentsListView(BaseListCreateAPIView):
     ordering = []
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(reply_to__isnull=False)
-        return get_filtered_comments(queryset, has_file=False)
+        cache_key = "comments_list"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments(
+                Comment.objects.filter(reply_to__isnull=False), has_file=False
+            )
+            cache.set(cache_key, queryset, timeout=300)
+        return queryset
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -102,10 +108,20 @@ class UserCommentsListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(
-            reply_to__isnull=False, user=self.request.user
-        )
-        return get_filtered_comments(queryset, False)
+        cache_key = "user_comments_list"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments(
+                Comment.objects.filter(reply_to__isnull=False, user=self.request.user),
+                False,
+            )
+            cache.set(cache_key, queryset, timeout=300)
+        return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user_feedback"] = True
+        return context
 
 
 class FeedbacksListView(BaseListCreateAPIView):
@@ -113,16 +129,15 @@ class FeedbacksListView(BaseListCreateAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(reply_to__isnull=True)
-        return get_filtered_comments(queryset, True)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return response.Response({}, status.HTTP_201_CREATED)
+        cache_key = "feedbacks_list"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments(
+                Comment.objects.filter(reply_to__isnull=True),
+                True,
+            )
+            cache.set(cache_key, queryset, timeout=300)
+        return queryset
 
 
 class UserFeedbacksListView(BaseListAPIView):
@@ -131,8 +146,20 @@ class UserFeedbacksListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        queryset = Comment.objects.filter(reply_to__isnull=True, user=self.request.user)
-        return get_filtered_comments(queryset, True)
+        cache_key = "user_feedbacks_list"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments(
+                Comment.objects.filter(reply_to__isnull=True, user=self.request.user),
+                True,
+            )
+            cache.set(cache_key, queryset, timeout=300)
+        return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user_feedback"] = True
+        return context
 
 
 class FavoritesListView(BaseListAPIView):
