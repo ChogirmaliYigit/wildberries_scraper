@@ -3,7 +3,7 @@ from users.utils import send_email
 
 
 def send_comment_notification(comment):
-    if comment.user:
+    if comment.user and not comment.reply_to:
         name = str(
             comment.user.full_name if comment.user.full_name else comment.user.email
         )

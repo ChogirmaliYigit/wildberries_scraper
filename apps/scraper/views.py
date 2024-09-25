@@ -62,7 +62,7 @@ class ProductDetailView(views.APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request, pk):
-        product = Product.objects.filter(pk=pk).first()
+        product = get_filtered_products().filter(pk=pk).first()
         if not product:
             raise exceptions.ValidationError({"message": "Товар недоступен"})
         serializer = self.serializer_class(product, context={"request": request})
@@ -108,7 +108,7 @@ class UserCommentsListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "user_comments_list"
+        cache_key = f"user_comments_list_{self.request.user.id}"
         queryset = cache.get(cache_key)
         if not queryset:
             queryset = get_filtered_comments(
@@ -146,7 +146,7 @@ class UserFeedbacksListView(BaseListAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "user_feedbacks_list"
+        cache_key = f"user_feedbacks_list_{self.request.user.id}"
         queryset = cache.get(cache_key)
         if not queryset:
             queryset = get_filtered_comments(
@@ -175,7 +175,10 @@ class FavoritesListView(BaseListAPIView):
         return context
 
     def get_queryset(self):
-        queryset = Favorite.objects.filter(user=self.request.user)
+        filtered_products = get_filtered_products()
+        queryset = Favorite.objects.filter(
+            user=self.request.user, product__in=filtered_products
+        )
         return queryset.prefetch_related("product", "user").order_by("-id")
 
 
