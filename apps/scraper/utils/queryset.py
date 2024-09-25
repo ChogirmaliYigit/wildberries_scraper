@@ -259,7 +259,7 @@ def get_all_replies(comment, _replies=True):
 
         # Fetch replies for the current comment
         replies = current_comment.replies.filter(
-            requestcomment__isnull=True
+            requestedcomment__isnull=True
         ).prefetch_related("user", "reply_to", "product")
 
         # Add replies to the list
