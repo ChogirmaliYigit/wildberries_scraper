@@ -134,7 +134,6 @@ class CommentsSerializer(serializers.ModelSerializer):
             data["product_name"] = ""
             data["product_image"] = {}
         data["promo"] = instance.promo
-        data["replied_comments"] = []
         return data
 
     def create(self, validated_data):
