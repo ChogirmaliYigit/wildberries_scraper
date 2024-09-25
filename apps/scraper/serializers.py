@@ -8,7 +8,11 @@ from scraper.models import (
     Product,
     RequestedComment,
 )
-from scraper.utils.queryset import get_files, get_user_likes_and_favorites
+from scraper.utils.queryset import (
+    get_all_replies,
+    get_files,
+    get_user_likes_and_favorites,
+)
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -87,7 +91,19 @@ class CommentsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         request = self.context.get("request")
         user_feedback = self.context.get("user_feedback", False)
+        _replies = self.context.get("replies", False)
         data = super().to_representation(instance)
+
+        if _replies:
+            # Flatten replies
+            flattened_replies = get_all_replies(instance)
+            data["replied_comments"] = (
+                CommentsSerializer(
+                    flattened_replies, many=True, context={"replies": False}
+                ).data
+                if flattened_replies
+                else []
+            )
 
         data["files"] = get_files(instance)
         if instance.wb_user:

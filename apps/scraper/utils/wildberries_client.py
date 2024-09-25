@@ -312,7 +312,11 @@ class WildberriesClient:
         if not product_data.get("data"):
             return None
 
-        product_info = product_data["data"]["products"][0]
+        products = product_data["data"]["products"]
+        if isinstance(products, list) and len(products) > 0:
+            product_info = products[0]
+        else:
+            return
 
         _data = {
             "root": product_info["root"],

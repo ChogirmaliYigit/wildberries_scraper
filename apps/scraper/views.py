@@ -92,6 +92,11 @@ class CommentsListView(BaseListCreateAPIView):
             cache.set(cache_key, queryset, timeout=300)
         return queryset
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["replies"] = True
+        return context
+
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentDetailSerializer
@@ -129,6 +134,7 @@ class UserCommentsListView(BaseListAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["user_feedback"] = True
+        context["replies"] = True
         return context
 
 
