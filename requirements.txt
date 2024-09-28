@@ -17,6 +17,7 @@ setuptools==70.3.0
 gevent==24.2.1
 celery~=5.4.0
 redis==5.0.8
+django-redis==5.4.0
 watchfiles==0.23.0
 django-celery-beat==2.7.0
 requests==2.32.3

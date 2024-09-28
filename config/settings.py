@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_celery_beat",
     "debug_toolbar",
+    "django_redis",
     "core",
     "users",
     "scraper",
@@ -241,7 +242,14 @@ CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS", "").split(",")
 # Cache settings
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": env.str("REDIS_URL", "redis://redis:6379/0"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+                "retry_on_timeout": True,
+            },
+        },
     }
 }
