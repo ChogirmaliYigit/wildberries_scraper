@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define variables
-CONTAINER_NAME="wildberries_scraper_db"
+CONTAINER_NAME="db"
 DB_NAME="wildberries"
 BACKUP_FILE="database_dump.sql"
 
