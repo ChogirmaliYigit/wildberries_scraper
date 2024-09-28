@@ -2,7 +2,6 @@ services:
   db:
     container_name: wildberries_scraper_db
     image: postgres:16
-    shm_size: "2gb"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
@@ -20,11 +19,6 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=md5
       - POSTGRES_INITDB_ARGS=--auth=md5
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-          cpus: "1.0"
 
   web:
     container_name: wildberries_scraper_backend
