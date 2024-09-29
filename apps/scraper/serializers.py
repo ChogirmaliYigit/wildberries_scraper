@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from rest_framework import exceptions, serializers
@@ -173,9 +176,11 @@ class CommentsSerializer(serializers.ModelSerializer):
 
         # File upload handling (outside atomic block)
         if file:
-            storage = FileSystemStorage()
+            file_directory = "comments/files/"
+            full_file_path = os.path.join(settings.MEDIA_ROOT, file_directory)
+            storage = FileSystemStorage(location=full_file_path)
             filename = storage.save(file.name, file)
-            comment_instance.file = filename
+            comment_instance.file = os.path.join(file_directory, filename)
             comment_instance.save(update_fields=["file"])
 
         return comment_instance
