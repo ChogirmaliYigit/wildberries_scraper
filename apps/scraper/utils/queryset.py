@@ -242,7 +242,7 @@ def get_filtered_comments(**filters):
             ordering_date=Coalesce(
                 "source_date", "created_at", output_field=DateTimeField()
             ),
-            img_link=Subquery(products_with_img_link, output_field=CharField()),
+            product_img_link=Subquery(products_with_img_link, output_field=CharField()),
         )
         .order_by("-ordering_date")
     )
