@@ -129,7 +129,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         if user_feedback:
             data["product_name"] = instance.product.title if instance.product else None
             data["product_image"] = {
-                "link": instance.product_image_link,
+                "link": getattr(instance, "product_img_link", None),
                 "type": FileTypeChoices.IMAGE,
                 "stream": False,
             }

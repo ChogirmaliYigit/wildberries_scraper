@@ -26,26 +26,21 @@ from scraper.models import (
 def get_filtered_products():
     sql_query = """
     WITH valid_comments AS (
-        -- Same logic to filter valid comments and join scraper_commentfiles
         SELECT
             c.product_id,
             c.promo,
-            MAX(CASE
-                WHEN c.file_type = 'image' THEN c.file
-                ELSE NULL
-            END) AS comment_image_link,
-            MAX(CASE
-                WHEN f.file_link NOT LIKE '%index.m3u8%' THEN f.file_link
-                ELSE NULL
-            END) AS file_link
+            MAX(CASE WHEN c.file_type = 'image' THEN c.file END) AS comment_image_link,
+            MAX(CASE WHEN f.file_link NOT LIKE '%index.m3u8%' THEN f.file_link END) AS file_link
         FROM
             scraper_comment c
         LEFT JOIN
             scraper_commentfiles f ON c.id = f.comment_id
         WHERE
-            c.status = 'accepted' AND
-            c.content IS NOT NULL AND c.content <> '' AND
-            c.product_id IS NOT NULL AND (
+            c.status = 'accepted'
+            AND c.content IS NOT NULL
+            AND c.content <> ''
+            AND c.product_id IS NOT NULL
+            AND (
                 (c.file IS NOT NULL AND c.file_type = 'image') OR
                 EXISTS (
                     SELECT 1 FROM scraper_commentfiles f2
@@ -58,7 +53,6 @@ def get_filtered_products():
             c.product_id, c.promo
     ),
     products_with_comments AS (
-        -- Flag products with comments and promotions
         SELECT
             p.id AS product_id,
             EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
@@ -68,7 +62,6 @@ def get_filtered_products():
         WHERE EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
     ),
     products_with_image_links AS (
-        -- Select image links for products
         SELECT
             pwc.product_id,
             COALESCE(
