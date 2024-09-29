@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 from django.db.models import (
     Case,
@@ -12,6 +13,7 @@ from django.db.models import (
 from django.db.models.expressions import OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
 from scraper.models import (
+    Comment,
     CommentStatuses,
     Favorite,
     FileTypeChoices,
@@ -180,42 +182,69 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
             | Q(file_type=FileTypeChoices.IMAGE)
         )
 
-    # Annotate with ordering_date
-    annotated_queryset = queryset.annotate(
-        ordering_date=Coalesce(
-            "source_date", "created_at", output_field=DateTimeField()
-        )
-    ).values("id")
-
-    # Filter the original queryset using the subquery
     queryset = (
-        queryset.filter(id__in=Subquery(annotated_queryset))
+        queryset.only(
+            "id",
+            "source_id",
+            "content",
+            "rating",
+            "replies",
+            "file",
+            "file_type",
+            "files",
+            "reply_to",
+            "wb_user",
+            "user",
+            "user__id",
+            "user__full_name",
+            "user__email",
+            "source_date",
+            "created_at",
+            "product",
+            "product__title",
+            "promo",
+        )
         .annotate(
             ordering_date=Coalesce(
                 "source_date", "created_at", output_field=DateTimeField()
-            )
+            ),
+            product_image_link=Coalesce(
+                "status",
+                "wb_user",
+                output_field=CharField(),
+            ),
         )
         .order_by("-ordering_date", "content")
-    )
-
-    filtered_products = get_filtered_products()
-
-    queryset = queryset.annotate(
-        product_image_link=Subquery(
-            filtered_products.filter(id=OuterRef("product_id")).values("img_link")[:1],
-            output_field=CharField(),
-        )
     )
 
     return queryset
 
 
-def get_filtered_comments(queryset, has_file=True):
-    base_queryset = base_comment_filter(
-        queryset.filter(status=CommentStatuses.ACCEPTED)
+def get_filtered_comments(**filters):
+    cache_key = "filtered_products"
+    filtered_products = cache.get(cache_key)
+    if not filtered_products:
+        filtered_products = get_filtered_products()
+        cache.set(cache_key, filtered_products, timeout=120)
+    products_with_img_link = filtered_products.filter(id=OuterRef("product_id")).values(
+        "img_link"
+    )[:1]
+    base_queryset = (
+        Comment.objects.filter(
+            **filters,
+            status=CommentStatuses.ACCEPTED,
+            product__in=Subquery(filtered_products.values_list("id", flat=True)),
+            requestedcomment__isnull=True,
+        )
         .select_related("product", "user", "reply_to")
-        .prefetch_related("files", "replies"),
-        has_file,
+        .prefetch_related("files", "replies")
+        .annotate(
+            ordering_date=Coalesce(
+                "source_date", "created_at", output_field=DateTimeField()
+            ),
+            img_link=Subquery(products_with_img_link, output_field=CharField()),
+        )
+        .order_by("-ordering_date")
     )
     return base_queryset
 

@@ -168,6 +168,18 @@ class Comment(BaseModel):
         verbose_name = _("Comment")
         verbose_name_plural = _("Comments")
 
+        indexes = [
+            # Single-column indexes
+            models.Index(fields=["status"], name="status_idx"),
+            models.Index(fields=["file_type"], name="file_type_idx"),
+            models.Index(fields=["source_date"], name="source_date_idx"),
+            models.Index(fields=["product"], name="product_idx"),
+            models.Index(fields=["promo"], name="promo_idx"),
+            # Composite indexes
+            models.Index(fields=["status", "content"], name="status_content_idx"),
+            models.Index(fields=["product", "source_id"], name="product_source_id_idx"),
+        ]
+
 
 class RequestedComment(Comment):
     class Meta:

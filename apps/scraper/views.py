@@ -86,9 +86,7 @@ class CommentsListView(BaseListCreateAPIView):
         cache_key = "comments_list"
         queryset = cache.get(cache_key)
         if not queryset:
-            queryset = get_filtered_comments(
-                Comment.objects.filter(reply_to__isnull=False), has_file=False
-            )
+            queryset = get_filtered_comments(reply_to__isnull=False)
             cache.set(cache_key, queryset, timeout=300)
         return queryset
 
@@ -125,8 +123,7 @@ class UserCommentsListView(BaseListAPIView):
         queryset = cache.get(cache_key)
         if not queryset:
             queryset = get_filtered_comments(
-                Comment.objects.filter(reply_to__isnull=False, user=self.request.user),
-                False,
+                reply_to__isnull=False, user=self.request.user
             )
             cache.set(cache_key, queryset, timeout=300)
         return queryset
@@ -143,15 +140,7 @@ class FeedbacksListView(BaseListCreateAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        cache_key = "feedbacks_list"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_comments(
-                Comment.objects.filter(reply_to__isnull=True),
-                True,
-            )
-            cache.set(cache_key, queryset, timeout=300)
-        return queryset
+        return get_filtered_comments(reply_to__isnull=True)
 
 
 class UserFeedbacksListView(BaseListAPIView):
@@ -164,8 +153,7 @@ class UserFeedbacksListView(BaseListAPIView):
         queryset = cache.get(cache_key)
         if not queryset:
             queryset = get_filtered_comments(
-                Comment.objects.filter(reply_to__isnull=True, user=self.request.user),
-                True,
+                reply_to__isnull=True, user=self.request.user
             )
             cache.set(cache_key, queryset, timeout=300)
         return queryset
@@ -197,7 +185,7 @@ class FavoritesListView(BaseListAPIView):
             id=OuterRef("product_id")
         ).values("img_link")[:1]
 
-        queryset = (
+        return (
             Favorite.objects.filter(
                 user=self.request.user, product__in=filtered_products
             )
@@ -208,8 +196,6 @@ class FavoritesListView(BaseListAPIView):
             )
             .order_by("-id")
         )
-
-        return queryset
 
 
 def make_favorite(request, product_id, model):
