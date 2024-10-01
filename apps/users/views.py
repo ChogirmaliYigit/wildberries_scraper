@@ -19,10 +19,13 @@ class SignUpView(views.APIView):
 
     @utils.swagger_auto_schema(request_body=serializer_class, responses={200: "{}"})
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        send_otp(user, OTPTypes.REGISTER)
+        user = User.objects.filter(email=request.data.get("email")).first()
+        if not user:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+        if not user.is_active:
+            send_otp(user, OTPTypes.REGISTER)
         return response.Response({}, status.HTTP_200_OK)
 
 
