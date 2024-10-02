@@ -1,7 +1,3 @@
-import os
-
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from rest_framework import exceptions, serializers
 from scraper.models import (
@@ -141,7 +137,6 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        file = validated_data.pop("file", None)
         comment = self.context.get("comment", False)
 
         if comment and not validated_data.get("reply_to"):
@@ -173,15 +168,6 @@ class CommentsSerializer(serializers.ModelSerializer):
                     RequestedComment.objects.create(**validated_data)
                 except Exception:
                     pass
-
-        # File upload handling (outside atomic block)
-        if file:
-            file_directory = "comments/files/"
-            full_file_path = os.path.join(settings.MEDIA_ROOT, file_directory)
-            storage = FileSystemStorage(location=full_file_path)
-            filename = storage.save(file.name, file)
-            comment_instance.file = os.path.join(file_directory, filename)
-            comment_instance.save(update_fields=["file"])
 
         return comment_instance
 
