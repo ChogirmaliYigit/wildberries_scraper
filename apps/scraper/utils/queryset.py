@@ -133,7 +133,7 @@ def get_filtered_products():
 
             if image_link is not None:
                 product_ids.append(product_id)
-                if image_link.startswith("comments"):
+                if not image_link.startswith("http"):
                     image_link = f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{image_link}'
                 image_link_cases.append(When(id=product_id, then=Value(image_link)))
 
