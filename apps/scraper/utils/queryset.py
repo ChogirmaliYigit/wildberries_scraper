@@ -400,7 +400,7 @@ def get_products_response(request, page_obj):
 
 
 def filter_comments(request, **filters):
-    _filters_string = [f"{key}_{value}" for key, value in filters]
+    _filters_string = [f"{key}_{value}" for key, value in filters.items()]
     cache_key = f"all_comments_{request}_{''.join(_filters_string)}"
     queryset = cache.get(cache_key)
     if not queryset:
