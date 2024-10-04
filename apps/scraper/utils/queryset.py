@@ -26,7 +26,7 @@ from scraper.models import (
 )
 
 
-def get_all_products():
+def get_all_products(product_id):
     sql_query = """
     WITH valid_comments AS (
         SELECT
@@ -142,6 +142,9 @@ def get_all_products():
 
             ordering_cases.append(When(id=product_id, then=index))
 
+        if product_id:
+            product_ids.append(product_id)
+
     # Use the ordered product IDs to retrieve the actual Product instances
     products = (
         Product.objects.filter(id__in=product_ids)
@@ -221,11 +224,8 @@ def get_filtered_comments(product_id=None, **filters):
     cache_key = "all_products"
     products = cache.get(cache_key)
     if not products:
-        products = get_all_products()
+        products = get_all_products(product_id)
         cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-    product_ids = list(products.values_list("id", flat=True))
-    if product_id:
-        product_ids.append(product_id)
     products_with_img_link = products.filter(id=OuterRef("product_id")).values(
         "img_link"
     )[:1]
@@ -233,7 +233,7 @@ def get_filtered_comments(product_id=None, **filters):
         Comment.objects.filter(
             **filters,
             status=CommentStatuses.ACCEPTED,
-            product__in=Subquery(product_ids),
+            product__in=Subquery(products.values_list("id", flat=True)),
             requestedcomment__isnull=True,
         )
         .select_related("product", "user", "reply_to")
