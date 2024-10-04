@@ -1,13 +1,14 @@
 from core.models import BaseModel
 from django.db import models
-from django.db.models import Index, Q, UniqueConstraint
-from django.db.models.functions import Upper
+from django.db.models import Q, UniqueConstraint
 from django.utils.translation import gettext_lazy as _
 from users.models import User
 
 
 class Category(BaseModel):
-    title: str = models.TextField(verbose_name=_("Title"), null=True, blank=True)
+    title: str = models.TextField(
+        verbose_name=_("Title"), null=True, blank=True, db_index=True
+    )
     parent: "Category" = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -43,16 +44,12 @@ class Category(BaseModel):
                 name="unique_source_id_exclude_null_category",
             ),
         ]
-        indexes = [
-            Index(
-                Upper("title"),
-                name="category_title_upper_index",
-            ),
-        ]
 
 
 class Product(BaseModel):
-    title: str = models.TextField(null=True, blank=True, verbose_name=_("Title"))
+    title: str = models.TextField(
+        null=True, blank=True, verbose_name=_("Title"), db_index=True
+    )
     category: Category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -60,6 +57,7 @@ class Product(BaseModel):
         blank=True,
         related_name="products",
         verbose_name=_("Category"),
+        db_index=True,
     )
     root: int = models.IntegerField(null=True, blank=True, verbose_name=_("Root"))
     source_id: int = models.PositiveBigIntegerField(
@@ -83,12 +81,6 @@ class Product(BaseModel):
                 fields=["source_id"],
                 condition=~Q(source_id=None),
                 name="unique_source_id_exclude_null_product",
-            ),
-        ]
-        indexes = [
-            Index(
-                Upper("title"),
-                name="product_title_upper_index",
             ),
         ]
 

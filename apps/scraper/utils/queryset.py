@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import (
     Case,
@@ -12,6 +13,8 @@ from django.db.models import (
 )
 from django.db.models.expressions import OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.http import JsonResponse
+from scraper.filters import filter_by_category
 from scraper.models import (
     Comment,
     CommentStatuses,
@@ -23,7 +26,7 @@ from scraper.models import (
 )
 
 
-def get_filtered_products():
+def get_all_products():
     sql_query = """
     WITH valid_comments AS (
         SELECT
@@ -144,6 +147,7 @@ def get_filtered_products():
         Product.objects.filter(id__in=product_ids)
         .annotate(
             img_link=Case(*image_link_cases, output_field=CharField()),
+            likes_count=Count("product_likes"),
         )
         .order_by(Case(*ordering_cases, output_field=IntegerField()))
         .select_related("category")
@@ -214,19 +218,19 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(**filters):
-    cache_key = "filtered_products"
-    filtered_products = cache.get(cache_key)
-    if not filtered_products:
-        filtered_products = get_filtered_products()
-        cache.set(cache_key, filtered_products, timeout=120)
-    products_with_img_link = filtered_products.filter(id=OuterRef("product_id")).values(
+    cache_key = "all_products"
+    products = cache.get(cache_key)
+    if not products:
+        products = get_all_products()
+        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    products_with_img_link = products.filter(id=OuterRef("product_id")).values(
         "img_link"
     )[:1]
     base_queryset = (
         Comment.objects.filter(
             **filters,
             status=CommentStatuses.ACCEPTED,
-            product__in=Subquery(filtered_products.values_list("id", flat=True)),
+            product__in=Subquery(products.values_list("id", flat=True)),
             requestedcomment__isnull=True,
         )
         .select_related("product", "user", "reply_to")
@@ -294,12 +298,208 @@ def get_all_replies(comment, _replies=True):
     return all_replies
 
 
-def get_user_likes_and_favorites(user):
-    liked_products = set(
-        Like.objects.filter(user=user).values_list("product_id", flat=True)
-    )
-    favorite_products = set(
-        Favorite.objects.filter(user=user).values_list("product_id", flat=True)
+def get_user_likes_and_favorites(user, product):
+    liked = Like.objects.filter(user=user, product=product).exists()
+    favorite = Favorite.objects.filter(user=user, product=product).exists()
+
+    return liked, favorite
+
+
+def paginate_queryset(request, queryset):
+    # Pagination logic moved to a separate function
+    page_number = request.GET.get("page", 1)
+    page_size = request.GET.get("count", 10)
+
+    paginator = Paginator(queryset, page_size)
+    page_obj = paginator.get_page(page_number)
+    return (
+        paginator.count,
+        page_obj.next_page_number() if page_obj.has_next() else None,
+        page_obj.previous_page_number() if page_obj.has_previous() else None,
+        page_obj.number,
+        page_obj,
     )
 
-    return liked_products, favorite_products
+
+def get_paginated_response(data, total, _next=None, previous=None, current=1):
+    return JsonResponse(
+        {
+            "total": total,
+            "next": _next,
+            "previous": previous,
+            "current": current,
+            "results": data,
+        },
+        safe=False,
+    )
+
+
+def filter_products(request):
+    cache_key = "all_products"
+    queryset = cache.get(cache_key)
+    if not queryset:
+        queryset = get_all_products()
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+
+    # Extracting filter parameters from the request
+    category_id = request.GET.get("category_id", None)
+    source_id = request.GET.get("source_id", None)
+    search_key = request.GET.get("search", None)
+
+    if category_id:
+        category_cache_key = f"filter_by_category_{category_id}"
+        category_queryset = cache.get(category_cache_key)
+        if not category_queryset:
+            category_queryset = filter_by_category(queryset, category_id)
+            cache.set(
+                category_cache_key,
+                category_queryset,
+                timeout=settings.CACHE_DEFAULT_TIMEOUT,
+            )
+        queryset = category_queryset
+
+    if source_id:
+        queryset = queryset.filter(source_id=source_id)
+
+    if search_key:
+        queryset = queryset.filter(
+            Q(title__icontains=search_key) | Q(category__title__icontains=search_key)
+        )
+
+    return queryset
+
+
+def get_products_response(request, page_obj):
+    data = []
+    for product in page_obj.object_list:
+        liked, favorite = False, False
+        if request.user.is_authenticated:
+            liked, favorite = get_user_likes_and_favorites(request.user, product)
+        data.append(
+            {
+                "id": product.id,
+                "title": product.title,
+                "category": product.category.title if product.category else "",
+                "source_id": product.source_id,
+                "liked": liked,
+                "favorite": favorite,
+                "likes": product.likes_count,
+                "image": {
+                    "link": product.img_link,
+                    "type": FileTypeChoices.IMAGE,
+                    "stream": False,
+                },
+                "link": (
+                    f"https://wildberries.ru/catalog/{product.source_id}/detail.aspx"
+                    if product.source_id
+                    else None
+                ),
+            }
+        )
+    return data
+
+
+def filter_comments(request, **filters):
+    cache_key = "all_comments"
+    queryset = cache.get(cache_key)
+    if not queryset:
+        queryset = get_filtered_comments(**filters)
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+
+    # Extracting filter parameters from the request
+    product_id = request.GET.get("product_id", None)
+    source_id = request.GET.get("source_id", None)
+    feedback_id = request.GET.get("feedback_id", None)
+
+    # Apply filtering based on product ID
+    if product_id:
+        product_cache_key = f"filter_by_product_{product_id}"
+        product_queryset = cache.get(product_cache_key)
+        if not product_queryset:
+            product_queryset = queryset.filter(product_id=product_id)
+            cache.set(
+                product_cache_key,
+                product_queryset,
+                timeout=settings.CACHE_DEFAULT_TIMEOUT,
+            )
+        queryset = product_queryset
+
+    # Apply filtering based on source ID
+    if source_id:
+        queryset = queryset.filter(source_id=source_id)
+
+    # Apply filtering based on feedback (reply to) ID
+    if feedback_id:
+        feedback_cache_key = f"filter_by_feedback_{feedback_id}"
+        feedback_queryset = cache.get(feedback_cache_key)
+        if not feedback_queryset:
+            feedback_queryset = queryset.filter(reply_to_id=feedback_id)
+            cache.set(
+                feedback_cache_key,
+                feedback_queryset,
+                timeout=settings.CACHE_DEFAULT_TIMEOUT,
+            )
+        queryset = feedback_queryset
+
+    return queryset
+
+
+def get_comments_response(request, objects, replies=False, user_feedback=False):
+    data = []
+    for comment in objects:
+        response = {}
+        if replies:
+            # Flatten replies
+            flattened_replies = get_all_replies(comment)
+            response["replied_comments"] = (
+                get_comments_response(
+                    request,
+                    flattened_replies,
+                    replies=False,
+                    user_feedback=user_feedback,
+                )
+                if flattened_replies
+                else []
+            )
+        if comment.wb_user:
+            user = comment.wb_user
+        elif comment.user:
+            user = comment.user.full_name or comment.user.email
+        else:
+            user = "Anonymous"
+        if request and comment.user:
+            is_own = request.user.id == comment.user.id
+        else:
+            is_own = False
+        if user_feedback:
+            response["product_name"] = (
+                comment.product.title if comment.product else None
+            )
+            response["product_image"] = {
+                "link": getattr(comment, "product_img_link", None),
+                "type": FileTypeChoices.IMAGE,
+                "stream": False,
+            }
+        else:
+            response["product_name"] = ""
+            response["product_image"] = {}
+        response.update(
+            {
+                "id": comment.id,
+                "files": get_files(comment),
+                "user": user,
+                "source_date": (
+                    comment.source_date if comment.source_date else comment.created_at
+                ),
+                "is_own": is_own,
+                "promo": comment.promo,
+                "product": comment.product.id,
+                "source_id": comment.source_id,
+                "content": comment.content,
+                "rating": comment.rating,
+                "file_type": comment.file_type,
+                "reply_to": comment.reply_to,
+            }
+        )
+        data.append(response)
+    return data

@@ -2,9 +2,9 @@ from datetime import timedelta
 
 import django_filters
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Q
 from django.utils import timezone
-from scraper.models import Category, Comment, CommentStatuses, Product
+from scraper.models import Category, Comment, Product
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -25,11 +25,6 @@ class ProductFilter(django_filters.FilterSet):
 class CommentsFilter(django_filters.FilterSet):
     product_id = django_filters.NumberFilter(field_name="product_id")
     source_id = django_filters.NumberFilter(field_name="source_id")
-    rating = django_filters.NumberFilter(field_name="rating")
-    status = django_filters.ChoiceFilter(
-        field_name="status", choices=CommentStatuses.choices
-    )
-    user_id = django_filters.NumberFilter(field_name="user_id")
     feedback_id = django_filters.NumberFilter(method="filter_by_feedback")
 
     def filter_by_feedback(self, queryset, name, value):
@@ -42,37 +37,43 @@ class CommentsFilter(django_filters.FilterSet):
         fields = [
             "product_id",
             "source_id",
-            "rating",
-            "status",
-            "user_id",
             "feedback_id",
         ]
 
 
 def filter_by_category(queryset, value):
-    category = Category.objects.filter(pk=value).first()
-    if category:
-        if category.shard == "popular":
-            return get_popular_products(queryset)
-        elif category.shard == "new":
-            return get_new_products(queryset)
-    category_ids = [value]
-    category_ids.extend(
-        list(Category.objects.filter(parent_id=value).values_list("id", flat=True))
+    # Fetch category and its child categories in a single query
+    category_qs = Category.objects.filter(Q(pk=value) | Q(parent_id=value)).only(
+        "id", "shard"
     )
-    queryset = queryset.filter(category_id__in=category_ids)
-    return queryset
+
+    # Check if the primary category exists
+    if not category_qs.exists():
+        return Category.objects.none()
+
+    # Separate primary category from child categories
+    primary_category = category_qs.filter(pk=value).first()
+
+    # Apply shard-based filtering if primary category has a shard
+    if primary_category:
+        if primary_category.shard == "popular":
+            return get_popular_products(queryset)
+        elif primary_category.shard == "new":
+            return get_new_products(queryset)
+
+    # Get all category IDs (primary and child categories)
+    category_ids = list(category_qs.values_list("id", flat=True))
+
+    # Filter products by these category IDs
+    return queryset.filter(category_id__in=category_ids)
 
 
 def get_popular_products(queryset):
-    return (
-        queryset.annotate(likes_count=Count("product_likes", distinct=True))
-        .filter(likes_count__gte=2)
-        .order_by("-likes_count")
-    )
+    # Using a threshold for "likes_count" to filter popular products and applying an index on this field will help
+    return queryset.filter(likes_count__gte=2).order_by("-likes_count")
 
 
 def get_new_products(queryset):
+    # Use the indexed "created_at" field to filter for new products
     limit_date = timezone.now() - timedelta(days=settings.NEW_PRODUCTS_DAYS)
-    queryset = queryset.filter(created_at__gte=limit_date).order_by("-created_at")
-    return queryset
+    return queryset.filter(created_at__gte=limit_date).order_by("-created_at")

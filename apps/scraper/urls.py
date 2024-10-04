@@ -8,14 +8,14 @@ from scraper.views import (
     FeedbacksListView,
     LikeView,
     ProductDetailView,
-    ProductsListView,
     UserCommentsListView,
     UserFeedbacksListView,
+    products_list,
 )
 
 urlpatterns = [
     path("categories", CategoriesListView.as_view(), name="categories-list"),
-    path("products", ProductsListView.as_view(), name="products-list"),
+    path("products", products_list, name="products-list"),
     path("product/<int:pk>", ProductDetailView.as_view(), name="product-detail"),
     path("comments", CommentsListView.as_view(), name="comments-list"),
     path("user-comments", UserCommentsListView.as_view(), name="user-comments-list"),

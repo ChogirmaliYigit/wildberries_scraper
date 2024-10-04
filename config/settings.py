@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "django_filters",
     "django_celery_beat",
-    "debug_toolbar",
+    "silk",
     "django_redis",
     "core",
     "users",
@@ -71,11 +71,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-]
-
-INTERNAL_IPS = [
-    "127.0.0.1",
+    "silk.middleware.SilkyMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -253,3 +249,5 @@ CACHES = {
         },
     }
 }
+
+CACHE_DEFAULT_TIMEOUT = env.int("CACHE_DEFAULT_TIMEOUT", 300)

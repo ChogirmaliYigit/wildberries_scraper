@@ -1,5 +1,4 @@
-from core.views import BaseListAPIView, BaseListCreateAPIView
-from django.core.cache import cache
+from core.views import BaseListAPIView
 from django.db.models import (
     Case,
     CharField,
@@ -11,8 +10,13 @@ from django.db.models import (
 )
 from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from scraper.filters import CommentsFilter, ProductFilter
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
+from rest_framework.response import Response
 from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
@@ -21,7 +25,15 @@ from scraper.serializers import (
     FavoritesSerializer,
     ProductsSerializer,
 )
-from scraper.utils.queryset import get_filtered_comments, get_filtered_products
+from scraper.utils.queryset import (
+    filter_comments,
+    filter_products,
+    get_all_products,
+    get_comments_response,
+    get_paginated_response,
+    get_products_response,
+    paginate_queryset,
+)
 
 
 class CategoriesListView(BaseListAPIView):
@@ -49,19 +61,11 @@ class CategoriesListView(BaseListAPIView):
     ]
 
 
-class ProductsListView(BaseListAPIView):
-    serializer_class = ProductsSerializer
-    filterset_class = ProductFilter
-    search_fields = ["title", "category__title"]
-    ordering = []
-
-    def get_queryset(self):
-        cache_key = "filtered_products"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_products()
-            cache.set(cache_key, queryset, timeout=300)
-        return queryset
+def products_list(request):
+    queryset = filter_products(request)
+    total, _next, previous, current, page_obj = paginate_queryset(request, queryset)
+    data = get_products_response(request, page_obj)
+    return get_paginated_response(data, total, _next, previous, current)
 
 
 class ProductDetailView(views.APIView):
@@ -70,30 +74,53 @@ class ProductDetailView(views.APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request, pk):
-        product = get_filtered_products().filter(pk=pk).first()
+        product = get_all_products().filter(pk=pk).first()
         if not product:
             raise exceptions.ValidationError({"message": "Товар недоступен"})
         serializer = self.serializer_class(product, context={"request": request})
         return response.Response(serializer.data, status.HTTP_200_OK)
 
 
-class CommentsListView(BaseListCreateAPIView):
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
-    ordering = []
+class CommentsListView(GenericAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
-        cache_key = "comments_list"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_comments(reply_to__isnull=False)
-            cache.set(cache_key, queryset, timeout=300)
-        return queryset
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests: List comments.
+        """
+        return comments_list(request, replies=True, reply_to__isnull=False)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: Create a new comment.
+        """
+        serializer = CommentsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
+        """
+        Pass extra context for both GET and POST.
+        """
         context = super().get_serializer_context()
         context["replies"] = True
         return context
+
+    def perform_create(self, serializer):
+        """
+        Save the newly created comment. You can also add custom logic here.
+        """
+        serializer.save(user=self.request.user)
+
+
+def comments_list(request, replies=False, user_feedback=False, **filters):
+    queryset = filter_comments(request, **filters)
+    total, _next, previous, current, page_obj = paginate_queryset(request, queryset)
+    data = get_comments_response(
+        request, page_obj.object_list, replies=replies, user_feedback=user_feedback
+    )
+    return get_paginated_response(data, total, _next, previous, current)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -113,55 +140,39 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         return obj
 
 
-class UserCommentsListView(BaseListAPIView):
+class UserCommentsListView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
 
-    def get_queryset(self):
-        cache_key = f"user_comments_list_{self.request.user.id}"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_comments(
-                reply_to__isnull=False, user=self.request.user
-            )
-            cache.set(cache_key, queryset, timeout=300)
-        return queryset
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["user_feedback"] = True
-        context["replies"] = True
-        return context
+    def get(self, request, *args, **kwargs):
+        return comments_list(
+            request,
+            replies=True,
+            user_feedback=True,
+            reply_to__isnull=False,
+            user=self.request.user,
+        )
 
 
-class FeedbacksListView(BaseListCreateAPIView):
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
+class FeedbacksListView(GenericAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):
-        return get_filtered_comments(reply_to__isnull=True)
+    def get(self, request, *args, **kwargs):
+        return comments_list(request, reply_to__isnull=True)
+
+    def post(self, request, *args, **kwargs):
+        serializer = CommentsSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, status.HTTP_201_CREATED)
 
 
-class UserFeedbacksListView(BaseListAPIView):
+class UserFeedbacksListView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = CommentsSerializer
-    filterset_class = CommentsFilter
 
-    def get_queryset(self):
-        cache_key = f"user_feedbacks_list_{self.request.user.id}"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_comments(
-                reply_to__isnull=True, user=self.request.user
-            )
-            cache.set(cache_key, queryset, timeout=300)
-        return queryset
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["user_feedback"] = True
-        return context
+    def get(self, request):
+        return comments_list(
+            request, user_feedback=True, reply_to__isnull=True, user=self.request.user
+        )
 
 
 class FavoritesListView(BaseListAPIView):
@@ -178,7 +189,7 @@ class FavoritesListView(BaseListAPIView):
 
     def get_queryset(self):
         # Get filtered products with img_link annotation
-        filtered_products = get_filtered_products()
+        filtered_products = get_all_products()
 
         # Annotate the img_link from the filtered_products into the Favorite queryset
         products_with_img_link = filtered_products.filter(
