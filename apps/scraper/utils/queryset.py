@@ -217,12 +217,15 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
     return queryset
 
 
-def get_filtered_comments(**filters):
+def get_filtered_comments(product_id=None, **filters):
     cache_key = "all_products"
     products = cache.get(cache_key)
     if not products:
         products = get_all_products()
         cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    product_ids = list(products.values_list("id", flat=True))
+    if product_id:
+        product_ids.append(product_id)
     products_with_img_link = products.filter(id=OuterRef("product_id")).values(
         "img_link"
     )[:1]
@@ -230,7 +233,7 @@ def get_filtered_comments(**filters):
         Comment.objects.filter(
             **filters,
             status=CommentStatuses.ACCEPTED,
-            product__in=Subquery(products.values_list("id", flat=True)),
+            product__in=Subquery(product_ids),
             requestedcomment__isnull=True,
         )
         .select_related("product", "user", "reply_to")
@@ -400,30 +403,16 @@ def get_products_response(request, page_obj):
 
 
 def filter_comments(request, **filters):
-    _filters_string = [f"{key}_{value}" for key, value in filters.items()]
-    cache_key = f"all_comments_{request}_{''.join(_filters_string)}"
-    queryset = cache.get(cache_key)
-    if not queryset:
-        queryset = get_filtered_comments(**filters)
-        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-
     # Extracting filter parameters from the request
     product_id = request.GET.get("product_id", None)
     source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
-    # Apply filtering based on product ID
-    if product_id:
-        product_cache_key = f"filter_by_product_{product_id}"
-        product_queryset = cache.get(product_cache_key)
-        if not product_queryset:
-            product_queryset = queryset.filter(product_id=product_id)
-            cache.set(
-                product_cache_key,
-                product_queryset,
-                timeout=settings.CACHE_DEFAULT_TIMEOUT,
-            )
-        queryset = product_queryset
+    cache_key = f"all_comments_{product_id}"
+    queryset = cache.get(cache_key)
+    if not queryset:
+        queryset = get_filtered_comments(product_id, **filters)
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
 
     # Apply filtering based on source ID
     if source_id:
