@@ -221,7 +221,7 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(product_id=None, **filters):
-    cache_key = "all_products"
+    cache_key = f"comment_products_{product_id}"
     products = cache.get(cache_key)
     if not products:
         products = get_all_products(product_id)
