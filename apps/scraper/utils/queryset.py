@@ -400,15 +400,12 @@ def get_products_response(request, page_obj):
 
 
 def filter_comments(request, **filters):
-    page = request.GET.get("page", 1)
-    cache_key = f"all_comments_{page}"
+    _filters_string = [f"{key}_{value}" for key, value in filters]
+    cache_key = f"all_comments_{request}_{''.join(_filters_string)}"
     queryset = cache.get(cache_key)
     if not queryset:
         queryset = get_filtered_comments(**filters)
-        _, _, _, _, page_obj = paginate_queryset(request, queryset)
-        cache.set(
-            cache_key, page_obj.object_list, timeout=settings.CACHE_DEFAULT_TIMEOUT
-        )
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
 
     # Extracting filter parameters from the request
     product_id = request.GET.get("product_id", None)
