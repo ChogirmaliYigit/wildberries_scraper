@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /root/wildberries_scraper/venv/bin/activate
+
 # To update run
 pip install --upgrade pip
 
