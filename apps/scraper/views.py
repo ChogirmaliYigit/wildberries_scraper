@@ -88,7 +88,7 @@ class CommentsListView(GenericAPIView):
         """
         Handle GET requests: List comments.
         """
-        return comments_list(request, replies=True, filters={"reply_to__isnull": False})
+        return comments_list(request, replies=True, reply_to__isnull=False)
 
     def post(self, request, *args, **kwargs):
         """
@@ -148,10 +148,8 @@ class UserCommentsListView(GenericAPIView):
             request,
             replies=True,
             user_feedback=True,
-            filters={
-                "reply_to__isnull": False,
-                "user": self.request.user,
-            },
+            reply_to__isnull=False,
+            user=self.request.user,
         )
 
 
@@ -159,7 +157,7 @@ class FeedbacksListView(GenericAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
-        return comments_list(request, filters={"reply_to__isnull": True})
+        return comments_list(request, reply_to__isnull=True)
 
     def post(self, request, *args, **kwargs):
         serializer = CommentsSerializer(data=request.data, context={"request": request})
@@ -173,9 +171,7 @@ class UserFeedbacksListView(GenericAPIView):
 
     def get(self, request):
         return comments_list(
-            request,
-            user_feedback=True,
-            filters={"reply_to__isnull": True, "user": self.request.user},
+            request, user_feedback=True, reply_to__isnull=True, user=self.request.user
         )
 
 
