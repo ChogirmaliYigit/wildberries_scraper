@@ -25,6 +25,8 @@ from scraper.models import (
     RequestedComment,
 )
 
+from celery import shared_task
+
 
 def get_all_products(_product_id=None):
     sql_query = """
@@ -372,9 +374,26 @@ def filter_products(request):
     return queryset
 
 
+def cache_feedback_for_product(product_id):
+    cache_key = f"all_comments_{product_id}"
+    queryset = cache.get(cache_key)
+    if not queryset:
+        queryset = get_filtered_comments(product_id)
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    return queryset
+
+
+@shared_task
+def cache_feedbacks_task(product_ids):
+    for product_id in product_ids:
+        cache_feedback_for_product(product_id)
+
+
 def get_products_response(request, page_obj):
     data = []
+    product_ids = []
     for product in page_obj.object_list:
+        product_ids.append(product.id)
         liked, favorite = False, False
         if request.user.is_authenticated:
             liked, favorite = get_user_likes_and_favorites(request.user, product)
@@ -399,6 +418,8 @@ def get_products_response(request, page_obj):
                 ),
             }
         )
+    if product_ids:
+        cache_feedbacks_task.delay(product_ids)
     return data
 
 
@@ -408,11 +429,9 @@ def filter_comments(request, **filters):
     source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
-    cache_key = f"all_comments_{product_id}"
-    queryset = cache.get(cache_key)
-    if not queryset:
-        queryset = get_filtered_comments(product_id, **filters)
-        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    queryset = cache_feedback_for_product(product_id)
+
+    queryset = queryset.filter(**filters)
 
     # Apply filtering based on source ID
     if source_id:
