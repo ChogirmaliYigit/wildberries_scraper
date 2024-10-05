@@ -94,7 +94,7 @@ class CommentsListView(GenericAPIView):
         """
         Handle POST requests: Create a new comment.
         """
-        serializer = CommentsSerializer(data=request.data)
+        serializer = CommentsSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
