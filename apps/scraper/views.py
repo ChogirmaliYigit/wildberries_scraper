@@ -99,7 +99,7 @@ class CommentsListView(GenericAPIView):
         serializer = CommentsSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({}, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
         """
