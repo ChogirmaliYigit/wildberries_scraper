@@ -502,12 +502,12 @@ def get_comments_response(
                 ),
                 "is_own": is_own,
                 "promo": comment.promo,
-                "product": comment.product.id,
+                "product": comment.product.id if comment.product else None,
                 "source_id": comment.source_id,
                 "content": comment.content,
                 "rating": comment.rating,
                 "file_type": comment.file_type,
-                "reply_to": comment.reply_to.id,
+                "reply_to": comment.reply_to.id if comment.reply_to else None,
             }
         )
         data.append(response)
