@@ -1,5 +1,5 @@
 from drf_yasg import openapi, utils
-from rest_framework import permissions, response, status, views
+from rest_framework import exceptions, permissions, response, status, views
 from users.models import OTPTypes, Token, User
 from users.serializers import (
     ConfirmationSerializer,
@@ -26,6 +26,12 @@ class SignUpView(views.APIView):
             user = serializer.save()
         if not user.is_active:
             send_otp(user, OTPTypes.REGISTER)
+        else:
+            raise exceptions.ValidationError(
+                {
+                    "message": "Пользователь с таким адресом электронной почты уже существует"
+                }
+            )
         return response.Response({}, status.HTTP_200_OK)
 
 
