@@ -432,7 +432,7 @@ def filter_comments(request, **filters):
     if product_id:
         queryset = cache_feedback_for_product(product_id)
     elif feedback_id:
-        queryset = get_filtered_comments(reply_to_id=feedback_id)
+        queryset = get_filtered_comments(reply_to_id=int(feedback_id))
     else:
         queryset = get_filtered_comments()
 
@@ -442,18 +442,18 @@ def filter_comments(request, **filters):
     if source_id:
         queryset = queryset.filter(source_id=source_id)
 
-    # Apply filtering based on feedback (reply to) ID
-    if feedback_id:
-        queryset = queryset.filter(reply_to_id=feedback_id)
-
     return queryset
 
 
-def get_comments_response(request, objects, replies=False, user_feedback=False):
+def get_comments_response(
+    request, objects, replies=False, user_feedback=False, for_comment=False
+):
     data = []
     for comment in objects:
         files = get_files(comment)
-        if not files:
+        if for_comment:
+            files = []
+        elif not files:
             continue
         response = {}
         if replies:
@@ -465,6 +465,7 @@ def get_comments_response(request, objects, replies=False, user_feedback=False):
                     flattened_replies,
                     replies=False,
                     user_feedback=user_feedback,
+                    for_comment=for_comment,
                 )
                 if flattened_replies
                 else []
@@ -506,7 +507,7 @@ def get_comments_response(request, objects, replies=False, user_feedback=False):
                 "content": comment.content,
                 "rating": comment.rating,
                 "file_type": comment.file_type,
-                "reply_to": comment.reply_to,
+                "reply_to": comment.reply_to.id,
             }
         )
         data.append(response)

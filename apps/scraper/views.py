@@ -88,7 +88,9 @@ class CommentsListView(GenericAPIView):
         """
         Handle GET requests: List comments.
         """
-        return comments_list(request, replies=True, reply_to__isnull=False)
+        return comments_list(
+            request, replies=True, for_comment=True, reply_to__isnull=False
+        )
 
     def post(self, request, *args, **kwargs):
         """
@@ -114,11 +116,17 @@ class CommentsListView(GenericAPIView):
         serializer.save(user=self.request.user)
 
 
-def comments_list(request, replies=False, user_feedback=False, **filters):
+def comments_list(
+    request, replies=False, user_feedback=False, for_comment=False, **filters
+):
     queryset = filter_comments(request, **filters)
     total, _next, previous, current, page_obj = paginate_queryset(request, queryset)
     data = get_comments_response(
-        request, page_obj.object_list, replies=replies, user_feedback=user_feedback
+        request,
+        page_obj.object_list,
+        replies=replies,
+        user_feedback=user_feedback,
+        for_comment=for_comment,
     )
     return get_paginated_response(data, total, _next, previous, current)
 

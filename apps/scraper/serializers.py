@@ -148,6 +148,9 @@ class CommentsSerializer(serializers.ModelSerializer):
         product = Product.objects.filter(source_id=source_id).first()
         if product:
             validated_data["product"] = product
+        else:
+            feedback = validated_data.get("reply_to", None)
+            validated_data["product"] = feedback.product if feedback else None
         validated_data["user"] = request.user
         if request.query_params.get("direct", "false") == "true":
             status = CommentStatuses.ACCEPTED
