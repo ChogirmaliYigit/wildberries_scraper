@@ -413,8 +413,15 @@ def filter_comments(request, **filters):
     source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
-    product_ids_list = cache.get("product_ids_list", [product_id])
+    product_ids_list = cache.get("product_ids_list")
+    if not product_ids_list:
+        product_ids_list = [product_id]
+    else:
+        product_ids_list.append(product_id)
     cache_extra = "_".join(product_ids_list)
+    cache.set(
+        "product_ids_list", product_ids_list, timeout=settings.CACHE_DEFAULT_TIMEOUT
+    )
     cache_key = f"all_comments_{cache_extra}"
     queryset = cache.get(cache_key)
     if not queryset:
