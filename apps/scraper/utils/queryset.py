@@ -429,7 +429,12 @@ def filter_comments(request, **filters):
     source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
-    queryset = cache_feedback_for_product(product_id)
+    if product_id:
+        queryset = cache_feedback_for_product(product_id)
+    elif feedback_id:
+        queryset = get_filtered_comments(reply_to_id=feedback_id)
+    else:
+        queryset = get_filtered_comments()
 
     queryset = queryset.filter(**filters)
 
