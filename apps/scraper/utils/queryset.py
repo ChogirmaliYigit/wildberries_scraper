@@ -26,7 +26,7 @@ from scraper.models import (
 )
 
 
-def get_all_products(product_id=None):
+def get_all_products(_product_id=None):
     sql_query = """
     WITH valid_comments AS (
         SELECT
@@ -142,8 +142,8 @@ def get_all_products(product_id=None):
 
             ordering_cases.append(When(id=product_id, then=index))
 
-        if product_id:
-            product_ids.append(product_id)
+        if _product_id:
+            product_ids = [_product_id]
 
     # Use the ordered product IDs to retrieve the actual Product instances
     products = (
