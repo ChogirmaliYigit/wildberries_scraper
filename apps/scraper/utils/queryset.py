@@ -26,7 +26,7 @@ from scraper.models import (
 )
 
 
-def get_all_products(_product_id=None):
+def get_all_products(product_ids_list=None):
     sql_query = """
     WITH valid_comments AS (
         SELECT
@@ -142,8 +142,8 @@ def get_all_products(_product_id=None):
 
             ordering_cases.append(When(id=product_id, then=index))
 
-        if _product_id:
-            product_ids = [_product_id]
+        if product_ids_list:
+            product_ids = product_ids_list
 
     # Use the ordered product IDs to retrieve the actual Product instances
     products = (
@@ -220,11 +220,11 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
     return queryset
 
 
-def get_filtered_comments(product_id=None, **filters):
-    cache_key = f"comment_products_{product_id}"
+def get_filtered_comments(product_ids_list=None, **filters):
+    cache_key = f"comment_products_{product_ids_list}"
     products = cache.get(cache_key)
     if not products:
-        products = get_all_products(product_id)
+        products = get_all_products(product_ids_list)
         cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
     products_with_img_link = products.filter(id=OuterRef("product_id")).values(
         "img_link"
@@ -416,16 +416,11 @@ def filter_comments(request, **filters):
     product_ids_list = cache.get("product_ids_list")
     if not product_ids_list:
         product_ids_list = [product_id]
-    else:
-        product_ids_list.append(product_id)
     cache_extra = "_".join(product_ids_list)
-    cache.set(
-        "product_ids_list", product_ids_list, timeout=settings.CACHE_DEFAULT_TIMEOUT
-    )
     cache_key = f"all_comments_{cache_extra}"
     queryset = cache.get(cache_key)
     if not queryset:
-        queryset = get_filtered_comments(product_id, **filters)
+        queryset = get_filtered_comments(product_ids_list, **filters)
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
 
     # Apply filtering based on source ID
