@@ -439,16 +439,7 @@ def filter_comments(request, **filters):
 
     # Apply filtering based on feedback (reply to) ID
     if feedback_id:
-        feedback_cache_key = f"filter_by_feedback_{feedback_id}"
-        feedback_queryset = cache.get(feedback_cache_key)
-        if not feedback_queryset:
-            feedback_queryset = queryset.filter(reply_to_id=feedback_id)
-            cache.set(
-                feedback_cache_key,
-                feedback_queryset,
-                timeout=settings.CACHE_DEFAULT_TIMEOUT,
-            )
-        queryset = feedback_queryset
+        queryset = queryset.filter(reply_to_id=feedback_id)
 
     return queryset
 
