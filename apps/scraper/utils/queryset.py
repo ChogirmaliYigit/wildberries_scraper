@@ -374,7 +374,9 @@ def filter_products(request):
 
 def get_products_response(request, page_obj):
     data = []
+    product_ids_list = []
     for product in page_obj.object_list:
+        product_ids_list.append(product.id)
         liked, favorite = False, False
         if request.user.is_authenticated:
             liked, favorite = get_user_likes_and_favorites(request.user, product)
@@ -399,6 +401,9 @@ def get_products_response(request, page_obj):
                 ),
             }
         )
+    cache.set(
+        "product_ids_list", product_ids_list, timeout=settings.CACHE_DEFAULT_TIMEOUT
+    )
     return data
 
 
@@ -408,7 +413,9 @@ def filter_comments(request, **filters):
     source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
-    cache_key = f"all_comments_{product_id}"
+    product_ids_list = cache.get("product_ids_list", [product_id])
+    cache_extra = "_".join(product_ids_list)
+    cache_key = f"all_comments_{cache_extra}"
     queryset = cache.get(cache_key)
     if not queryset:
         queryset = get_filtered_comments(product_id, **filters)
