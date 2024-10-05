@@ -437,6 +437,9 @@ def filter_comments(request, **filters):
 def get_comments_response(request, objects, replies=False, user_feedback=False):
     data = []
     for comment in objects:
+        files = get_files(comment)
+        if not files:
+            continue
         response = {}
         if replies:
             # Flatten replies
@@ -476,7 +479,7 @@ def get_comments_response(request, objects, replies=False, user_feedback=False):
         response.update(
             {
                 "id": comment.id,
-                "files": get_files(comment),
+                "files": files,
                 "user": user,
                 "source_date": (
                     comment.source_date if comment.source_date else comment.created_at
