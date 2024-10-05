@@ -26,7 +26,7 @@ from scraper.models import (
 )
 
 
-def get_all_products(product_id):
+def get_all_products(product_id=None):
     sql_query = """
     WITH valid_comments AS (
         SELECT
