@@ -40,7 +40,6 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path("", admin.site.urls),
     path(
         "api/",
         include(
@@ -63,6 +62,7 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path("silk/", include("silk.urls", namespace="silk")),
+    path("", admin.site.urls),
 ]
 
 if settings.DEBUG:
