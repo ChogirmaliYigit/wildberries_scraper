@@ -414,25 +414,28 @@ def get_products_response(request, page_obj):
 def filter_comments(request, **filters):
     # Extracting filter parameters from the request
     product_id = request.GET.get("product_id", None)
-    source_id = request.GET.get("source_id", None)
     feedback_id = request.GET.get("feedback_id", None)
 
     if product_id:
         queryset = cache_feedback_for_product(product_id)
     elif feedback_id:
-        queryset = get_filtered_comments(reply_to_id=int(feedback_id))
+        cache_key = f"all_comments_feedback_{feedback_id}"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments(reply_to_id=int(feedback_id))
+            cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
     else:
-        queryset = get_filtered_comments()
+        cache_key = "all_comments"
+        queryset = cache.get(cache_key)
+        if not queryset:
+            queryset = get_filtered_comments()
+            cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
 
     queryset = (
         queryset.filter(**filters)
         .select_related("user", "product", "reply_to")
         .prefetch_related("files")
     )
-
-    # Apply filtering based on source ID
-    if source_id:
-        queryset = queryset.filter(source_id=source_id)
 
     return queryset
 
