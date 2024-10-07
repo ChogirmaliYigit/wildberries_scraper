@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from core.views import BaseListAPIView
 from django.db.models import (
     Case,
@@ -62,8 +64,14 @@ class CategoriesListView(BaseListAPIView):
 
 
 def products_list(request):
+    start = datetime.now()
     total, _next, previous, current, page_obj = paginate_queryset(
         request, filter_products(request)
+    )
+    print(
+        "paginate_queryset in products_list run in:",
+        (datetime.now() - start).total_seconds(),
+        "seconds",
     )
     return get_paginated_response(
         get_products_response(request, page_obj), total, _next, previous, current

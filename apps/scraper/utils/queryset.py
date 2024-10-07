@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import cache
@@ -311,11 +312,15 @@ def get_paginated_response(data, total, _next=None, previous=None, current=1):
 
 
 def filter_products(request):
+    start = datetime.now()
     cache_key = "all_products"
     queryset = cache.get(cache_key)
     if not queryset:
         queryset = get_all_products()
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+        print("get_all_products in filter_products is not from cache")
+    else:
+        print("get_all_products in filter_products is from cache")
 
     # Extracting filter parameters from the request
     category_id = request.GET.get("category_id", None)
@@ -341,6 +346,9 @@ def filter_products(request):
         queryset = queryset.filter(
             Q(title__icontains=search_key) | Q(category__title__icontains=search_key)
         )
+    print(
+        "filter_products runs in:", (datetime.now() - start).total_seconds(), "seconds"
+    )
 
     return queryset
 
@@ -361,6 +369,7 @@ def cache_feedbacks_task(product_ids):
 
 
 def get_products_response(request, page_obj):
+    start = datetime.now()
     product_ids = [product.id for product in page_obj.object_list]
     user_likes, user_favorites = set(), set()
     if request.user.is_authenticated:
@@ -394,6 +403,11 @@ def get_products_response(request, page_obj):
     ]
     if product_ids:
         cache_feedbacks_task.apply_async(args=[product_ids])
+    print(
+        "get_products_response runs in:",
+        (datetime.now() - start).total_seconds(),
+        "seconds",
+    )
     return data
 
 
