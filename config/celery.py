@@ -77,6 +77,6 @@ def schedule_caching_for_products_and_comments(*args, **kwargs):
     products = get_all_products()
     cache.set("all_products", products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
 
-    cache_feedbacks_task.delay([product.id for product in products])
+    cache_feedbacks_task.delay([product.id for product in products[:100]])
 
     return f"{len(products)} products cached"
