@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.conf import settings
 from django.core.cache import cache
 from django.core.paginator import Paginator
@@ -8,6 +10,7 @@ from django.db.models import (
     Count,
     DateTimeField,
     IntegerField,
+    Prefetch,
     Q,
     When,
 )
@@ -45,79 +48,34 @@ def get_all_products(_product_id=None):
             AND c.content IS NOT NULL
             AND c.content <> ''
             AND c.product_id IS NOT NULL
-            AND (
-                (c.file IS NOT NULL AND c.file_type = 'image') OR
-                EXISTS (
-                    SELECT 1 FROM scraper_commentfiles f2
-                    WHERE f2.comment_id = c.id
-                    AND f2.file_type = 'image'
-                    AND f2.file_link NOT LIKE '%index.m3u8%'
-                )
-            )
+            AND (c.file IS NOT NULL AND c.file_type = 'image')
         GROUP BY
             c.product_id, c.promo
     ),
-    products_with_comments AS (
+    ranked_products AS (
         SELECT
             p.id AS product_id,
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id) AS has_valid_comments,
-            EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id AND vc.promo = TRUE) AS is_promoted
+            COALESCE(vc.promo, FALSE) AS is_promoted,
+            vc.file_link AS image_link,
+            ROW_NUMBER() OVER (ORDER BY (CASE WHEN vc.promo THEN 1 ELSE 2 END), RANDOM()) AS rank
         FROM
             scraper_product p
-        WHERE EXISTS (SELECT 1 FROM valid_comments vc WHERE vc.product_id = p.id)
-    ),
-    products_with_image_links AS (
-        SELECT
-            pwc.product_id,
-            COALESCE(
-                NULLIF((SELECT vc.comment_image_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), ''),
-                NULLIF((SELECT vc.file_link FROM valid_comments vc WHERE vc.product_id = pwc.product_id LIMIT 1), '')
-            ) AS image_link
-        FROM
-            products_with_comments pwc
-    ),
-    ranked_products AS (
-        -- Rank products with random order
-        SELECT
-            np.product_id,
-            np.has_valid_comments,
-            np.is_promoted,
-            pil.image_link,
-            ROW_NUMBER() OVER (
-                ORDER BY RANDOM()
-            ) AS rank
-        FROM
-            products_with_comments np
-        LEFT JOIN
-            products_with_image_links pil ON np.product_id = pil.product_id
-    ),
-    promoted_products AS (
-        -- Select one random promoted product
-        SELECT
-            product_id
-        FROM
-            ranked_products
-        WHERE
-            is_promoted = TRUE
-        ORDER BY RANDOM()
-        LIMIT 1
+        LEFT JOIN valid_comments vc ON p.id = vc.product_id
     ),
     final_products AS (
         SELECT
             rp.product_id,
-            rp.has_valid_comments,
-            rp.is_promoted,
             rp.image_link,
             CASE
-                WHEN rp.product_id = (SELECT product_id FROM promoted_products) THEN 3  -- Place one promoted product in 3rd position
-                WHEN rp.rank >= 3 THEN rp.rank + 1  -- Shift other products down to make room for the 3rd position
-                ELSE rp.rank  -- Leave products ranked before 3 untouched
+                WHEN rp.is_promoted THEN 3  -- Place promoted product in 3rd position
+                ELSE rp.rank + (CASE WHEN rp.rank >= 3 THEN 1 ELSE 0 END)  -- Shift other products
             END AS final_rank
         FROM
             ranked_products rp
     )
     SELECT
-        product_id, has_valid_comments, is_promoted, image_link
+        product_id,
+        image_link
     FROM
         final_products
     ORDER BY
@@ -128,21 +86,23 @@ def get_all_products(_product_id=None):
     with connection.cursor() as cursor:
         cursor.execute(sql_query)
 
-        # Create a mapping of product IDs to their image links
-        image_link_cases = []
-        product_ids = []
-        ordering_cases = []
-        for index, row in enumerate(cursor.fetchall()):
-            product_id = row[0]
-            image_link = row[3]
+        rows = set(cursor.fetchall())
 
-            if image_link is not None:
-                product_ids.append(product_id)
-                if not image_link.startswith("http"):
-                    image_link = f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{image_link}'
-                image_link_cases.append(When(id=product_id, then=Value(image_link)))
-
-            ordering_cases.append(When(id=product_id, then=index))
+        # Create product IDs, image_link_cases, and ordering_cases in one go
+        product_ids = [row[0] for row in rows]
+        image_link_cases = [
+            When(
+                id=row[0],
+                then=Value(
+                    f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{row[1]}'
+                    if row[1] and not row[1].startswith("http")
+                    else row[1]
+                ),
+            )
+            for row in rows
+            if row[1] is not None
+        ]
+        ordering_cases = [When(id=row[0], then=index) for index, row in enumerate(rows)]
 
         if _product_id:
             product_ids = [_product_id]
@@ -154,9 +114,10 @@ def get_all_products(_product_id=None):
             img_link=Case(*image_link_cases, output_field=CharField()),
             likes_count=Count("product_likes"),
         )
+        .filter(img_link__isnull=False)
         .order_by(Case(*ordering_cases, output_field=IntegerField()))
         .select_related("category")
-        .prefetch_related("product_likes")
+        .prefetch_related(Prefetch("product_likes", queryset=Like.objects.only("id")))
     )
 
     return products
@@ -226,8 +187,12 @@ def get_filtered_comments(product_id=None, **filters):
     cache_key = f"comment_products_{product_id}"
     products = cache.get(cache_key)
     if not products:
-        products = get_all_products(product_id)
-        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+        products_key = "all_products"
+        products = cache.get(products_key)
+        if not products:
+            products = get_all_products()
+            cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    products = products.filter(id=product_id)
     products_with_img_link = products.filter(id=OuterRef("product_id")).values(
         "img_link"
     )[:1]
@@ -252,53 +217,59 @@ def get_filtered_comments(product_id=None, **filters):
 
 
 def get_files(comment):
+    # Prefetch all related files at the queryset level, before calling this function
     files = []
-
-    # Helper function to process files
-    def process_file(_link, file_type):
-        return {
-            "link": _link,
-            "type": file_type,
-            "stream": _link.endswith(".m3u8"),
-        }
 
     # Process the single `comment.file` if it exists
     if comment.file:
         file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
-        file = process_file(file_link, comment.file_type)
-        if file not in files:
-            files.append(file)
+        files.append(
+            {
+                "link": file_link,
+                "type": comment.file_type,
+                "stream": file_link.endswith(".m3u8"),
+            }
+        )
 
-    # Process files from `comment.files.all()`
+    # Process files from the `comment.files.all()` prefetched queryset
     for file in comment.files.all():
         if file.file_link:  # Ensure the file has a link
-            processed_file = process_file(file.file_link, file.file_type)
-            if processed_file not in files:
-                files.append(processed_file)
+            files.append(
+                {
+                    "link": file.file_link,
+                    "type": file.file_type,
+                    "stream": file.file_link.endswith(".m3u8"),
+                }
+            )
 
-    return files
+    # Use set to remove duplicates
+    return list({frozenset(item.items()): item for item in files}.values())
 
 
 def get_all_replies(comment, _replies=True):
-    # Initialize a list to store all replies
+    # Get all replies for the current comment and its descendants in a single query
     all_replies = []
 
-    # Collect replies iteratively
-    replies_to_process = [comment]
-    while replies_to_process:
-        current_comment = replies_to_process.pop()
+    # Collect all replies for the main comment and its descendants
+    comment_ids = [comment.id]  # Start with the main comment's ID
+    if _replies:
+        # Fetch all replies for the comment and its descendants in one query
+        all_replies_qs = Comment.objects.filter(
+            reply_to__in=comment_ids
+        ).prefetch_related("user", "product", "reply_to")
 
-        # Fetch replies for the current comment
-        replies = current_comment.replies.filter(
-            requestedcomment__isnull=True
-        ).prefetch_related("user", "reply_to", "product")
+        # Use a dictionary to map replies to their parent comments
+        replies_map = defaultdict(list)
+        for reply in all_replies_qs:
+            replies_map[reply.reply_to_id].append(reply)
 
-        # Add replies to the list
-        all_replies.extend(replies)
-
-        if _replies:
-            # Add replies to the processing list for further exploration
-            replies_to_process.extend(replies)
+        # Now we can build the list of all replies in memory
+        to_process = [comment]
+        while to_process:
+            current_comment = to_process.pop()
+            replies = replies_map.get(current_comment.id, [])
+            all_replies.extend(replies)
+            to_process.extend(replies)
 
     return all_replies
 
@@ -390,36 +361,39 @@ def cache_feedbacks_task(product_ids):
 
 
 def get_products_response(request, page_obj):
-    data = []
-    product_ids = []
-    for product in page_obj.object_list:
-        product_ids.append(product.id)
-        liked, favorite = False, False
-        if request.user.is_authenticated:
-            liked, favorite = get_user_likes_and_favorites(request.user, product)
-        data.append(
-            {
-                "id": product.id,
-                "title": product.title,
-                "category": product.category.title if product.category else "",
-                "source_id": product.source_id,
-                "liked": liked,
-                "favorite": favorite,
-                "likes": product.likes_count,
-                "image": {
-                    "link": product.img_link,
-                    "type": FileTypeChoices.IMAGE,
-                    "stream": False,
-                },
-                "link": (
-                    f"https://wildberries.ru/catalog/{product.source_id}/detail.aspx"
-                    if product.source_id
-                    else None
-                ),
-            }
-        )
+    product_ids = [product.id for product in page_obj.object_list]
+    user_likes, user_favorites = set(), set()
+    if request.user.is_authenticated:
+        user_likes = Like.objects.filter(
+            user=request.user, product_id__in=product_ids
+        ).values_list("product_id", flat=True)
+        user_favorites = Favorite.objects.filter(
+            user=request.user, product_id__in=product_ids
+        ).values_list("product_id", flat=True)
+    data = [
+        {
+            "id": product.id,
+            "title": product.title,
+            "category": product.category.title if product.category else "",
+            "source_id": product.source_id,
+            "liked": product.id in user_likes,
+            "favorite": product.id in user_favorites,
+            "likes": product.likes_count,
+            "image": {
+                "link": product.img_link,
+                "type": FileTypeChoices.IMAGE,
+                "stream": False,
+            },
+            "link": (
+                f"https://wildberries.ru/catalog/{product.source_id}/detail.aspx"
+                if product.source_id
+                else None
+            ),
+        }
+        for product in page_obj.object_list
+    ]
     if product_ids:
-        cache_feedbacks_task.delay(product_ids)
+        cache_feedbacks_task.apply_async(args=[product_ids])
     return data
 
 
@@ -436,7 +410,11 @@ def filter_comments(request, **filters):
     else:
         queryset = get_filtered_comments()
 
-    queryset = queryset.filter(**filters)
+    queryset = (
+        queryset.filter(**filters)
+        .select_related("user", "product", "reply_to")
+        .prefetch_related("files")
+    )
 
     # Apply filtering based on source ID
     if source_id:
@@ -448,12 +426,11 @@ def filter_comments(request, **filters):
 def get_comments_response(
     request, objects, replies=False, user_feedback=False, for_comment=False
 ):
+    user_id = request.user.id if request and request.user else None
     data = []
     for comment in objects:
         files = get_files(comment)
-        if for_comment:
-            files = []
-        elif not files:
+        if not files and not for_comment:
             continue
         response = {}
         if replies:
@@ -476,10 +453,6 @@ def get_comments_response(
             user = comment.user.full_name or comment.user.email
         else:
             user = "Anonymous"
-        if request and comment.user:
-            is_own = request.user.id == comment.user.id
-        else:
-            is_own = False
         if user_feedback:
             response["product_name"] = (
                 comment.product.title if comment.product else None
@@ -500,7 +473,7 @@ def get_comments_response(
                 "source_date": (
                     comment.source_date if comment.source_date else comment.created_at
                 ),
-                "is_own": is_own,
+                "is_own": user_id == comment.user.id if comment.user else False,
                 "promo": comment.promo,
                 "product": comment.product.id if comment.product else None,
                 "source_id": comment.source_id,

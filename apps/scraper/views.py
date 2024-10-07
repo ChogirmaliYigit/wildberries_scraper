@@ -62,10 +62,12 @@ class CategoriesListView(BaseListAPIView):
 
 
 def products_list(request):
-    queryset = filter_products(request)
-    total, _next, previous, current, page_obj = paginate_queryset(request, queryset)
-    data = get_products_response(request, page_obj)
-    return get_paginated_response(data, total, _next, previous, current)
+    total, _next, previous, current, page_obj = paginate_queryset(
+        request, filter_products(request)
+    )
+    return get_paginated_response(
+        get_products_response(request, page_obj), total, _next, previous, current
+    )
 
 
 class ProductDetailView(views.APIView):
@@ -119,16 +121,22 @@ class CommentsListView(GenericAPIView):
 def comments_list(
     request, replies=False, user_feedback=False, for_comment=False, **filters
 ):
-    queryset = filter_comments(request, **filters)
-    total, _next, previous, current, page_obj = paginate_queryset(request, queryset)
-    data = get_comments_response(
-        request,
-        page_obj.object_list,
-        replies=replies,
-        user_feedback=user_feedback,
-        for_comment=for_comment,
+    total, _next, previous, current, page_obj = paginate_queryset(
+        request, filter_comments(request, **filters)
     )
-    return get_paginated_response(data, total, _next, previous, current)
+    return get_paginated_response(
+        get_comments_response(
+            request,
+            page_obj.object_list,
+            replies=replies,
+            user_feedback=user_feedback,
+            for_comment=for_comment,
+        ),
+        total,
+        _next,
+        previous,
+        current,
+    )
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):

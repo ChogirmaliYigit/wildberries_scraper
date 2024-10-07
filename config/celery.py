@@ -28,6 +28,10 @@ app.conf.beat_schedule = {
         "task": "update_products",
         "schedule": 60,
     },
+    "caching_products_and_comments": {
+        "task": "schedule_caching_for_products_and_comments",
+        "schedule": settings.CACHE_PRODUCTS_AND_COMMENTS_SECONDS,
+    },
 }
 app.conf.timezone = "Asia/Tashkent"
 
@@ -63,3 +67,16 @@ def update_products(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.update_products()
+
+
+@app.task(name="schedule_caching_for_products_and_comments", bind=True)
+def schedule_caching_for_products_and_comments(*args, **kwargs):
+    from django.core.cache import cache
+    from scraper.utils.queryset import cache_feedbacks_task, get_all_products
+
+    products = get_all_products()
+    cache.set("all_products", products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+
+    cache_feedbacks_task.delay([product.id for product in products])
+
+    return f"{len(products)} products cached"
