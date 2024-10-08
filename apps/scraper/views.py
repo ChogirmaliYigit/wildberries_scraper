@@ -181,7 +181,17 @@ class FeedbacksListView(GenericAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
-        return comments_list(request, reply_to__isnull=True)
+        queryset = filter_comments(request, reply_to__isnull=True)
+        return get_paginated_response(
+            get_comments_response(
+                request,
+                queryset,
+                replies=False,
+                user_feedback=False,
+                for_comment=False,
+            ),
+            len(queryset),
+        )
 
     def post(self, request, *args, **kwargs):
         serializer = CommentsSerializer(data=request.data, context={"request": request})

@@ -15,7 +15,7 @@ from django.db.models import (
     Q,
     When,
 )
-from django.db.models.expressions import OuterRef, Subquery, Value
+from django.db.models.expressions import Subquery, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from scraper.filters import filter_by_category
@@ -33,6 +33,9 @@ from celery import shared_task
 
 
 def get_all_products(_product_id=None):
+    # Ensure the product_id is an integer if passed
+    _product_id = int(_product_id) if _product_id else None
+
     sql_query = """
     WITH valid_comments AS (
         SELECT
@@ -50,6 +53,7 @@ def get_all_products(_product_id=None):
             AND c.content <> ''
             AND c.product_id IS NOT NULL
             AND (c.file IS NOT NULL AND c.file_type = 'image')
+            {comment_filter}  -- Dynamic filtering based on product_id
         GROUP BY
             c.product_id, c.promo
     ),
@@ -62,6 +66,7 @@ def get_all_products(_product_id=None):
         FROM
             scraper_product p
         LEFT JOIN valid_comments vc ON p.id = vc.product_id
+        {product_filter}  -- Dynamic filtering based on product_id
     ),
     final_products AS (
         SELECT
@@ -83,43 +88,60 @@ def get_all_products(_product_id=None):
         final_rank;
     """
 
-    # Execute the raw SQL query to get the product details including image_link
-    with connection.cursor() as cursor:
-        cursor.execute(sql_query)
-
-        rows = set(cursor.fetchall())
-
-        # Create product IDs, image_link_cases, and ordering_cases in one go
-        product_ids = [row[0] for row in rows]
-        image_link_cases = [
-            When(
-                id=row[0],
-                then=Value(
-                    f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{row[1]}'
-                    if row[1] and not row[1].startswith("http")
-                    else row[1]
-                ),
-            )
-            for row in rows
-            if row[1] is not None
-        ]
-        ordering_cases = [When(id=row[0], then=index) for index, row in enumerate(rows)]
-
-        if _product_id:
-            product_ids = [_product_id]
-
-    # Use the ordered product IDs to retrieve the actual Product instances
-    products = (
-        Product.objects.filter(id__in=product_ids)
-        .annotate(
-            img_link=Case(*image_link_cases, output_field=CharField()),
-            likes_count=Count("product_likes"),
-        )
-        .filter(img_link__isnull=False)
-        .order_by(Case(*ordering_cases, output_field=IntegerField()))
-        .select_related("category")
-        .prefetch_related(Prefetch("product_likes", queryset=Like.objects.only("id")))
+    sql_query = sql_query.format(
+        comment_filter="AND c.product_id = %s" if _product_id else "",
+        product_filter="WHERE p.id = %s" if _product_id else "",
     )
+
+    cache_key = "all_products"
+    products = cache.get(cache_key)
+    if not products:
+        # Execute the raw SQL query to get the product details including image_link
+        with connection.cursor() as cursor:
+            if _product_id:
+                cursor.execute(sql_query, [_product_id])
+            else:
+                cursor.execute(sql_query)
+
+            rows = set(cursor.fetchall())
+
+            # Create product IDs, image_link_cases, and ordering_cases in one go
+            product_ids = [row[0] for row in rows]
+            image_link_cases = [
+                When(
+                    id=row[0],
+                    then=Value(
+                        f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{row[1]}'
+                        if row[1] and not row[1].startswith("http")
+                        else row[1]
+                    ),
+                )
+                for row in rows
+                if row[1] is not None
+            ]
+            ordering_cases = [
+                When(id=row[0], then=index) for index, row in enumerate(rows)
+            ]
+
+        # Use the ordered product IDs to retrieve the actual Product instances
+        products = (
+            Product.objects.filter(id__in=product_ids)
+            .annotate(
+                img_link=Case(*image_link_cases, output_field=CharField()),
+                likes_count=Count("product_likes"),
+            )
+            .filter(img_link__isnull=False)
+            .order_by(Case(*ordering_cases, output_field=IntegerField()))
+            .select_related("category")
+            .prefetch_related(
+                Prefetch("product_likes", queryset=Like.objects.only("id"))
+            )
+        )
+        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
+
+    if not _product_id:
+        # Delete products from the database that are not in the current products queryset
+        Product.objects.exclude(id__in=products.values_list("id", flat=True)).delete()
 
     return products
 
@@ -188,15 +210,11 @@ def get_filtered_comments(product_id=None, **filters):
     cache_key = f"comment_products_{product_id}"
     products = cache.get(cache_key)
     if not products:
-        products_key = "all_products"
-        products = cache.get(products_key)
-        if not products:
-            products = get_all_products()
-            cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-    products = products.filter(id=product_id)
-    products_with_img_link = products.filter(id=OuterRef("product_id")).values(
-        "img_link"
-    )[:1]
+        products = get_all_products(product_id)
+        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    if product_id:
+        products = products.filter(id=product_id)
+    products_with_img_link = products.values("img_link")[:1]
     base_queryset = (
         Comment.objects.filter(
             **filters,
@@ -313,14 +331,7 @@ def get_paginated_response(data, total, _next=None, previous=None, current=1):
 
 def filter_products(request):
     start = datetime.now()
-    cache_key = "all_products"
-    queryset = cache.get(cache_key)
-    if not queryset:
-        queryset = get_all_products()
-        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-        print("get_all_products in filter_products is not from cache")
-    else:
-        print("get_all_products in filter_products is from cache")
+    queryset = get_all_products()
 
     # Extracting filter parameters from the request
     category_id = request.GET.get("category_id", None)
@@ -359,6 +370,8 @@ def cache_feedback_for_product(product_id):
     if not queryset:
         queryset = get_filtered_comments(product_id)
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+    if product_id:
+        queryset = queryset.filter(product_id=product_id)
     return queryset
 
 
@@ -418,13 +431,13 @@ def filter_comments(request, **filters):
 
     if product_id:
         queryset = cache_feedback_for_product(product_id)
-    elif feedback_id:
+    if feedback_id:
         cache_key = f"all_comments_feedback_{feedback_id}"
         queryset = cache.get(cache_key)
         if not queryset:
             queryset = get_filtered_comments(reply_to_id=int(feedback_id))
             cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-    else:
+    if not feedback_id and not product_id:
         cache_key = "all_comments"
         queryset = cache.get(cache_key)
         if not queryset:
