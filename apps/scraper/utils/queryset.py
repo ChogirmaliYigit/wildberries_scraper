@@ -388,7 +388,7 @@ def cache_feedback_for_product(product_id):
     cache_key = f"all_comments_{product_id}"
     queryset = cache.get(cache_key)
     if not queryset:
-        queryset = get_filtered_comments(product_id)
+        queryset = get_filtered_comments(product_id, no_cache=True)
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
     return queryset
 
