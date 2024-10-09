@@ -33,7 +33,6 @@ from scraper.utils.queryset import (
     get_comments_response,
     get_paginated_response,
     get_products_response,
-    paginate_queryset,
 )
 
 
@@ -95,7 +94,9 @@ class CommentsListView(GenericAPIView):
         """
         Handle POST requests: Create a new comment.
         """
-        serializer = CommentsSerializer(data=request.data, context={"request": request})
+        serializer = CommentsSerializer(
+            data=request.data, context={"request": request, "comment": True}
+        )
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response({}, status=status.HTTP_201_CREATED)
@@ -118,21 +119,16 @@ class CommentsListView(GenericAPIView):
 def comments_list(
     request, replies=False, user_feedback=False, for_comment=False, **filters
 ):
-    total, _next, previous, current, page_obj = paginate_queryset(
-        request, filter_comments(request, **filters)
-    )
+    queryset = filter_comments(request, **filters)
     return get_paginated_response(
         get_comments_response(
             request,
-            page_obj.object_list,
+            queryset,
             replies=replies,
             user_feedback=user_feedback,
             for_comment=for_comment,
         ),
-        total,
-        _next,
-        previous,
-        current,
+        len(queryset),
     )
 
 

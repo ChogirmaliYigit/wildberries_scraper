@@ -1,4 +1,3 @@
-from collections import defaultdict
 from datetime import datetime
 
 from django.conf import settings
@@ -200,20 +199,27 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
     return queryset
 
 
-def get_filtered_comments(product_id=None, **filters):
+def get_filtered_comments(product_id=None, no_cache=False, **filters):
     print("get products starts at", datetime.now())
     if product_id:
         cache_key = f"comment_products_{product_id}"
     else:
         cache_key = "all_products"
     print("cache key", cache_key)
-    products = cache.get(cache_key)
-    if not products:
-        products = get_all_products(product_id)
-        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
-        print("products is not from cache")
+    if no_cache:
+        if product_id:
+            products = get_all_products(product_id)
+        else:
+            products = get_all_products()
+        print("products is not from cache, no_cache=True")
     else:
-        print("products is from cache")
+        products = cache.get(cache_key)
+        if not products:
+            products = get_all_products(product_id)
+            cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
+            print("products is not from cache")
+        else:
+            print("products is from cache")
     print("get products ends at", datetime.now())
     print("products_with_img_link subquery started at", datetime.now())
     products_with_img_link = products.values("img_link")[:1]
@@ -225,6 +231,7 @@ def get_filtered_comments(product_id=None, **filters):
             status=CommentStatuses.ACCEPTED,
             product__in=Subquery(products.values_list("id", flat=True)),
             requestedcomment__isnull=True,
+            content__isnull=True,
         )
         .select_related("product", "user", "reply_to")
         .prefetch_related("files", "replies")
@@ -271,29 +278,25 @@ def get_files(comment):
 
 
 def get_all_replies(comment, _replies=True):
-    # Get all replies for the current comment and its descendants in a single query
+    # Initialize a list to store all replies
     all_replies = []
 
-    # Collect all replies for the main comment and its descendants
-    comment_ids = [comment.id]  # Start with the main comment's ID
-    if _replies:
-        # Fetch all replies for the comment and its descendants in one query
-        all_replies_qs = Comment.objects.filter(
-            reply_to__in=comment_ids
-        ).prefetch_related("user", "product", "reply_to")
+    # Collect replies iteratively
+    replies_to_process = [comment]
+    while replies_to_process:
+        current_comment = replies_to_process.pop()
 
-        # Use a dictionary to map replies to their parent comments
-        replies_map = defaultdict(list)
-        for reply in all_replies_qs:
-            replies_map[reply.reply_to_id].append(reply)
+        # Fetch replies for the current comment
+        replies = current_comment.replies.filter(
+            requestedcomment__isnull=True
+        ).prefetch_related("user", "reply_to", "product")
 
-        # Now we can build the list of all replies in memory
-        to_process = [comment]
-        while to_process:
-            current_comment = to_process.pop()
-            replies = replies_map.get(current_comment.id, [])
-            all_replies.extend(replies)
-            to_process.extend(replies)
+        # Add replies to the list
+        all_replies.extend(replies)
+
+        if _replies:
+            # Add replies to the processing list for further exploration
+            replies_to_process.extend(replies)
 
     return all_replies
 
@@ -378,7 +381,7 @@ def filter_products(request):
     end_index = start_index + count
     paginated_queryset = queryset[start_index:end_index]  # Slicing the queryset
 
-    return (total_count, next_page, previous_page, page, paginated_queryset)
+    return total_count, next_page, previous_page, page, paginated_queryset
 
 
 def cache_feedback_for_product(product_id):
@@ -443,11 +446,9 @@ def filter_comments(request, **filters):
         queryset = cache_feedback_for_product(product_id)
         print(f"get product ({product_id}) feedbacks ended at", datetime.now())
     if feedback_id:
-        cache_key = f"all_comments_feedback_{feedback_id}"
-        queryset = cache.get(cache_key)
-        if not queryset:
-            queryset = get_filtered_comments(reply_to_id=int(feedback_id))
-            cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+        queryset = get_filtered_comments(product_id, no_cache=True).filter(
+            reply_to_id=int(feedback_id)
+        )
     if not feedback_id and not product_id:
         print("getting all comments")
         cache_key = "all_comments"
