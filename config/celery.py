@@ -28,10 +28,10 @@ app.conf.beat_schedule = {
         "task": "update_products",
         "schedule": 60,
     },
-    "caching_products_and_comments": {
-        "task": "schedule_caching_for_products_and_comments",
-        "schedule": (settings.CACHE_DEFAULT_TIMEOUT * 3) - 100,
-    },
+    # "caching_products_and_comments": {
+    #     "task": "schedule_caching_for_products_and_comments",
+    #     "schedule": (settings.CACHE_DEFAULT_TIMEOUT * 3) - 100,
+    # },
 }
 app.conf.timezone = "Asia/Tashkent"
 
