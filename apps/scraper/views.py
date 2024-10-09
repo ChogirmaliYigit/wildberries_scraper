@@ -25,7 +25,6 @@ from scraper.serializers import (
     CommentDetailSerializer,
     CommentsSerializer,
     FavoritesSerializer,
-    ProductsSerializer,
 )
 from scraper.utils.queryset import (
     filter_comments,
@@ -64,31 +63,21 @@ class CategoriesListView(BaseListAPIView):
 
 
 def products_list(request):
-    start = datetime.now()
-    total, _next, previous, current, page_obj = paginate_queryset(
-        request, filter_products(request)
-    )
-    print(
-        "paginate_queryset in products_list run in:",
-        (datetime.now() - start).total_seconds(),
-        "seconds",
-    )
+    total, _next, previous, current, queryset = filter_products(request)
     return get_paginated_response(
-        get_products_response(request, page_obj), total, _next, previous, current
+        get_products_response(request, queryset), total, _next, previous, current
     )
 
 
 class ProductDetailView(views.APIView):
-    serializer_class = ProductsSerializer
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
     def get(self, request, pk):
-        product = get_all_products().filter(pk=pk).first()
-        if not product:
+        products = get_all_products().filter(pk=pk)
+        if not products:
             raise exceptions.ValidationError({"message": "Товар недоступен"})
-        serializer = self.serializer_class(product, context={"request": request})
-        return response.Response(serializer.data, status.HTTP_200_OK)
+        return get_paginated_response(get_products_response(request, products), 1)
 
 
 class CommentsListView(GenericAPIView):
@@ -181,7 +170,9 @@ class FeedbacksListView(GenericAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
+        print("filter_comments started at", datetime.now())
         queryset = filter_comments(request, reply_to__isnull=True)
+        print("filter_comments came at", datetime.now())
         return get_paginated_response(
             get_comments_response(
                 request,

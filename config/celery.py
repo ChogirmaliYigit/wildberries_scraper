@@ -30,7 +30,7 @@ app.conf.beat_schedule = {
     },
     "caching_products_and_comments": {
         "task": "schedule_caching_for_products_and_comments",
-        "schedule": settings.CACHE_DEFAULT_TIMEOUT * 3,
+        "schedule": (settings.CACHE_DEFAULT_TIMEOUT * 3) - 100,
     },
 }
 app.conf.timezone = "Asia/Tashkent"
@@ -79,6 +79,6 @@ def schedule_caching_for_products_and_comments(*args, **kwargs):
     if not products:
         products = get_all_products()
         cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-        cache_feedbacks_task.delay([product.id for product in products[:100]])
+        cache_feedbacks_task.delay([product.id for product in products[:50]])
         return f"{len(products)} products cached and feedback task scheduled."
-    return "Products are already cached."
+    return f"{len(products)} products are already cached."

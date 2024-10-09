@@ -164,3 +164,4 @@ staticfiles
 media/
 .deb
 .wdm
+database_dump.sql

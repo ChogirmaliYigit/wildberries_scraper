@@ -15,7 +15,7 @@ from django.db.models import (
     Q,
     When,
 )
-from django.db.models.expressions import Subquery, Value
+from django.db.models.expressions import F, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from scraper.filters import filter_by_category
@@ -36,7 +36,7 @@ def get_all_products(_product_id=None):
     # Ensure the product_id is an integer if passed
     _product_id = int(_product_id) if _product_id else None
 
-    sql_query = """
+    sql_query = f"""
     WITH valid_comments AS (
         SELECT
             c.product_id,
@@ -53,7 +53,7 @@ def get_all_products(_product_id=None):
             AND c.content <> ''
             AND c.product_id IS NOT NULL
             AND (c.file IS NOT NULL AND c.file_type = 'image')
-            {comment_filter}  -- Dynamic filtering based on product_id
+            {f"AND c.product_id = {_product_id}" if _product_id else ""}
         GROUP BY
             c.product_id, c.promo
     ),
@@ -66,7 +66,7 @@ def get_all_products(_product_id=None):
         FROM
             scraper_product p
         LEFT JOIN valid_comments vc ON p.id = vc.product_id
-        {product_filter}  -- Dynamic filtering based on product_id
+        {f"WHERE vc.product_id = {_product_id}" if _product_id else ""}
     ),
     final_products AS (
         SELECT
@@ -85,63 +85,57 @@ def get_all_products(_product_id=None):
     FROM
         final_products
     ORDER BY
-        final_rank;
+        final_rank
     """
 
-    sql_query = sql_query.format(
-        comment_filter="AND c.product_id = %s" if _product_id else "",
-        product_filter="WHERE p.id = %s" if _product_id else "",
-    )
+    # Execute the raw SQL query to get the product details including image_link
+    with connection.cursor() as cursor:
+        cursor.execute(sql_query)
+        rows = cursor.fetchall()
 
-    cache_key = "all_products"
-    products = cache.get(cache_key)
-    if not products:
-        # Execute the raw SQL query to get the product details including image_link
-        with connection.cursor() as cursor:
-            if _product_id:
-                cursor.execute(sql_query, [_product_id])
-            else:
-                cursor.execute(sql_query)
-
-            rows = set(cursor.fetchall())
-
-            # Create product IDs, image_link_cases, and ordering_cases in one go
-            product_ids = [row[0] for row in rows]
-            image_link_cases = [
-                When(
-                    id=row[0],
-                    then=Value(
-                        f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{row[1]}'
-                        if row[1] and not row[1].startswith("http")
-                        else row[1]
-                    ),
-                )
-                for row in rows
-                if row[1] is not None
-            ]
-            ordering_cases = [
-                When(id=row[0], then=index) for index, row in enumerate(rows)
-            ]
-
-        # Use the ordered product IDs to retrieve the actual Product instances
-        products = (
-            Product.objects.filter(id__in=product_ids)
-            .annotate(
-                img_link=Case(*image_link_cases, output_field=CharField()),
-                likes_count=Count("product_likes"),
+        # Create product IDs, image_link_cases, and ordering_cases in one go
+        product_ids = [row[0] for row in rows]
+        image_link_cases = [
+            When(
+                id=row[0],
+                then=Value(
+                    f'{settings.BACKEND_DOMAIN.strip("/")}{settings.MEDIA_URL}{row[1]}'
+                    if row[1] and not row[1].startswith("http")
+                    else row[1]
+                ),
             )
-            .filter(img_link__isnull=False)
-            .order_by(Case(*ordering_cases, output_field=IntegerField()))
-            .select_related("category")
-            .prefetch_related(
-                Prefetch("product_likes", queryset=Like.objects.only("id"))
-            )
+            for row in rows
+            if row[1] is not None
+        ]
+        ordering_cases = [When(id=row[0], then=index) for index, row in enumerate(rows)]
+
+    # Use the ordered product IDs to retrieve the actual Product instances
+    products = (
+        Product.objects.filter(id__in=product_ids)
+        .only(
+            "id",
+            "title",
+            "category",
+            "source_id",
         )
-        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
-
-    if not _product_id:
-        # Delete products from the database that are not in the current products queryset
-        Product.objects.exclude(id__in=products.values_list("id", flat=True)).delete()
+        .annotate(
+            img_link=Case(*image_link_cases, output_field=CharField()),
+            likes_count=Count("product_likes"),
+            category_title=F("category__title"),
+        )
+        .filter(img_link__isnull=False)
+        .order_by(Case(*ordering_cases, output_field=IntegerField()))
+        .select_related("category")
+        .prefetch_related(Prefetch("product_likes", queryset=Like.objects.only("id")))
+        .values(
+            "id",
+            "category_title",
+            "title",
+            "source_id",
+            "likes_count",
+            "img_link",
+        )
+    )
 
     return products
 
@@ -207,14 +201,24 @@ def base_comment_filter(queryset, has_file=True, product_list=False):
 
 
 def get_filtered_comments(product_id=None, **filters):
-    cache_key = f"comment_products_{product_id}"
+    print("get products starts at", datetime.now())
+    if product_id:
+        cache_key = f"comment_products_{product_id}"
+    else:
+        cache_key = "all_products"
+    print("cache key", cache_key)
     products = cache.get(cache_key)
     if not products:
         products = get_all_products(product_id)
-        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-    if product_id:
-        products = products.filter(id=product_id)
+        cache.set(cache_key, products, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
+        print("products is not from cache")
+    else:
+        print("products is from cache")
+    print("get products ends at", datetime.now())
+    print("products_with_img_link subquery started at", datetime.now())
     products_with_img_link = products.values("img_link")[:1]
+    print("products_with_img_link subquery ended at", datetime.now())
+    print("base_queryset started at", datetime.now())
     base_queryset = (
         Comment.objects.filter(
             **filters,
@@ -232,6 +236,7 @@ def get_filtered_comments(product_id=None, **filters):
         )
         .order_by("-ordering_date")
     )
+    print("base_queryset ended at", datetime.now())
     return base_queryset
 
 
@@ -330,10 +335,15 @@ def get_paginated_response(data, total, _next=None, previous=None, current=1):
 
 
 def filter_products(request):
-    start = datetime.now()
-    queryset = get_all_products()
+    cache_key = "all_products"
+    queryset = cache.get(cache_key)
+    if not queryset:
+        queryset = get_all_products()
+        cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
 
     # Extracting filter parameters from the request
+    page = int(request.GET.get("page") or 1)
+    count = int(request.GET.get("count") or 10)
     category_id = request.GET.get("category_id", None)
     source_id = request.GET.get("source_id", None)
     search_key = request.GET.get("search", None)
@@ -357,11 +367,18 @@ def filter_products(request):
         queryset = queryset.filter(
             Q(title__icontains=search_key) | Q(category__title__icontains=search_key)
         )
-    print(
-        "filter_products runs in:", (datetime.now() - start).total_seconds(), "seconds"
-    )
 
-    return queryset
+    total_count = len(queryset)
+    total_pages = (total_count + count - 1) // count
+    next_page = page + 1 if page < total_pages else None
+    previous_page = page - 1 if page > 1 else None
+
+    # Implement pagination
+    start_index = (page - 1) * count
+    end_index = start_index + count
+    paginated_queryset = queryset[start_index:end_index]  # Slicing the queryset
+
+    return (total_count, next_page, previous_page, page, paginated_queryset)
 
 
 def cache_feedback_for_product(product_id):
@@ -370,8 +387,6 @@ def cache_feedback_for_product(product_id):
     if not queryset:
         queryset = get_filtered_comments(product_id)
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
-    if product_id:
-        queryset = queryset.filter(product_id=product_id)
     return queryset
 
 
@@ -381,46 +396,40 @@ def cache_feedbacks_task(product_ids):
         cache_feedback_for_product(product_id)
 
 
-def get_products_response(request, page_obj):
-    start = datetime.now()
-    product_ids = [product.id for product in page_obj.object_list]
+def get_products_response(request, queryset):
     user_likes, user_favorites = set(), set()
     if request.user.is_authenticated:
         user_likes = Like.objects.filter(
-            user=request.user, product_id__in=product_ids
+            user=request.user,
         ).values_list("product_id", flat=True)
         user_favorites = Favorite.objects.filter(
-            user=request.user, product_id__in=product_ids
+            user=request.user,
         ).values_list("product_id", flat=True)
     data = [
         {
-            "id": product.id,
-            "title": product.title,
-            "category": product.category.title if product.category else "",
-            "source_id": product.source_id,
-            "liked": product.id in user_likes,
-            "favorite": product.id in user_favorites,
-            "likes": product.likes_count,
+            "id": product.get("id"),
+            "title": product.get("title"),
+            "category": product.get("category_title"),
+            "source_id": product.get("source_id"),
+            "liked": product.get("id") in user_likes,
+            "favorite": product.get("id") in user_favorites,
+            "likes": product.get("likes_count"),
             "image": {
-                "link": product.img_link,
+                "link": product.get("img_link"),
                 "type": FileTypeChoices.IMAGE,
                 "stream": False,
             },
             "link": (
-                f"https://wildberries.ru/catalog/{product.source_id}/detail.aspx"
-                if product.source_id
+                f"https://wildberries.ru/catalog/{product.get('source_id')}/detail.aspx"
+                if product.get("source_id")
                 else None
             ),
         }
-        for product in page_obj.object_list
+        for product in queryset
     ]
+    product_ids = [item["id"] for item in data]
     if product_ids:
         cache_feedbacks_task.apply_async(args=[product_ids])
-    print(
-        "get_products_response runs in:",
-        (datetime.now() - start).total_seconds(),
-        "seconds",
-    )
     return data
 
 
@@ -430,7 +439,9 @@ def filter_comments(request, **filters):
     feedback_id = request.GET.get("feedback_id", None)
 
     if product_id:
+        print(f"get product ({product_id}) feedbacks started at", datetime.now())
         queryset = cache_feedback_for_product(product_id)
+        print(f"get product ({product_id}) feedbacks ended at", datetime.now())
     if feedback_id:
         cache_key = f"all_comments_feedback_{feedback_id}"
         queryset = cache.get(cache_key)
@@ -438,17 +449,24 @@ def filter_comments(request, **filters):
             queryset = get_filtered_comments(reply_to_id=int(feedback_id))
             cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
     if not feedback_id and not product_id:
+        print("getting all comments")
         cache_key = "all_comments"
         queryset = cache.get(cache_key)
         if not queryset:
+            print("get_filtered_comments starts at", datetime.now())
             queryset = get_filtered_comments()
-            cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+            # cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT)
+            print("get_filtered_comments came at", datetime.now())
+        else:
+            print("get_filtered_comments came from cache")
 
+    print("queryset filter starts at", datetime.now())
     queryset = (
         queryset.filter(**filters)
         .select_related("user", "product", "reply_to")
         .prefetch_related("files")
     )
+    print("queryset filtered at", datetime.now())
 
     return queryset
 
@@ -456,8 +474,10 @@ def filter_comments(request, **filters):
 def get_comments_response(
     request, objects, replies=False, user_feedback=False, for_comment=False
 ):
+    print("get_comments_response started at", datetime.now())
     user_id = request.user.id if request and request.user else None
     data = []
+    print("comment objects loop started at", datetime.now())
     for comment in objects:
         files = get_files(comment)
         if not files and not for_comment:
@@ -514,4 +534,5 @@ def get_comments_response(
             }
         )
         data.append(response)
+    print("get_comments_response ended at", datetime.now())
     return data
