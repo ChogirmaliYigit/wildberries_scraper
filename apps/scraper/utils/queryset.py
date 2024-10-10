@@ -17,7 +17,7 @@ from django.db.models import (
 from django.db.models.expressions import F, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
-from scraper.filters import filter_by_category
+from scraper.filters import filter_by_category, get_popular_products
 from scraper.models import (
     Comment,
     CommentStatuses,
@@ -340,9 +340,11 @@ def get_paginated_response(data, total, _next=None, previous=None, current=1):
 def filter_products(request):
     cache_key = "all_products"
     queryset = cache.get(cache_key)
-    if not queryset:
+    if queryset is None:
         queryset = get_all_products()
         cache.set(cache_key, queryset, timeout=settings.CACHE_DEFAULT_TIMEOUT * 3)
+    else:
+        print("products from cache")
 
     # Extracting filter parameters from the request
     page = int(request.GET.get("page") or 1)
@@ -352,16 +354,19 @@ def filter_products(request):
     search_key = request.GET.get("search", None)
 
     if category_id:
-        category_cache_key = f"filter_by_category_{category_id}"
-        category_queryset = cache.get(category_cache_key)
-        if not category_queryset:
-            category_queryset = filter_by_category(queryset, category_id)
-            cache.set(
-                category_cache_key,
-                category_queryset,
-                timeout=settings.CACHE_DEFAULT_TIMEOUT,
-            )
-        queryset = category_queryset
+        if category_id == settings.POPULAR_CATEGORY_ID:
+            queryset = get_popular_products(queryset)
+        else:
+            category_cache_key = f"filter_by_category_{category_id}"
+            category_queryset = cache.get(category_cache_key)
+            if category_queryset is None:
+                category_queryset = filter_by_category(queryset, category_id)
+                cache.set(
+                    category_cache_key,
+                    category_queryset,
+                    timeout=settings.CACHE_DEFAULT_TIMEOUT * 3,
+                )
+            queryset = category_queryset
 
     if source_id:
         queryset = queryset.filter(source_id=source_id)
