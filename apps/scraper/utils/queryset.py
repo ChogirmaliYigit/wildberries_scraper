@@ -231,7 +231,6 @@ def get_filtered_comments(product_id=None, no_cache=False, **filters):
             status=CommentStatuses.ACCEPTED,
             product__in=Subquery(products.values_list("id", flat=True)),
             requestedcomment__isnull=True,
-            content__isnull=True,
         )
         .select_related("product", "user", "reply_to")
         .prefetch_related("files", "replies")
