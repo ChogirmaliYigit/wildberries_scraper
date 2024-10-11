@@ -397,6 +397,16 @@ class WildberriesClient:
 
             if not images_saved and not video_saved:
                 comment_object.delete()
+                return
+
+            if (
+                comment_object.product
+                and not comment_object.product.image_link
+                and images_saved
+            ):
+                file = images_saved.first()
+                comment_object.product.image_link = file.file_link
+                comment_object.product.save(update_fields=["image_link"])
 
     def save_comment_images(self, comment_object, photo_ids):
         """Saves images associated with a comment."""
@@ -420,9 +430,11 @@ class WildberriesClient:
                     )
                 )
         if image_objects:
-            CommentFiles.objects.bulk_create(image_objects, ignore_conflicts=True)
-            return True
-        return False
+            files = CommentFiles.objects.bulk_create(
+                image_objects, ignore_conflicts=True
+            )
+            return files
+        return None
 
     def save_comment_videos(self, comment_object, video):
         """Saves videos associated with a comment."""
@@ -434,12 +446,12 @@ class WildberriesClient:
             if link:
                 comment = CommentFiles.objects.filter(comment=comment_object)
                 if not comment:
-                    CommentFiles.objects.get_or_create(
+                    files = CommentFiles.objects.get_or_create(
                         comment=comment_object,
                         file_type=FileTypeChoices.VIDEO,
                         defaults={
                             "file_link": link,
                         },
                     )
-                    return True
-        return False
+                    return files
+        return None

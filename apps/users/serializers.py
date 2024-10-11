@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from rest_framework import exceptions, serializers
+from scraper.models import Favorite
+from scraper.utils.queryset import get_comments
 from users.models import OTPTypes, Token, User, UserOTP
 
 
@@ -76,6 +78,13 @@ class UserSerializer(serializers.ModelSerializer):
             photo = None
         if photo:
             data["profile_photo"] = photo
+        data["favorites_count"] = Favorite.objects.filter(user=instance).count()
+        data["feedbacks_count"] = get_comments(
+            reply_to__isnull=True, user=instance
+        ).count()
+        data["comments_count"] = get_comments(
+            reply_to__isnull=False, user=instance
+        ).count()
         return data
 
     def update(self, instance, validated_data):

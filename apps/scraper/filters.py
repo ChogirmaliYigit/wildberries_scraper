@@ -25,12 +25,7 @@ class ProductFilter(django_filters.FilterSet):
 class CommentsFilter(django_filters.FilterSet):
     product_id = django_filters.NumberFilter(field_name="product_id")
     source_id = django_filters.NumberFilter(field_name="source_id")
-    feedback_id = django_filters.NumberFilter(method="filter_by_feedback")
-
-    def filter_by_feedback(self, queryset, name, value):
-        if value:
-            queryset = queryset.filter(reply_to_id=value)
-        return queryset
+    feedback_id = django_filters.NumberFilter(field_name="reply_to_id")
 
     class Meta:
         model = Comment

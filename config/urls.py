@@ -62,9 +62,11 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path("silk/", include("silk.urls", namespace="silk")),
-    path("", admin.site.urls),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+urlpatterns.append(path("", admin.site.urls))

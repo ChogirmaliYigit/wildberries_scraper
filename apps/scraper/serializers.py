@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from rest_framework import exceptions, serializers
 from scraper.models import (
@@ -39,24 +40,22 @@ class ProductsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get("request")
-        img_link = self.context.get("img_link")
-        if not img_link:
-            img_link = instance.img_link
         data = super().to_representation(instance)
 
         if request and request.user.is_authenticated:
-            liked_products, favorite_products = get_user_likes_and_favorites(
-                request.user
-            )
-            data["liked"] = instance.id in liked_products
-            data["favorite"] = instance.id in favorite_products
+            liked, favorite = get_user_likes_and_favorites(request.user, instance)
+            data["liked"] = liked
+            data["favorite"] = favorite
 
-        data["likes"] = instance.product_likes.count()
-        data["category"] = instance.category.title if instance.category else ""
+        data["likes"] = getattr(instance, "likes_count", instance.product_likes.count())
 
         # Safely retrieve product image
         data["image"] = {
-            "link": img_link,
+            "link": (
+                f"{settings.BACKEND_DOMAIN.rstrip('/')}{instance.image_link}"
+                if instance.image_link.startswith("/media/")
+                else instance.image_link
+            ),
             "type": FileTypeChoices.IMAGE,
             "stream": False,
         }
@@ -75,7 +74,6 @@ class ProductsSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
-            "category",
             "source_id",
             "liked",
             "favorite",
@@ -91,7 +89,6 @@ class CommentsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get("request")
-        user_feedback = self.context.get("user_feedback", False)
         _replies = self.context.get("replies", False)
         data = super().to_representation(instance)
 
@@ -122,10 +119,10 @@ class CommentsSerializer(serializers.ModelSerializer):
         else:
             is_own = False
         data["is_own"] = is_own
-        if user_feedback:
-            data["product_name"] = instance.product.title if instance.product else None
+        if instance.product:
+            data["product_name"] = instance.product.title
             data["product_image"] = {
-                "link": getattr(instance, "product_img_link", None),
+                "link": instance.product.image_link,
                 "type": FileTypeChoices.IMAGE,
                 "stream": False,
             }
@@ -162,9 +159,17 @@ class CommentsSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             comment_instance = super().create(validated_data)
 
-            if source_id and not product:
+            if source_id and not comment_instance.product:
                 comment_instance.product_source_id = source_id
                 comment_instance.save(update_fields=["product_source_id"])
+
+            if (
+                comment_instance.product
+                and not comment_instance.product.image_link
+                and comment_instance.file
+            ):
+                comment_instance.product.image_link = comment_instance.file.url
+                comment_instance.product.save(update_fields=["image_link"])
 
             if request.query_params.get("direct", "false") != "true":
                 try:
@@ -233,10 +238,7 @@ class FavoritesSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(write_only=True)
 
     def get_product(self, obj):
-        # Pass the img_link to the ProductSerializer
-        product_data = ProductsSerializer(
-            obj.product, context={**self.context, "img_link": obj.img_link}
-        ).data
+        product_data = ProductsSerializer(obj.product, context={**self.context}).data
         return product_data
 
     class Meta:

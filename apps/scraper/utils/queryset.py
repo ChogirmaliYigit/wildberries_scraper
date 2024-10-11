@@ -31,6 +31,58 @@ from scraper.models import (
 from celery import shared_task
 
 
+def get_products():
+    return (
+        Product.objects.annotate(
+            likes_count=Count("product_likes"),
+            valid_comments_count=Count(
+                "product_comments",
+                filter=Q(
+                    Q(
+                        product_comments__file__isnull=False,
+                        product_comments__file_type=FileTypeChoices.IMAGE,
+                    )
+                    | Q(
+                        product_comments__files__isnull=False,
+                        product_comments__files__file_type=FileTypeChoices.IMAGE,
+                    ),
+                    product_comments__status=CommentStatuses.ACCEPTED,
+                    product_comments__content__isnull=False,
+                ),
+            ),
+        )
+        .filter(
+            image_link__isnull=False,
+            valid_comments_count__gt=0,  # Only products with valid comments
+        )
+        .order_by("?")
+    )
+
+
+def get_comments(comment=False, **filters):
+    requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
+
+    queryset = (
+        Comment.objects.filter(
+            status=CommentStatuses.ACCEPTED,
+            content__isnull=False,
+            # product__image_link__isnull=False,
+            **filters,
+        )
+        .exclude(id__in=requested_comment_ids)
+        .annotate(
+            ordering_date=Coalesce(
+                "source_date", "created_at", output_field=DateTimeField()
+            )
+        )
+        .select_related("product", "user", "reply_to")
+        .prefetch_related("files", "replies")
+    )
+    if not comment:
+        queryset.filter(Q(file__isnull=False) | Q(files__isnull=False))
+    return queryset
+
+
 def get_all_products(_product_id=None):
     # Ensure the product_id is an integer if passed
     _product_id = int(_product_id) if _product_id else None
@@ -415,29 +467,29 @@ def get_products_response(request, queryset):
         ).values_list("product_id", flat=True)
     data = [
         {
-            "id": product.get("id"),
-            "title": product.get("title"),
-            "category": product.get("category_title"),
-            "source_id": product.get("source_id"),
-            "liked": product.get("id") in user_likes,
-            "favorite": product.get("id") in user_favorites,
-            "likes": product.get("likes_count"),
+            "id": product.id,
+            "title": product.title,
+            # "category": product.category.title if product.category else None,
+            "source_id": product.source_id,
+            "liked": product.id in user_likes,
+            "favorite": product.id in user_favorites,
+            "likes": product.likes_count,
             "image": {
-                "link": product.get("img_link"),
+                "link": product.img_link,
                 "type": FileTypeChoices.IMAGE,
                 "stream": False,
             },
             "link": (
-                f"https://wildberries.ru/catalog/{product.get('source_id')}/detail.aspx"
-                if product.get("source_id")
+                f"https://wildberries.ru/catalog/{product.source_id}/detail.aspx"
+                if product.source_id
                 else None
             ),
         }
         for product in queryset
     ]
-    product_ids = [item["id"] for item in data]
-    if product_ids:
-        cache_feedbacks_task.apply_async(args=[product_ids])
+    # product_ids = [item["id"] for item in data]
+    # if product_ids:
+    #     cache_feedbacks_task.apply_async(args=[product_ids])
     return data
 
 

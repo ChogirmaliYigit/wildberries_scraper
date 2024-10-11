@@ -72,11 +72,13 @@ class ProductAdmin(ModelAdmin):
         "title",
         "category",
         "source_id",
+        "image_link",
     )
     search_fields = (
         "id",
         "title",
         "root",
+        "image_link",
     )
     list_filter = ("category",)
     autocomplete_fields = ["category"]
@@ -286,7 +288,9 @@ class RequestedCommentAdmin(BaseCommentAdmin):
             else _("Comment accepted")
         )
         self.message_user(request, msg)
-        return HttpResponseRedirect(reverse("admin:scraper_comment_changelist"))
+        return HttpResponseRedirect(
+            reverse("admin:scraper_requestedcomment_changelist")
+        )
 
     def has_add_permission(self, request):
         return False
