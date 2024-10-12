@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import django_filters
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.utils import timezone
 from scraper.models import Category, Comment, Product
 
@@ -65,7 +65,11 @@ def filter_by_category(queryset, value):
 
 def get_popular_products(queryset):
     # Using a threshold for "likes_count" to filter popular products and applying an index on this field will help
-    return queryset.filter(likes_count__gte=2).order_by("-likes_count")
+    return (
+        queryset.annotate(likes_count=Count("product_likes"))
+        .filter(likes_count__gte=2)
+        .order_by("-likes_count")
+    )
 
 
 def get_new_products(queryset):
