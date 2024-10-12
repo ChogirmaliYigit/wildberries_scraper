@@ -34,6 +34,7 @@ from celery import shared_task
 def get_products():
     return (
         Product.objects.annotate(
+            likes_count=Count("product_likes", distinct=True),
             valid_comments_count=Count(
                 "product_comments",
                 filter=Q(
