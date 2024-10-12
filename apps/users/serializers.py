@@ -72,19 +72,19 @@ class UserSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         if isinstance(instance, User):
             photo = f"{settings.BACKEND_DOMAIN.strip('/')}{settings.MEDIA_URL}{instance.profile_photo}"
+            data["favorites_count"] = Favorite.objects.filter(user=instance).count()
+            data["feedbacks_count"] = get_comments(
+                reply_to__isnull=True, user=instance
+            ).count()
+            data["comments_count"] = get_comments(
+                reply_to__isnull=False, user=instance
+            ).count()
         elif isinstance(instance, dict):
             photo = instance.get("profile_photo", "")
         else:
             photo = None
         if photo:
             data["profile_photo"] = photo
-        data["favorites_count"] = Favorite.objects.filter(user=instance).count()
-        data["feedbacks_count"] = get_comments(
-            reply_to__isnull=True, user=instance
-        ).count()
-        data["comments_count"] = get_comments(
-            reply_to__isnull=False, user=instance
-        ).count()
         return data
 
     def update(self, instance, validated_data):
