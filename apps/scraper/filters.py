@@ -67,7 +67,7 @@ def get_popular_products(queryset):
     # Using a threshold for "likes_count" to filter popular products and applying an index on this field will help
     return (
         queryset.annotate(likes_count=Count("product_likes"))
-        .filter(likes_count__gte=2)
+        .filter(likes_count__gte=3)
         .order_by("-likes_count")
     )
 
