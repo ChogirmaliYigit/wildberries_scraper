@@ -26,7 +26,11 @@ app.conf.beat_schedule = {
     },
     "update_wildberries_products": {
         "task": "update_products",
-        "schedule": 60,
+        "schedule": 100,
+    },
+    "update_all_products_image_links": {
+        "task": "update_product_image_links",
+        "schedule": 100,
     },
 }
 app.conf.timezone = "Asia/Tashkent"
@@ -63,3 +67,10 @@ def update_products(*args, **kwargs):
     from scraper.utils import wildberries
 
     wildberries.update_products()
+
+
+@app.task(name="update_product_image_links", bind=True)
+def update_product_image_links(*args, **kwargs):
+    from scraper.utils import wildberries
+
+    wildberries.update_product_image_links()

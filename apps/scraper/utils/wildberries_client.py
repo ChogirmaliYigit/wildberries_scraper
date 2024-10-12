@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import ParserError, parse
 from django.db import IntegrityError, transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
 from scraper.models import (
@@ -181,8 +181,38 @@ class WildberriesClient:
                 # Check if the target title is found in the product title
                 if target_title in product_title:
                     product.source_id = item.get("id")
-                    product.save()
+                    product.save(update_fields=["source_id"])
                     break  # Exit the loop once a match is found
+
+    def update_product_image_links(self):
+        queryset = Product.objects.filter(image_link__isnull=True).order_by("?")
+        for product in queryset:
+            comment = (
+                Comment.objects.filter(
+                    Q(
+                        Q(file__isnull=False, file_type=FileTypeChoices.IMAGE)
+                        | Q(files__isnull=False, files__file_type=FileTypeChoices.IMAGE)
+                    ),
+                    status=CommentStatuses.ACCEPTED,
+                    content__isnull=False,
+                    product=product,
+                )
+                .prefetch_related("files")
+                .first()
+            )
+            if not comment:
+                continue
+
+            image_link = None
+            if comment.file:
+                image_link = comment.file.url
+            else:
+                first_file = comment.files.first()
+                if first_file and first_file.file_type == FileTypeChoices.IMAGE:
+                    image_link = first_file.file_link
+            if image_link:
+                product.image_link = image_link
+                product.save(update_fields=["image_link"])
 
     def get_products(self, categories=None):
         """Fetches and saves products and their variants."""

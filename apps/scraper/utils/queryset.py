@@ -47,7 +47,6 @@ def get_comments(comment=False, **filters):
         Comment.objects.filter(
             status=CommentStatuses.ACCEPTED,
             content__isnull=False,
-            # product__image_link__isnull=False,
             **filters,
         )
         .exclude(id__in=requested_comment_ids)
