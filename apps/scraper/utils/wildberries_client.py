@@ -404,7 +404,7 @@ class WildberriesClient:
                 and not comment_object.product.image_link
                 and images_saved
             ):
-                file = images_saved.first()
+                file = images_saved[0]
                 comment_object.product.image_link = file.file_link
                 comment_object.product.save(update_fields=["image_link"])
 
