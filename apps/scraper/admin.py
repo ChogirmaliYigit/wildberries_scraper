@@ -205,10 +205,7 @@ class CommentAdmin(BaseCommentAdmin):
         self.message_user(request, _("Selected comments not promoted"))
 
     def get_queryset(self, request):
-        # Filter out instances of RequestedComment
         queryset = super().get_queryset(request)
-        requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
-        queryset = queryset.exclude(id__in=requested_comment_ids)
         queryset = queryset.filter(product__isnull=False)
         return queryset.filter(status=CommentStatuses.ACCEPTED)
 
