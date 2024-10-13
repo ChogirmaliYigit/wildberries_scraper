@@ -61,7 +61,9 @@ def get_comments(comment=False, **filters):
         .prefetch_related("files", "replies")
     )
     if not comment:
-        queryset = queryset.filter(Q(file__isnull=False) | Q(files__isnull=False))
+        queryset = queryset.annotate(num_files=Count("files", distinct=True)).filter(
+            Q(num_files__gt=0) | Q(file__isnull=False, file__gt="")
+        )
     return queryset
 
 

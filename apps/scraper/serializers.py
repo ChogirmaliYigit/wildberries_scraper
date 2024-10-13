@@ -122,15 +122,16 @@ class CommentsSerializer(serializers.ModelSerializer):
         data["is_own"] = is_own
         if instance.product:
             data["product_name"] = instance.product.title
-            data["product_image"] = {
-                "link": (
-                    f"{settings.BACKEND_DOMAIN.rstrip('/')}{instance.product.image_link}"
-                    if instance.product.image_link.startswith("/media/")
-                    else instance.product.image_link
-                ),
-                "type": FileTypeChoices.IMAGE,
-                "stream": False,
-            }
+            if instance.product.image_link:
+                data["product_image"] = {
+                    "link": (
+                        f"{settings.BACKEND_DOMAIN.rstrip('/')}{instance.product.image_link}"
+                        if instance.product.image_link.startswith("/media/")
+                        else instance.product.image_link
+                    ),
+                    "type": FileTypeChoices.IMAGE,
+                    "stream": False,
+                }
         else:
             data["product_name"] = ""
             data["product_image"] = {}
