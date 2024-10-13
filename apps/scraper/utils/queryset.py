@@ -30,6 +30,7 @@ def get_products():
                     ),
                     product_comments__status=CommentStatuses.ACCEPTED,
                     product_comments__content__isnull=False,
+                    product_comments__reply_to__isnull=True,
                 ),
             ),
         )

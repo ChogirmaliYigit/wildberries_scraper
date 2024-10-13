@@ -4,7 +4,7 @@ from drf_yasg import utils
 from rest_framework import exceptions, generics, permissions, response, status, views
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from scraper.filters import CommentsFilter, ProductFilter
-from scraper.models import Category, Favorite, Like, Product
+from scraper.models import Category, Comment, Favorite, Like, Product
 from scraper.serializers import (
     CategoriesSerializer,
     CommentDetailSerializer,
@@ -124,7 +124,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         return get_comments(user=self.request.user)
 
     def get_object(self):
-        obj = self.get_queryset().filter(pk=self.kwargs["pk"]).first()
+        obj = Comment.objects.filter(pk=self.kwargs["pk"]).first()
         if not obj:
             raise exceptions.ValidationError({"message": "Комментарий не найден"})
         return obj
