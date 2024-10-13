@@ -66,33 +66,31 @@ def get_comments(comment=False, **filters):
 
 
 def get_files(comment):
-    # Prefetch all related files at the queryset level, before calling this function
     files = []
 
-    # Process the single `comment.file` if it exists
-    if comment.file:
-        file_link = f"{settings.BACKEND_DOMAIN}{settings.MEDIA_URL}{comment.file}"
-        files.append(
-            {
-                "link": file_link,
-                "type": comment.file_type,
-                "stream": file_link.endswith(".m3u8"),
-            }
-        )
+    # Helper function to process files
+    def process_file(_link, file_type):
+        return {
+            "link": _link,
+            "type": file_type,
+            "stream": _link.endswith(".m3u8"),
+        }
 
-    # Process files from the `comment.files.all()` prefetched queryset
+    # Process the single `comment.file`
+    if comment.file:
+        file_link = f"{settings.BACKEND_DOMAIN.rstrip('/')}{comment.file.url}"
+        file = process_file(file_link, comment.file_type)
+        if file not in files:
+            files.append(file)
+
+    # Process files from `comment.files.all()`
     for file in comment.files.all():
         if file.file_link:  # Ensure the file has a link
-            files.append(
-                {
-                    "link": file.file_link,
-                    "type": file.file_type,
-                    "stream": file.file_link.endswith(".m3u8"),
-                }
-            )
+            processed_file = process_file(file.file_link, file.file_type)
+            if processed_file not in files:
+                files.append(processed_file)
 
-    # Use set to remove duplicates
-    return list({frozenset(item.items()): item for item in files}.values())
+    return files
 
 
 def get_all_replies(comment, _replies=True):

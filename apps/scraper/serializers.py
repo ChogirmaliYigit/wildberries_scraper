@@ -123,7 +123,11 @@ class CommentsSerializer(serializers.ModelSerializer):
         if instance.product:
             data["product_name"] = instance.product.title
             data["product_image"] = {
-                "link": instance.product.image_link,
+                "link": (
+                    f"{settings.BACKEND_DOMAIN.rstrip('/')}{instance.product.image_link}"
+                    if instance.product.image_link.startswith("/media/")
+                    else instance.product.image_link
+                ),
                 "type": FileTypeChoices.IMAGE,
                 "stream": False,
             }
