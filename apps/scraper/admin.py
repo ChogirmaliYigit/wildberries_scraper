@@ -266,13 +266,13 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         return custom_urls + urls
 
     def accept_comment(self, request, pk):
-        return self.update_comment(request, pk, CommentStatuses.ACCEPTED[0])
+        return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
 
     def reject_comment(self, request, pk):
         reason = request.POST.get("reason", "")
-        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED[0], reason)
+        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED, reason)
 
-    def update_comment(self, request, pk: int, status: str, reason: str = ""):
+    def update_comment(self, request, pk: int, status, reason: str = ""):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = status
