@@ -151,6 +151,8 @@ class CommentsSerializer(serializers.ModelSerializer):
         print("source_id", source_id, type(source_id))
         product = Product.objects.filter(source_id=source_id).first()
         print(f"product for source_id={source_id}:", product)
+        if not product:
+            product = Product.objects.filter(id=source_id).first()
         if product:
             validated_data["product"] = product
         else:
