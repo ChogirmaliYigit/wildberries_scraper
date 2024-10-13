@@ -207,7 +207,8 @@ class CommentAdmin(BaseCommentAdmin):
     def get_queryset(self, request):
         # Filter out instances of RequestedComment
         queryset = super().get_queryset(request)
-        queryset = queryset.filter(requestedcomment__isnull=True)
+        requested_comment_ids = RequestedComment.objects.values_list("id", flat=True)
+        queryset = queryset.exclude(id__in=requested_comment_ids)
         queryset = queryset.filter(product__isnull=False)
         return queryset.filter(status=CommentStatuses.ACCEPTED)
 
@@ -268,13 +269,13 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         return custom_urls + urls
 
     def accept_comment(self, request, pk):
-        return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
+        return self.update_comment(request, pk, CommentStatuses.ACCEPTED[0])
 
     def reject_comment(self, request, pk):
         reason = request.POST.get("reason", "")
-        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED, reason)
+        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED[0], reason)
 
-    def update_comment(self, request, pk: int, status: CommentStatuses, reason=""):
+    def update_comment(self, request, pk: int, status: str, reason: str = ""):
         requested_comment = RequestedComment.objects.get(pk=pk)
         comment = Comment.objects.get(pk=requested_comment.pk - 1)
         comment.status = status
