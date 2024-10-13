@@ -45,6 +45,40 @@ class ProductsListView(BaseListAPIView):
     filterset_class = ProductFilter
     search_fields = ["title", "category__title", "image_link", "source_id", "id"]
 
+    def filter_queryset(self, queryset):
+        # Get the filtered and annotated queryset
+        base_queryset = super().filter_queryset(queryset)
+
+        # Separate promoted products
+        promoted_products = base_queryset.filter(promoted=True)
+
+        # Select one promoted product randomly
+        promoted_product = (
+            promoted_products.order_by("?").first()
+            if promoted_products.exists()
+            else None
+        )
+
+        # Fetch the first two products from the base queryset
+        first_two_products = base_queryset.exclude(
+            pk=promoted_product.pk if promoted_product else None
+        )[:2]
+
+        # Fetch the remaining products excluding the promoted one
+        remaining_products = base_queryset.exclude(
+            pk__in=first_two_products.values_list("pk", flat=True)
+        )
+
+        # Combine the final queryset
+        if promoted_product:
+            combined_queryset = (
+                list(first_two_products) + [promoted_product] + list(remaining_products)
+            )
+        else:
+            combined_queryset = list(first_two_products) + list(remaining_products)
+
+        return combined_queryset
+
     def get_queryset(self):
         return get_products()
 

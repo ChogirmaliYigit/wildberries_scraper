@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import Count, DateTimeField, Q
+from django.db.models import Count, DateTimeField, F, Q
 from django.db.models.functions import Coalesce
 from scraper.models import (
     Comment,
@@ -16,6 +16,7 @@ def get_products():
     return (
         Product.objects.annotate(
             likes_count=Count("product_likes", distinct=True),
+            promoted=F("product_comments__promo"),
             valid_comments_count=Count(
                 "product_comments",
                 filter=Q(
@@ -36,6 +37,7 @@ def get_products():
             image_link__isnull=False,
             valid_comments_count__gt=0,  # Only products with valid comments
         )
+        .prefetch_related("product_likes")
         .order_by("?")
     )
 
@@ -59,7 +61,7 @@ def get_comments(comment=False, **filters):
         .prefetch_related("files", "replies")
     )
     if not comment:
-        queryset.filter(Q(file__isnull=False) | Q(files__isnull=False))
+        queryset = queryset.filter(Q(file__isnull=False) | Q(files__isnull=False))
     return queryset
 
 

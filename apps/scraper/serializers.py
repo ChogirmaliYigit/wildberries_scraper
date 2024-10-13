@@ -48,6 +48,7 @@ class ProductsSerializer(serializers.ModelSerializer):
             data["favorite"] = favorite
 
         data["likes"] = getattr(instance, "likes_count", instance.product_likes.count())
+        data["promoted"] = getattr(instance, "promoted", False)
 
         # Safely retrieve product image
         data["image"] = {
