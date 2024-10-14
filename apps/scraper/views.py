@@ -101,7 +101,7 @@ class CommentsListView(BaseListCreateAPIView):
     filterset_class = CommentsFilter
 
     def get_queryset(self):
-        return get_comments(reply_to__isnull=False)
+        return get_comments(comment=True, reply_to__isnull=False)
 
     def get_serializer_context(self):
         """
@@ -121,7 +121,7 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     ordering = []
 
     def get_queryset(self):
-        return get_comments(user=self.request.user)
+        return get_comments(comment=True, user=self.request.user)
 
     def get_object(self):
         obj = Comment.objects.filter(pk=self.kwargs["pk"]).first()
@@ -134,7 +134,9 @@ class UserCommentsListView(BaseListAPIView):
     serializer_class = CommentsSerializer
 
     def get_queryset(self):
-        return get_comments(reply_to__isnull=False, user=self.request.user)
+        return get_comments(
+            comment=True, reply_to__isnull=False, user=self.request.user
+        )
 
 
 class FeedbacksListView(BaseListCreateAPIView):
