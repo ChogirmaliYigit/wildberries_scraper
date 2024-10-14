@@ -61,6 +61,8 @@ class ProductsSerializer(serializers.ModelSerializer):
             "stream": False,
         }
 
+        data["valid_comments_count"] = getattr(instance, "valid_comments_count", 0)
+
         # Use safe attribute access
         data["link"] = (
             f"https://wildberries.ru/catalog/{instance.source_id}/detail.aspx"

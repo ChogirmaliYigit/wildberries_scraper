@@ -16,15 +16,15 @@ def get_products():
         Product.objects.annotate(
             likes_count=Count("product_likes", distinct=True),
             promoted=F("product_comments__promo"),
+            num_files=Count("product_comments__files", distinct=True),
             valid_comments_count=Count(
                 "product_comments",
                 filter=Q(
                     Q(
                         product_comments__file__isnull=False,
+                        product_comments__file__gt="",
                     )
-                    | Q(
-                        product_comments__files__isnull=False,
-                    ),
+                    | Q(num_files__gt=0),
                     product_comments__status=CommentStatuses.ACCEPTED,
                     product_comments__content__isnull=False,
                     product_comments__reply_to__isnull=True,
