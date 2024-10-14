@@ -13,6 +13,7 @@ from scraper.models import (
     RequestedComment,
     RequestedCommentFile,
 )
+from scraper.utils.queryset import get_comments, get_products
 from unfold.admin import ModelAdmin, StackedInline
 from unfold.decorators import display
 
@@ -82,6 +83,9 @@ class ProductAdmin(ModelAdmin):
     )
     list_filter = ("category",)
     autocomplete_fields = ["category"]
+
+    def get_queryset(self, request):
+        return get_products()
 
     @display(description=_("Likes"))
     def likes(self, instance):
@@ -205,9 +209,7 @@ class CommentAdmin(BaseCommentAdmin):
         self.message_user(request, _("Selected comments not promoted"))
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.filter(product__isnull=False)
-        return queryset.filter(status=CommentStatuses.ACCEPTED)
+        return get_comments(comment=True, product__isnull=False)
 
 
 @admin.register(RequestedComment)
