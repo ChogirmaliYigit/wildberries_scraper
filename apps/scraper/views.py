@@ -50,9 +50,7 @@ class ProductsListView(BaseListAPIView):
         base_queryset = super().filter_queryset(queryset)
 
         # Separate promoted products
-        promoted_product = (
-            base_queryset.filter(promoted=True).order_by("RANDOM()").first()
-        )
+        promoted_product = base_queryset.filter(promoted=True).order_by("?").first()
 
         # Fetch the first two products from the base queryset
         first_two_products = base_queryset.exclude(
