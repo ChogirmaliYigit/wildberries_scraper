@@ -54,7 +54,7 @@ class ProductsListView(BaseListAPIView):
 
         # Select one promoted product randomly
         promoted_product = (
-            promoted_products.order_by("?").first()
+            promoted_products.order_by("RANDOM()").first()
             if promoted_products.exists()
             else None
         )
