@@ -5,7 +5,6 @@ from scraper.models import (
     Comment,
     CommentStatuses,
     Favorite,
-    FileTypeChoices,
     Like,
     Product,
     RequestedComment,
@@ -22,11 +21,9 @@ def get_products():
                 filter=Q(
                     Q(
                         product_comments__file__isnull=False,
-                        product_comments__file_type=FileTypeChoices.IMAGE,
                     )
                     | Q(
                         product_comments__files__isnull=False,
-                        product_comments__files__file_type=FileTypeChoices.IMAGE,
                     ),
                     product_comments__status=CommentStatuses.ACCEPTED,
                     product_comments__content__isnull=False,
