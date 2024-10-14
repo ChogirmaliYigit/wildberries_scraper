@@ -20,27 +20,21 @@ def get_products():
             valid_comments_count=Count(
                 "product_comments",
                 filter=Q(
+                    Q(
+                        product_comments__file__isnull=False,
+                        product_comments__file_type=FileTypeChoices.IMAGE,
+                    )
+                    | Q(
+                        product_comments__files__isnull=False,
+                        product_comments__files__file_type=FileTypeChoices.IMAGE,
+                    ),
                     product_comments__status=CommentStatuses.ACCEPTED,
                     product_comments__content__isnull=False,
                     product_comments__reply_to__isnull=True,
                 ),
             ),
-            num_files=Count(
-                "product_comments__files",
-                distinct=True,
-                filter=Q(product_comments__files__file_type=FileTypeChoices.IMAGE),
-            ),
         )
         .filter(
-            Q(
-                Q(
-                    product_comments__file__isnull=False,
-                    product_comments__file_type=FileTypeChoices.IMAGE,
-                )
-                | Q(
-                    num_files__gt=0,
-                )
-            ),
             image_link__isnull=False,
             valid_comments_count__gt=0,  # Only products with valid comments
         )
