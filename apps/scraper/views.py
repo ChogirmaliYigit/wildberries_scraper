@@ -50,13 +50,8 @@ class ProductsListView(BaseListAPIView):
         base_queryset = super().filter_queryset(queryset)
 
         # Separate promoted products
-        promoted_products = base_queryset.filter(promoted=True)
-
-        # Select one promoted product randomly
         promoted_product = (
-            promoted_products.order_by("RANDOM()").first()
-            if promoted_products.exists()
-            else None
+            base_queryset.filter(promoted=True).order_by("RANDOM()").first()
         )
 
         # Fetch the first two products from the base queryset

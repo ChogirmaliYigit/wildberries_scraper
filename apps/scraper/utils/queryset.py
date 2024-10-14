@@ -36,7 +36,7 @@ def get_products():
             valid_comments_count__gt=0,  # Only products with valid comments
         )
         .prefetch_related("product_likes")
-        .order_by("?")
+        .order_by("RANDOM()")
     )
 
 
