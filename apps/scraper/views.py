@@ -47,7 +47,9 @@ class ProductsListView(BaseListAPIView):
 
     def filter_queryset(self, queryset):
         # Get the filtered and annotated queryset
-        base_queryset = super().filter_queryset(get_products())
+        all_products = get_products()
+        base_queryset = super().filter_queryset(all_products)
+        base_queryset.exclude(pk__in=all_products.values_list("pk", flat=True))
 
         # Separate promoted products
         promoted_products = base_queryset.filter(promoted=True)
