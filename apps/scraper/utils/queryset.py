@@ -16,7 +16,6 @@ def get_products():
         Product.objects.annotate(
             likes_count=Count("product_likes", distinct=True),
             promoted=F("product_comments__promo"),
-            num_files=Count("product_comments__files", distinct=True),
             valid_comments_count=Count(
                 "product_comments",
                 filter=Q(
@@ -24,16 +23,18 @@ def get_products():
                         product_comments__file__isnull=False,
                         product_comments__file__gt="",
                     )
-                    | Q(num_files__gt=0),
+                    | Q(product_comments__files__isnull=False),
                     product_comments__status=CommentStatuses.ACCEPTED,
                     product_comments__content__isnull=False,
                     product_comments__reply_to__isnull=True,
                 ),
             ),
+            num_files=Count("product_comments__files", distinct=True),
         )
         .filter(
+            Q(valid_comments_count__gt=0)
+            | Q(num_files__gt=0),  # Only products with valid comments
             image_link__isnull=False,
-            valid_comments_count__gt=0,  # Only products with valid comments
         )
         .prefetch_related("product_likes")
         .order_by("?")
