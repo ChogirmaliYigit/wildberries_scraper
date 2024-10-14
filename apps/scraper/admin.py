@@ -74,7 +74,9 @@ class ProductAdmin(ModelAdmin):
         "category",
         "source_id",
         "image_link",
+        "created_at",
     )
+    readonly_fields = ("created_at",)
     search_fields = (
         "id",
         "title",
