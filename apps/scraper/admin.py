@@ -270,26 +270,32 @@ class RequestedCommentAdmin(BaseCommentAdmin):
         return custom_urls + urls
 
     def accept_comment(self, request, pk):
-        return self.update_comment(request, pk, CommentStatuses.ACCEPTED)
-
-    def reject_comment(self, request, pk):
-        reason = request.POST.get("reason", "")
-        return self.update_comment(request, pk, CommentStatuses.NOT_ACCEPTED, reason)
-
-    def update_comment(self, request, pk: int, status, reason: str = ""):
         requested_comment = RequestedComment.objects.get(pk=pk)
-        comment = Comment.objects.get(pk=requested_comment.pk - 1)
-        comment.status = status
-        comment.reason = reason
-        comment.save(update_fields=["status"])
+
+        # Fetch the associated Comment and update its status
+        comment = Comment.objects.filter(id=requested_comment.comment_id).first()
+        if comment:
+            comment.status = CommentStatuses.ACCEPTED
+            comment.save(update_fields=["status"])
+
         requested_comment.delete()
 
-        msg = (
-            _("Comment not accepted")
-            if status == CommentStatuses.NOT_ACCEPTED
-            else _("Comment accepted")
+        self.message_user(request, _("Comment accepted"))
+        return HttpResponseRedirect(
+            reverse("admin:scraper_requestedcomment_changelist")
         )
-        self.message_user(request, msg)
+
+    def reject_comment(self, request, pk):
+        requested_comment = RequestedComment.objects.get(pk=pk)
+        comment = Comment.objects.filter(id=requested_comment.comment_id).first()
+        if comment:
+            comment.status = CommentStatuses.NOT_ACCEPTED
+            comment.reason = request.POST.get("reason", "")
+            comment.save(update_fields=["status"])
+
+        requested_comment.delete()
+
+        self.message_user(request, _("Comment rejected"))
         return HttpResponseRedirect(
             reverse("admin:scraper_requestedcomment_changelist")
         )

@@ -174,6 +174,8 @@ class Comment(BaseModel):
 
 
 class RequestedComment(Comment):
+    comment_id = models.BigIntegerField(null=True, blank=True)
+
     class Meta:
         verbose_name = _("Requested comment")
         verbose_name_plural = _("Requested comments")

@@ -118,7 +118,9 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         return get_comments(comment=True, user=self.request.user)
 
     def get_object(self):
-        obj = Comment.objects.filter(pk=self.kwargs["pk"]).first()
+        obj = Comment.objects.filter(
+            pk=self.kwargs["pk"], user=self.request.user
+        ).first()
         if not obj:
             raise exceptions.ValidationError({"message": "Комментарий не найден"})
         return obj

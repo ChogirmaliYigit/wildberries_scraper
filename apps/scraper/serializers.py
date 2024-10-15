@@ -9,6 +9,7 @@ from scraper.models import (
     FileTypeChoices,
     Product,
     RequestedComment,
+    RequestedCommentFile,
 )
 from scraper.utils.queryset import (
     get_all_replies,
@@ -185,7 +186,9 @@ class CommentsSerializer(serializers.ModelSerializer):
 
             if request.query_params.get("direct", "false") != "true":
                 try:
-                    RequestedComment.objects.create(**validated_data)
+                    RequestedComment.objects.create(
+                        **validated_data, comment_id=comment_instance.id
+                    )
                 except Exception:
                     pass
 
@@ -220,11 +223,49 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        if not instance.reply_to or instance.status == CommentStatuses.NOT_ACCEPTED:
-            instance.status = CommentStatuses.NOT_REVIEWED
-        comment = super().update(instance, validated_data)
-        RequestedComment.objects.update_or_create(**validated_data)
-        return comment
+        # Check if the comment is already accepted
+        if instance.status == CommentStatuses.ACCEPTED:
+            defaults = {
+                "content": validated_data.get("content", instance.content),
+                "status": CommentStatuses.NOT_REVIEWED,
+                "rating": validated_data.get("rating", instance.rating),
+                "product": instance.product,
+                "product_source_id": instance.product_source_id,
+                "user": instance.user,
+                "reply_to": instance.reply_to,
+                "file": instance.file,
+                "file_type": instance.file_type,
+                "reason": instance.reason,
+                "promo": instance.promo,
+            }
+            # If accepted, create or update a RequestedComment instead
+            requested_comment, created = RequestedComment.objects.update_or_create(
+                comment_id=instance.id, defaults=defaults
+            )
+
+            # Copy over files to RequestedCommentFiles
+            # Delete old RequestedCommentFiles before copying new ones
+            RequestedCommentFile.objects.filter(
+                requested_comment=requested_comment
+            ).delete()
+
+            for comment_file in instance.files.all():
+                RequestedCommentFile.objects.create(
+                    requested_comment=requested_comment,
+                    file_link=comment_file.file_link,
+                    file_type=comment_file.file_type,
+                )
+
+            for key, value in defaults.items():
+                setattr(instance, key, value)
+            instance.save()
+            return requested_comment
+
+        # Proceed with normal update if not accepted
+        instance.content = validated_data.get("content", instance.content)
+        instance.rating = validated_data.get("rating", instance.rating)
+        instance.save(update_fields=["content", "rating"])
+        return instance
 
     class Meta:
         model = Comment
