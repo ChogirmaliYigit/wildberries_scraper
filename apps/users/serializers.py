@@ -77,7 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
                 reply_to__isnull=True, user=instance
             ).count()
             data["comments_count"] = get_comments(
-                reply_to__isnull=False, user=instance
+                comment=True, reply_to__isnull=False, user=instance
             ).count()
         elif isinstance(instance, dict):
             photo = instance.get("profile_photo", "")
