@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -93,47 +94,13 @@ class ProductAdmin(ModelAdmin):
     def likes(self, instance):
         return instance.product_likes.count()
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if request.user.is_superuser:
-            actions["delete_unused_products"] = (
-                self.delete_unused_products,
-                "delete_unused_products",
-                "Delete unused products",
-            )
-        return actions
-
-    def delete_unused_products(self, _, request, queryset, *args, **kwargs):  # noqa
-        print(self, request, queryset, args, kwargs)
-        from django.db.models import F, Window
-        from django.db.models.functions import RowNumber
-
-        # Annotate row numbers for each product grouped by image_link
-        products_with_row_number = Product.objects.annotate(
-            row_number=Window(
-                expression=RowNumber(),
-                partition_by=[F("image_link")],
-                order_by=F(
-                    "id"
-                ).asc(),  # Order by 'id' to keep the product with the smallest id
-            )
-        )
-
-        # Select products with row_number greater than 1 (i.e., duplicates)
-        duplicates = products_with_row_number.filter(row_number__gt=1)
-
-        # Count how many duplicates will be deleted
-        count = duplicates.count()
-
-        # Delete duplicate products
-        duplicates.delete()
-
-        # Send message to the user
-        self.message_user(
-            request,
-            f"{count} duplicate products deleted",
-            level=30,
-        )
+    def delete_queryset(self, request, queryset):
+        try:
+            with transaction.atomic():
+                queryset.delete()
+        except Exception as e:
+            transaction.set_rollback(True)
+            raise e
 
 
 class CommentFilesInline(StackedInline):
