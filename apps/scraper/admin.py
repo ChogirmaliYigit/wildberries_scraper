@@ -108,6 +108,9 @@ class ProductAdmin(ModelAdmin):
         except Exception as e:
             pass
 
+    def delete_selected(self, request, queryset):
+        self.delete_queryset(request, queryset)
+
 
 class CommentFilesInline(StackedInline):
     model = CommentFiles
