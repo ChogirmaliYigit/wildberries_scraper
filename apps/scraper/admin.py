@@ -100,7 +100,13 @@ class ProductAdmin(ModelAdmin):
                 queryset.delete()
         except Exception as e:
             transaction.set_rollback(True)
-            raise e
+
+    def delete_model(self, request, obj):
+        try:
+            with transaction.atomic():
+                obj.delete()
+        except Exception as e:
+            pass
 
 
 class CommentFilesInline(StackedInline):
