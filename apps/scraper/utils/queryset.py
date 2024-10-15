@@ -38,7 +38,6 @@ def get_products():
         )
         .prefetch_related("product_likes")
         .order_by("?")
-        .distinct()
     )
 
 

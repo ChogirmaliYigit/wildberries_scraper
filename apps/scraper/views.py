@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from core.views import BaseListAPIView, BaseListCreateAPIView
 from django.db.models import Case, IntegerField, Value, When
 from drf_yasg import utils
@@ -48,30 +50,35 @@ class ProductsListView(BaseListAPIView):
     def filter_queryset(self, queryset):
         # Get the filtered and annotated queryset
         base_queryset = super().filter_queryset(queryset)
-        base_queryset = base_queryset.distinct()
 
         # Separate promoted products
-        promoted_product = base_queryset.filter(promoted=True).order_by("?").first()
+        promoted_product = (
+            base_queryset.filter(promoted=True).distinct().order_by("?").first()
+        )
 
         # Fetch the first two products from the base queryset
         first_two_products = base_queryset.exclude(
             pk=promoted_product.pk if promoted_product else None
         )[:2]
 
-        # Fetch the remaining products excluding the promoted one
+        # Fetch the remaining products excluding the promoted one and first two
         remaining_products = base_queryset.exclude(
-            pk__in=first_two_products.values_list("pk", flat=True)
+            pk__in=list(first_two_products.values_list("pk", flat=True))
+            + ([promoted_product.pk] if promoted_product else [])
         )
 
-        # Combine the final queryset
-        if promoted_product:
-            combined_queryset = (
-                list(first_two_products) + [promoted_product] + list(remaining_products)
-            )
-        else:
-            combined_queryset = list(first_two_products) + list(remaining_products)
+        # Combine the final queryset ensuring no duplicates
+        combined_products = list(first_two_products)
 
-        return combined_queryset
+        if promoted_product:
+            combined_products.append(promoted_product)
+
+        combined_products.extend(remaining_products)
+
+        # Use OrderedDict to remove duplicates and maintain order
+        unique_combined_products = list(OrderedDict.fromkeys(combined_products))
+
+        return unique_combined_products
 
     def get_queryset(self):
         return get_products()
