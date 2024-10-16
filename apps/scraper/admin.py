@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -93,23 +92,6 @@ class ProductAdmin(ModelAdmin):
     @display(description=_("Likes"))
     def likes(self, instance):
         return instance.product_likes.count()
-
-    def delete_queryset(self, request, queryset):
-        try:
-            with transaction.atomic():
-                queryset.delete()
-        except Exception as e:
-            transaction.set_rollback(True)
-
-    def delete_model(self, request, obj):
-        try:
-            with transaction.atomic():
-                obj.delete()
-        except Exception as e:
-            pass
-
-    def delete_selected(self, request, queryset):
-        self.delete_queryset(request, queryset)
 
 
 class CommentFilesInline(StackedInline):

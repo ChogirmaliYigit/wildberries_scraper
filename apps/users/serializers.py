@@ -44,7 +44,6 @@ class SignInSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         user = authenticate(
-            # request=self.context.get("request"),
             email=attrs.get("email").lower(),
             password=attrs.get("password"),
         )
@@ -129,7 +128,7 @@ class ConfirmationSerializer(serializers.Serializer):
         user_otp = UserOTP.objects.filter(
             user=user, code=validated_data.get("code"), type=OTPTypes.REGISTER
         ).last()
-        if not user_otp:
+        if not user_otp or validated_data.get("code") == settings.DEFAULT_OTP_CODE:
             raise exceptions.ValidationError({"message": "Неправильный код"})
         user_otp.delete()
         user.is_active = True
@@ -168,7 +167,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
             code=validated_data.get("code"),
             type=OTPTypes.FORGOT_PASSWORD,
         ).last()
-        if not otp_code:
+        if not otp_code or validated_data.get("code") == settings.DEFAULT_OTP_CODE:
             raise exceptions.ValidationError({"message": "Неправильный код"})
         user.password = make_password(password)
         user.save(update_fields=["password"])
