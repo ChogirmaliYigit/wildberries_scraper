@@ -109,7 +109,8 @@ DATABASES = {
         "PASSWORD": env.str("DB_PASS"),
         "HOST": env.str("DB_HOST"),
         "PORT": env.str("DB_PORT"),
-        "ATOMIC_REQUESTS": True,
+        "ATOMIC_REQUESTS": False,  # Use False to avoid transaction wrapping
+        "AUTOCOMMIT": True,  # Ensure this is set
     },
 }
 
